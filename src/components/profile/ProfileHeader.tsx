@@ -1,0 +1,735 @@
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import {
+    Camera,
+    MessageSquare,
+    UserPlus,
+    Heart,
+    Check,
+    X,
+    MapPin,
+    Briefcase,
+    GraduationCap,
+    Link2,
+    CheckCircle,
+    Edit,
+    Share2,
+    Plus,
+    ExternalLink
+} from "lucide-react";
+import Image from "next/image";
+import { EditProfileModal } from "./EditProfileModal";
+import { EditInstituteModal } from "./EditInstituteModal";
+// import { EditProfilePictureModal } from "./EditProfilePictureModal";
+import ProfileShareModal from "./ProfileShareModal";
+import InstitutionShareModal from "./InstitutionShareModal";
+import { useUserStore, useConnectionsStore, useInstitutionStore } from "@/store";
+import { getUserType } from "@/lib/api/utils";
+import { getProfilePictureUrl, isProfilePictureUrl } from "@/lib/utils";
+import {
+    followUser,
+    unfollowUser,
+    getFollowerCount,
+    getConnectionCount,
+    User,
+    Institution,
+} from "@/lib/api";
+import { getLinks, createLinks } from "@/lib/api/services/userProfile";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+
+interface ProfileHeaderProps {
+    user: User | null;
+    institution: Institution | null;
+    currentUserId: string;
+    onUserUpdate?: (updatedUser: User) => void;
+    onInstituteUpdate?: (updatedInstitution: Institution) => void;
+}
+
+export const ProfileHeader = ({
+    user,
+    institution,
+    currentUserId,
+    onUserUpdate,
+    onInstituteUpdate,
+}: ProfileHeaderProps) => {
+    const { currentUser, fetchCurrentUser } = useUserStore();
+    const { currentInstitution } = useInstitutionStore();
+    const userType = getUserType();
+    const {
+        getConnectionStatus,
+        connectToUser,
+        disconnectFromUser,
+        acceptConnectionRequest,
+        rejectConnectionRequest,
+        ensureConnectionsLoaded,
+        getFollowStatus,
+        followUserAction,
+        unfollowUserAction,
+        ensureFollowedUsersLoaded
+    } = useConnectionsStore();
+    const router = useRouter();
+
+    const isFollowing = user?.id ? getFollowStatus(user.id) === 'following' : false;
+    const [followersCount, setFollowersCount] = useState(user?.followers || 0);
+    const [connectionsCount, setConnectionsCount] = useState(user?.connections || 0);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isEditInstituteModalOpen, setIsEditInstituteModalOpen] = useState(false);
+    const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
+    const [currentUserProfile, setCurrentUserProfile] = useState(user);
+    const [currentInstituteProfile, setCurrentInstituteProfile] = useState(institution);
+    const [isLoading, setIsLoading] = useState({
+        follow: false,
+        connect: false,
+        accept: false,
+        reject: false,
+    });
+
+    // Links management state
+    const [links, setLinks] = useState<string[]>([]);
+    const [newLink, setNewLink] = useState("");
+    const [isSavingLink, setIsSavingLink] = useState(false);
+    const [isLoadingLinks, setIsLoadingLinks] = useState(false);
+
+    const isOwnProfile = currentUser?.id === user?.id;
+    const isOwnInstitute = userType === 'INSTITUTE';
+
+    const connectionStatus = currentUser?.id && user?.id
+        ? getConnectionStatus(currentUser.id, user.id)
+        : 'none';
+
+    const isConnected = connectionStatus === 'connected';
+    const hasPendingRequest = connectionStatus === 'pending_sent';
+    const hasIncomingRequest = connectionStatus === 'pending_received';
+
+    const loadConnectionsData = useCallback(async (userId: string) => {
+        try {
+            await ensureConnectionsLoaded(userId);
+            await ensureFollowedUsersLoaded();
+        } catch (error) {
+            console.error('Error loading connections data:', error);
+        }
+    }, [ensureConnectionsLoaded, ensureFollowedUsersLoaded]);
+
+    const handleConnectionsClick = () => {
+        if (isOwnProfile || isOwnInstitute) {
+            router.push('/my-networks?tab=connections');
+        }
+    };
+
+    const handleFollowersClick = () => {
+        if (isOwnProfile || isOwnInstitute) {
+            router.push('/my-networks?tab=followers');
+        }
+    };
+
+    useEffect(() => {
+        if (user) {
+            setFollowersCount(user.followers || 0);
+            setConnectionsCount(user.connections || 0);
+        }
+    }, [user]);
+
+    // Fetch current user on mount
+    useEffect(() => {
+        if (!currentUser) {
+            fetchCurrentUser();
+        }
+    }, [currentUser, fetchCurrentUser]);
+
+
+    useEffect(() => {
+        if (currentUser?.id) {
+            loadConnectionsData(currentUser.id);
+        }
+    }, [currentUser?.id, loadConnectionsData]);
+
+    // Fetch user links
+    useEffect(() => {
+        const fetchLinks = async () => {
+            if (isOwnProfile && currentUser?.id) {
+                setIsLoadingLinks(true);
+                try {
+                    const data = await getLinks();
+                    if (Array.isArray(data)) {
+                        setLinks(data);
+                    } else if (data && 'links' in data && Array.isArray(data.links)) {
+                        setLinks(data.links);
+                    } else {
+                        setLinks([]);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch links:", error);
+                } finally {
+                    setIsLoadingLinks(false);
+                }
+            }
+        };
+        fetchLinks();
+    }, [isOwnProfile, currentUser?.id]);
+
+    const handleFollow = async () => {
+        if (!currentUser?.id) {
+            setIsLoginPromptOpen(true);
+            return;
+        }
+
+        if (!user?.id || isLoading.follow || isOwnProfile) return;
+
+        setIsLoading((prev) => ({ ...prev, follow: true }));
+        try {
+            const poster_type: "user" | "institute" = institution ? "institute" : "user";
+
+            if (isFollowing) {
+                await unfollowUserAction(user.id, poster_type);
+                setFollowersCount((prev) => prev - 1);
+            } else {
+                await followUserAction(user.id, poster_type);
+                setFollowersCount((prev) => prev + 1);
+            }
+        } catch (error) {
+            console.error("Error toggling follow:", error);
+        } finally {
+            setIsLoading((prev) => ({ ...prev, follow: false }));
+        }
+    };
+
+    const handleConnect = async () => {
+        if (!currentUser?.id) {
+            setIsLoginPromptOpen(true);
+            return;
+        }
+
+        if (!user?.id || isLoading.connect || isOwnProfile) return;
+
+        setIsLoading((prev) => ({ ...prev, connect: true }));
+        try {
+            const poster_type: "user" | "institute" = institution ? "institute" : "user";
+
+            if (isConnected || hasPendingRequest) {
+                await disconnectFromUser(currentUser.id, user.id, poster_type);
+                if (isConnected) {
+                    setConnectionsCount((prev) => prev - 1);
+                }
+            } else {
+                await connectToUser(currentUser.id, user.id, poster_type);
+            }
+        } catch (error) {
+            console.error("Error toggling connection:", error);
+        } finally {
+            setIsLoading((prev) => ({ ...prev, connect: false }));
+        }
+    };
+
+    const handleAcceptConnection = async () => {
+        if (!user?.id || !currentUser?.id || isLoading.accept || isOwnProfile) return;
+
+        setIsLoading((prev) => ({ ...prev, accept: true }));
+        try {
+            await acceptConnectionRequest(currentUser.id, user.id);
+            setConnectionsCount((prev) => prev + 1);
+        } catch (error) {
+            console.error("Error accepting connection:", error);
+        } finally {
+            setIsLoading((prev) => ({ ...prev, accept: false }));
+        }
+    };
+
+    const handleRejectConnection = async () => {
+        if (!user?.id || !currentUser?.id || isLoading.reject || isOwnProfile) return;
+
+        setIsLoading((prev) => ({ ...prev, reject: true }));
+        try {
+            const poster_type: "user" | "institute" = institution ? "institute" : "user";
+            await rejectConnectionRequest(currentUser.id, user.id, poster_type);
+        } catch (error) {
+            console.error("Error rejecting connection:", error);
+        } finally {
+            setIsLoading((prev) => ({ ...prev, reject: false }));
+        }
+    };
+
+    // Links management handlers
+    const validateUrl = (url: string): boolean => {
+        try {
+            // Add protocol if missing
+            const urlToTest = url.startsWith('http://') || url.startsWith('https://') ? url : `https://${url}`;
+            new URL(urlToTest);
+            return true;
+        } catch {
+            return false;
+        }
+    };
+
+    const handleAddLink = async () => {
+        const trimmedLink = newLink.trim();
+
+        if (!trimmedLink) {
+            toast.error("Link cannot be empty");
+            return;
+        }
+
+        if (!validateUrl(trimmedLink)) {
+            toast.error("Please enter a valid URL");
+            return;
+        }
+
+        // Check for duplicates
+        const linkExists = links.some(l => l.toLowerCase() === trimmedLink.toLowerCase());
+        if (linkExists) {
+            toast.error("Link already exists");
+            setNewLink("");
+            return;
+        }
+
+        setIsSavingLink(true);
+        try {
+            const updatedLinks = [...links, trimmedLink];
+            await createLinks({ links: updatedLinks });
+            setLinks(updatedLinks);
+            setNewLink("");
+            toast.success("Link added");
+        } catch (e) {
+            console.error("Failed to add link:", e);
+            toast.error("Failed to add link");
+        } finally {
+            setIsSavingLink(false);
+        }
+    };
+
+    const handleDeleteLink = async (linkToDelete: string) => {
+        if (!confirm(`Remove "${linkToDelete}"?`)) return;
+
+        setIsSavingLink(true);
+        try {
+            const updatedLinks = links.filter(l => l !== linkToDelete);
+            await createLinks({ links: updatedLinks });
+            setLinks(updatedLinks);
+            toast.success("Link removed");
+        } catch (e) {
+            console.error("Failed to remove link:", e);
+            toast.error("Failed to remove link");
+        } finally {
+            setIsSavingLink(false);
+        }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddLink();
+        }
+    };
+
+    const handleMessage = () => {
+        if (!currentUser?.id) {
+            setIsLoginPromptOpen(true);
+            return;
+        }
+
+        if (!user?.id) return;
+
+        // Navigate to messages page and select this user as chat recipient
+        router.push(`/messages?user=${user.id}`);
+    };
+
+    const handleUserUpdate = (updatedUser: User) => {
+        setCurrentUserProfile(updatedUser);
+        setFollowersCount(updatedUser.followers || 0);
+        setConnectionsCount(updatedUser.connections || 0);
+        if (onUserUpdate) {
+            onUserUpdate(updatedUser);
+        }
+    };
+
+    const handleInstituteUpdate = (updatedInstitution: Institution) => {
+        setCurrentInstituteProfile(updatedInstitution);
+        setFollowersCount(updatedInstitution.followers || 0);
+        if (onInstituteUpdate) {
+            onInstituteUpdate(updatedInstitution);
+        }
+    };
+
+    const handleProfilePictureUpdate = (newProfilePictureUrl: string) => {
+        const updatedUser = {
+            ...currentUserProfile,
+            profile_picture: newProfilePictureUrl
+        } as User;
+
+        setCurrentUserProfile(updatedUser);
+
+        if (onUserUpdate) {
+            onUserUpdate(updatedUser);
+        }
+
+        // Trigger a refetch of current user data
+        fetchCurrentUser();
+    };
+
+    const handleInstituteProfilePictureUpdate = (newProfilePictureUrl: string) => {
+        const updatedInstitution = {
+            ...currentInstituteProfile,
+            profile_picture: newProfilePictureUrl
+        } as Institution;
+
+        setCurrentInstituteProfile(updatedInstitution);
+
+        if (onInstituteUpdate) {
+            onInstituteUpdate(updatedInstitution);
+        }
+    };
+
+    const displayUser = currentUserProfile || user;
+    const displayInstitution = currentInstituteProfile || institution;
+
+    // Get the proper profile picture URL
+    const getDisplayProfilePicture = () => {
+        const entityToDisplay = institution ? displayInstitution : displayUser;
+
+        if (!entityToDisplay?.profile_picture) return "/pp.png";
+
+        // If it's already a profile picture URL from our API, use it as is
+        if (isProfilePictureUrl(entityToDisplay.profile_picture)) {
+            return entityToDisplay.profile_picture;
+        }
+
+        // If it's a legacy URL or external URL, use it as is
+        if (entityToDisplay.profile_picture.startsWith('http') || entityToDisplay.profile_picture.startsWith('/')) {
+            return entityToDisplay.profile_picture;
+        }
+
+        // Otherwise, assume it's just a filename and construct the URL
+        return getProfilePictureUrl(entityToDisplay.id, entityToDisplay.profile_picture);
+    };
+
+    const renderLocation = () => {
+        if (institution) {
+            const parts = [displayInstitution?.city, displayInstitution?.country].filter(Boolean);
+            return parts.length > 0 ? parts.join(", ") : null;
+        }
+        return displayUser?.location;
+    };
+
+    return (
+        <div className="bg-white rounded-xl overflow-hidden">
+            <div className="relative h-32 sm:h-36">
+                <Image
+                    src={displayUser?.banner_picture || "/banner.png"}
+                    alt="Cover photo"
+                    className="w-full h-full object-cover"
+                    width={1200}
+                    height={400}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                {/* {isOwnProfile && (
+          <button className="absolute top-4 right-4 bg-black/50 hover:bg-black/60 text-white backdrop-blur-sm px-3 py-2 text-sm rounded-full flex items-center transition-colors">
+            <Camera className="h-4 w-4 mr-2" />
+            Edit cover
+          </button>
+        )} */}
+
+                <div className="absolute -bottom-16 left-6">
+                    <div className="relative">
+                        <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
+                            <AvatarImage
+                                src={getDisplayProfilePicture()}
+                                alt={(institution ? displayInstitution?.name : displayUser?.name) || "User"}
+                            />
+                            <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-bold">
+                                {(institution ? displayInstitution?.name?.[0] : displayUser?.name?.[0]) || "U"}
+                            </AvatarFallback>
+                        </Avatar>
+                        {(isOwnProfile || isOwnInstitute) && (
+                            <button
+                                onClick={() => setIsProfilePictureModalOpen(true)}
+                                className="absolute bottom-2 right-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-2 shadow-sm transition-colors cursor-pointer z-10"
+                            >
+                                <Camera className="h-4 w-4 text-gray-600" />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            <div className="pt-16 pb-4 px-6 relative">
+                <div className="absolute top-4 right-6 flex gap-2">
+                    {(isOwnProfile || isOwnInstitute) ? (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => setIsShareModalOpen(true)}
+                            >
+                                <Share2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => {
+                                    if (institution && isOwnInstitute) {
+                                        setIsEditInstituteModalOpen(true);
+                                    } else {
+                                        setIsEditModalOpen(true);
+                                    }
+                                }}
+                            >
+                                <Edit className="h-4 w-4 mr-2" />
+                                {institution && isOwnInstitute ? "Edit Institution" : "Edit Profile"}
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={() => setIsShareModalOpen(true)}
+                            >
+                                <Share2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="rounded-full"
+                                onClick={handleMessage}
+                            >
+                                <MessageSquare className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+                </div>
+                <div className="mb-2">
+                    <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2 font-sans mt-4">
+                        {(institution ? displayInstitution?.name : displayUser?.firstName) || "Loading..."}
+                        {(institution ? displayInstitution?.verified : displayUser?.verified) && (
+                            <CheckCircle className="h-5 w-5 text-blue-500" />
+                        )}
+                    </h1>
+                    {/* <p className="text-gray-500 text-sm">@{displayUser?.email?.split('@')[0] || 'username'}</p> */}
+                </div>
+                {(institution ? (displayInstitution?.headline) : (displayUser?.headline)) && (
+                    <div className="mb-3">
+                        <p className="text-gray-900 leading-relaxed">
+                            {institution ? displayInstitution?.headline : displayUser?.headline}
+                        </p>
+                    </div>
+                )}
+                {(institution ? (displayInstitution?.about) : (displayUser?.about)) && (
+                    <div className="mb-3">
+                        <p className="text-gray-900 leading-relaxed">
+                            {institution ? displayInstitution?.about : displayUser?.about}
+                        </p>
+                    </div>
+                )}
+
+                <div className="space-y-2 text-gray-500 text-sm mb-3">
+                    {renderLocation() && (
+                        <div className="flex items-center gap-1">
+                            <MapPin className="h-4 w-4" />
+                            <span>{renderLocation()}</span>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-1">
+                        <Briefcase className="h-4 w-4" />
+                        <span>
+                            {institution
+                                ? (displayInstitution?.type || "Institution")
+                                : (displayUser?.role || "Healthcare Professional")
+                            }
+                        </span>
+                        {!institution && displayUser?.specialization && (
+                            <>
+                                <span className="mx-1">•</span>
+                                <GraduationCap className="h-4 w-4" />
+                                <span>{displayUser.specialization}</span>
+                            </>
+                        )}
+
+                        {/* Displaying affiliated university for institute/hospital if available as 'expertise' analog or simple extra info? */}
+                        {institution && displayInstitution?.affiliatedUniversity && (
+                            <>
+                                <span className="mx-1">•</span>
+                                {/* <University className="h-4 w-4" /> */}
+                                <span>{displayInstitution.affiliatedUniversity}</span>
+                            </>
+                        )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                        <Link2 className="h-4 w-4" />
+                        <a href="#" className="text-blue-500 hover:underline">
+                            pharminc.com/profile
+                        </a>
+                    </div>
+
+                    {/* Links Management Section - Only for own profile */}
+                    {isOwnProfile && (
+                        <div className="mt-4 space-y-3">
+                            {/* Display Links */}
+                            {isLoadingLinks ? (
+                                <p className="text-xs text-gray-500">Loading links...</p>
+                            ) : links.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                    {links.map((link, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm group transition-colors"
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5 text-gray-600" />
+                                            <a
+                                                href={link.startsWith('http') ? link : `https://${link}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 hover:underline max-w-[200px] truncate"
+                                                title={link}
+                                            >
+                                                {link}
+                                            </a>
+                                            <button
+                                                onClick={() => handleDeleteLink(link)}
+                                                className="text-gray-400 hover:text-red-600 focus:outline-none transition-colors"
+                                                disabled={isSavingLink}
+                                                aria-label={`Remove ${link}`}
+                                            >
+                                                <X className="h-3.5 w-3.5" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                            <div className="flex gap-2">
+                                <Input
+                                    type="text"
+                                    placeholder="Add a link (e.g., portfolio, LinkedIn, website)"
+                                    value={newLink}
+                                    onChange={(e) => setNewLink(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    disabled={isSavingLink}
+                                    className="flex-1 text-sm"
+                                />
+                                <Button
+                                    onClick={handleAddLink}
+                                    disabled={!newLink.trim() || isSavingLink}
+                                    size="sm"
+                                    className="gap-1"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add
+                                </Button>
+                            </div>
+
+
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Profile Picture Modal for Users */}
+            {/* {isOwnProfile && displayUser && (
+                <EditProfilePictureModal
+                    isOpen={isProfilePictureModalOpen}
+                    onClose={() => setIsProfilePictureModalOpen(false)}
+                    currentProfilePicture={getDisplayProfilePicture()}
+                    userName={displayUser.name}
+                    userId={displayUser.id}
+                    isInstitute={false}
+                    onUpdate={handleProfilePictureUpdate}
+                />
+            )} */}
+
+            {/* Profile Picture Modal for Institutions */}
+            {/* {isOwnInstitute && displayInstitution && (
+                <EditProfilePictureModal
+                    isOpen={isProfilePictureModalOpen}
+                    onClose={() => setIsProfilePictureModalOpen(false)}
+                    currentProfilePicture={getDisplayProfilePicture()}
+                    userName={displayInstitution.name}
+                    userId={displayInstitution.id}
+                    isInstitute={true}
+                    onUpdate={handleInstituteProfilePictureUpdate}
+                />
+            )} */}
+
+            {/* Edit Profile Modal */}
+            {isOwnProfile && displayUser && (
+                <EditProfileModal
+                    isOpen={isEditModalOpen}
+                    onClose={() => setIsEditModalOpen(false)}
+                    user={displayUser as any} // Type cast to handle different User types
+                    onUpdate={handleUserUpdate}
+                />
+            )}
+
+            {/* Edit Institute Modal */}
+            {isOwnInstitute && currentInstituteProfile && (
+                <EditInstituteModal
+                    isOpen={isEditInstituteModalOpen}
+                    onClose={() => setIsEditInstituteModalOpen(false)}
+                    institution={currentInstituteProfile}
+                    onUpdate={handleInstituteUpdate}
+                />
+            )}
+
+            {/* Login Prompt Dialog */}
+            <Dialog open={isLoginPromptOpen} onOpenChange={setIsLoginPromptOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Login Required</DialogTitle>
+                        <DialogDescription>
+                            You need to log in to connect with other professionals and follow their updates.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex gap-2 sm:gap-0">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsLoginPromptOpen(false)}
+                            className="flex-1 sm:flex-none"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={() => {
+                                setIsLoginPromptOpen(false);
+                                router.push('/auth');
+                            }}
+                            className="flex-1 sm:flex-none"
+                        >
+                            Login
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Share Modal - conditionally render for user or institution */}
+            {institution ? (
+                <InstitutionShareModal
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                    institution={institution}
+                />
+            ) : displayUser && (
+                <ProfileShareModal
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                    user={displayUser}
+                />
+            )}
+        </div>
+    );
+};
