@@ -10,16 +10,16 @@ import { FollowingItem } from './_components/FollowingItem'
 import { LoginPrompt } from './_components/LoginPrompt'
 import { useConnectionsStore } from '@/store'
 import { getAuthToken } from '@/lib/api/utils'
-import { useCurrentEntity, getEntityFetchers } from '@/lib/utils/entityUtils'
-import { 
-  getUserFollowers, 
+import { useCurrentEntity } from '@/lib/utils/entityUtils'
+import {
+  getUserFollowers,
   getUserFollowing,
   getUserFollowed,
-  getUserById, 
+  getUserById,
   unfollowUser,
-  Connect, 
+  Connect,
   Follow,
-  User 
+  User
 } from '@/lib/api'
 
 interface ConnectionWithUser extends Connect {
@@ -33,10 +33,10 @@ interface FollowWithUser extends Follow {
 const MyNetworksContent = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  
+
   const activeTab = searchParams?.get("tab") ?? "connections"
-  
-  const [loadingStates, setLoadingStates] = useState<{[key: string]: boolean}>({})
+
+  const [loadingStates, setLoadingStates] = useState<{ [key: string]: boolean }>({})
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [connectionsWithUsers, setConnectionsWithUsers] = useState<ConnectionWithUser[]>([])
   const [followers, setFollowers] = useState<FollowWithUser[]>([])
@@ -45,12 +45,11 @@ const MyNetworksContent = () => {
     followers: false,
     following: false
   })
-  
-  const { currentEntity, isLoading, userType } = useCurrentEntity()
-  const { fetchEntity } = getEntityFetchers()
-  const { 
-    connections, 
-    fetchConnections: fetchConnectionsFromStore, 
+
+  const { currentEntity, isLoading, userType, fetchEntity } = useCurrentEntity()
+  const {
+    connections,
+    fetchConnections: fetchConnectionsFromStore,
     disconnectFromUser,
     loading: connectionsLoading,
     fetchFollowedUsers,
@@ -69,7 +68,7 @@ const MyNetworksContent = () => {
     const checkAuth = async () => {
       const token = getAuthToken()
       console.log('Auth token:', token ? 'exists' : 'not found')
-      
+
       if (token) {
         setIsAuthenticated(true)
         if (!currentEntity && !isLoading) {
@@ -82,7 +81,7 @@ const MyNetworksContent = () => {
         setIsAuthenticated(false)
       }
     }
-    
+
     checkAuth()
   }, [currentEntity, fetchEntity, isLoading])
 
@@ -96,15 +95,15 @@ const MyNetworksContent = () => {
 
   const fetchConnectionsData = async () => {
     if (!currentEntity?.id) return
-    
+
     setLoading(prev => ({ ...prev, connections: true }))
     try {
       // Fetch connections from store
       await fetchConnectionsFromStore(currentEntity.id)
-      
+
       // Get accepted connections with user data
       const acceptedConnections = connections.filter(conn => conn.accepted)
-      
+
       const connectionsWithUsersData = await Promise.all(
         acceptedConnections.map(async (conn) => {
           try {
@@ -118,7 +117,7 @@ const MyNetworksContent = () => {
           }
         })
       )
-      
+
       const validConnections = connectionsWithUsersData.filter(Boolean) as ConnectionWithUser[]
       setConnectionsWithUsers(validConnections)
     } catch (error) {
@@ -132,7 +131,7 @@ const MyNetworksContent = () => {
     if (currentEntity?.id && connections.length > 0) {
       const updateConnectionsWithUsers = async () => {
         const acceptedConnections = connections.filter(conn => conn.accepted)
-        
+
         const connectionsWithUsersData = await Promise.all(
           acceptedConnections.map(async (conn) => {
             try {
@@ -145,22 +144,22 @@ const MyNetworksContent = () => {
             }
           })
         )
-        
+
         const validConnections = connectionsWithUsersData.filter(Boolean) as ConnectionWithUser[]
         setConnectionsWithUsers(validConnections)
       }
-      
+
       updateConnectionsWithUsers()
     }
   }, [connections, currentEntity?.id])
 
   const fetchFollowers = async () => {
     if (!currentEntity?.id) return
-    
+
     setLoading(prev => ({ ...prev, followers: true }))
     try {
       const followers = await getUserFollowers(currentEntity.id)
-      
+
       const followersWithUsers = await Promise.all(
         followers.map(async (follow) => {
           try {
@@ -172,7 +171,7 @@ const MyNetworksContent = () => {
           }
         })
       )
-      
+
       const validFollowers = followersWithUsers.filter(Boolean) as FollowWithUser[]
       setFollowers(validFollowers)
     } catch (error) {
@@ -184,7 +183,7 @@ const MyNetworksContent = () => {
 
   const fetchFollowing = async () => {
     if (!currentEntity?.id) return
-    
+
     setLoading(prev => ({ ...prev, following: true }))
     try {
       await fetchFollowedUsers()
@@ -199,9 +198,9 @@ const MyNetworksContent = () => {
 
   const handleDisconnect = async (userId: string) => {
     if (!currentEntity?.id) return
-    
+
     setLoadingStates(prev => ({ ...prev, [userId]: true }))
-    
+
     try {
       // In the my-networks context, we're dealing with user connections
       await disconnectFromUser(currentEntity.id, userId, "user")
@@ -215,7 +214,7 @@ const MyNetworksContent = () => {
 
   const handleUnfollow = async (userId: string) => {
     setLoadingStates(prev => ({ ...prev, [userId]: true }))
-    
+
     try {
       await unfollowUserAction(userId, "user")
     } catch (error) {
@@ -270,8 +269,8 @@ const MyNetworksContent = () => {
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         <div className="p-4 border-b border-gray-100">
           <TabsList className="grid w-full grid-cols-3 bg-gray-50 border border-gray-200 rounded-full p-1">
-            <TabsTrigger 
-              value="connections" 
+            <TabsTrigger
+              value="connections"
               className="flex items-center space-x-2 rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white"
             >
               <UserCheck className="w-4 h-4" />
@@ -282,8 +281,8 @@ const MyNetworksContent = () => {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger 
-              value="followers" 
+            <TabsTrigger
+              value="followers"
               className="flex items-center space-x-2 rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white"
             >
               <Users className="w-4 h-4" />
@@ -294,8 +293,8 @@ const MyNetworksContent = () => {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger 
-              value="following" 
+            <TabsTrigger
+              value="following"
               className="flex items-center space-x-2 rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white"
             >
               <Heart className="w-4 h-4" />
@@ -322,7 +321,7 @@ const MyNetworksContent = () => {
               ) : connectionsWithUsers.length > 0 ? (
                 <div className="space-y-4 p-4">
                   {connectionsWithUsers.map((connection) => (
-                    <ConnectionItem 
+                    <ConnectionItem
                       key={connection.id}
                       user={connection.user}
                       onDisconnect={handleDisconnect}
@@ -353,7 +352,7 @@ const MyNetworksContent = () => {
               ) : followers.length > 0 ? (
                 <div className="space-y-4 p-4">
                   {followers.map((follower) => (
-                    <FollowerItem 
+                    <FollowerItem
                       key={follower.id}
                       user={follower.user}
                       onMessage={handleMessage}
@@ -383,7 +382,7 @@ const MyNetworksContent = () => {
               ) : followedUsers.length > 0 ? (
                 <div className="space-y-4 p-4">
                   {followedUsers.map((user) => (
-                    <FollowingItem 
+                    <FollowingItem
                       key={user.id}
                       user={user}
                       onUnfollow={handleUnfollow}

@@ -2,10 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  eslint : {
+  // @ts-expect-error - eslint config type might be missing in newer next types
+  eslint: {
     ignoreDuringBuilds: true, // Because old code is garbage and we don't want to fix it right now trust me when i say garbage ai code
   },
-  images : {
+  images: {
     remotePatterns: [
       {
         protocol: "https",

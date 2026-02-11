@@ -16,9 +16,9 @@ import { Education, EducationParams } from "@/lib/api/types";
 interface ProfileEducationTabProps {
   userId: string;
   currentUserId?: string;
-  onAdd: () => void;
-  onEdit: (data: any) => void;
-  refreshTrigger: number;
+  onAdd?: () => void;
+  onEdit?: (data: any) => void;
+  refreshTrigger?: number;
 }
 
 const formatDate = (dateString: string | null, isCurrent?: boolean) => {
@@ -65,14 +65,16 @@ export const ProfileEducationTab = ({ userId, currentUserId, onAdd, onEdit, refr
     const startDate = (edu as any).startDate || edu.start_date;
     const endDate = (edu as any).endDate || edu.end_date;
 
-    onEdit({
-      ...edu,
-      startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
-      endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
-      instituteName: edu.instituteName || edu.institution_id,
-      degree: edu.degree || edu.title,
-      isCurrentJob: edu.isCurrentJob || !endDate
-    });
+    if (onEdit) {
+      onEdit({
+        ...edu,
+        startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
+        endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
+        instituteName: edu.instituteName || edu.institution_id,
+        degree: edu.degree || edu.title,
+        isCurrentJob: edu.isCurrentJob || !endDate
+      });
+    }
   };
 
   const handleDelete = async (id: string) => {

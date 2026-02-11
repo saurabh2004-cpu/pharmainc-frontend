@@ -17,9 +17,9 @@ import { Experience, ExperienceParams } from "@/lib/api/types";
 interface ProfileExperienceTabProps {
   userId: string;
   currentUserId?: string;
-  onAdd: () => void;
-  onEdit: (data: any) => void;
-  refreshTrigger: number;
+  onAdd?: () => void;
+  onEdit?: (data: any) => void;
+  refreshTrigger?: number;
 }
 
 // Date formatting utility
@@ -104,13 +104,15 @@ export const ProfileExperienceTab = ({ userId, currentUserId, onAdd, onEdit, ref
     const startDate = (exp as any).startDate || exp.start_date;
     const endDate = (exp as any).endDate || exp.end_date;
 
-    onEdit({
-      ...exp,
-      startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
-      endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
-      organizationName: exp.organizationName || exp.institutionName,
-      isCurrentJob: !endDate
-    });
+    if (onEdit) {
+      onEdit({
+        ...exp,
+        startDate: startDate ? new Date(startDate).toISOString().split('T')[0] : '',
+        endDate: endDate ? new Date(endDate).toISOString().split('T')[0] : '',
+        organizationName: exp.organizationName || exp.institutionName,
+        isCurrentJob: !endDate
+      });
+    }
   };
 
   const handleDelete = async (id: string) => {

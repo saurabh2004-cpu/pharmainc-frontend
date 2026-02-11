@@ -43,9 +43,11 @@ export interface AuthParams {
   role: RoleEnum;
   speciality?: string;
   subSpeciality?: string;
+  type?: string;
+  name?: string;
 }
 
-export type AuthSignInParams = Pick<AuthParams, "email" | "password">;
+export type AuthSignInParams = Pick<AuthParams, "email" | "password" | "type" | "name">;
 
 
 
@@ -59,6 +61,7 @@ export interface User {
   id: string;
   name: string;
   firstName: string;
+  lastName: string;
   // location?: string; // key might still exist in old records, keeping optional or removing? User said "replaced".
   // But to be safe for frontend displaying old data, maybe keep it?
   // User said "Now it has been removed".
@@ -72,6 +75,7 @@ export interface User {
   created_at: string;
   updated_at: string;
   email: string;
+  bio?: string;
   verified?: boolean;
   profile_picture?: string;
   specialization?: string;

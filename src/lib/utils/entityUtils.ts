@@ -81,13 +81,14 @@ export function getProfileRoute(entityType: EntityType | null, entityId?: string
  * This provides a unified interface to get the current entity
  */
 export function useCurrentEntity() {
-  const { entity, entityType, isLoading } = useEntityStore();
+  const { entity, entityType, isLoading, fetchEntity } = useEntityStore();
 
   return {
     currentEntity: entity,
     userType: entity?.role || null, // Return the actual role (DOCTOR, HOSPITAL, etc.)
     entityType, // Also provide entityType for components that need it  
     isLoading,
+    fetchEntity
   };
 }
 
@@ -111,5 +112,12 @@ export function getEntityFetchers(entityType: EntityType | null) {
       throw new Error('No entity type set');
     },
   };
+}
+
+/**
+ * Get the current entity from the store directly (for non-React usage)
+ */
+export function getCurrentEntity(): Entity | null {
+  return useEntityStore.getState().entity;
 }
 

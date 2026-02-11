@@ -4,24 +4,23 @@ import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import MessagesList from './_components/MessagesList'
 import EmptyChatState from './_components/EmptyChatState'
-import ChatInterface  from './_components/ChatInterface'
+import ChatInterface from './_components/ChatInterface'
 import { LoginPrompt } from './_components/LoginPrompt'
 import { useChatStore } from '@/store'
 import { useUserStore } from '@/store'
 import { getAuthToken } from '@/lib/api/utils'
-import { useCurrentEntity, getEntityFetchers } from '@/lib/utils/entityUtils'
+import { useCurrentEntity } from '@/lib/utils/entityUtils'
 
 function MessagesContent() {
   const searchParams = useSearchParams()
   const userIdFromUrl = searchParams.get('user')
   const messageFromUrl = searchParams.get('message')
-  
+
   const { selectedChat, setSelectedChat, connect, disconnect, fetchConversations } = useChatStore()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const [decodedMessage, setDecodedMessage] = useState<string>("")
   const { fetchUserById } = useUserStore()
-  const { currentEntity, isLoading, userType } = useCurrentEntity()
-  const { fetchEntity } = getEntityFetchers()
+  const { currentEntity, isLoading, userType, fetchEntity } = useCurrentEntity()
 
   useEffect(() => {
     if (messageFromUrl) {
@@ -40,10 +39,10 @@ function MessagesContent() {
   useEffect(() => {
     const checkAuth = async () => {
       const token = getAuthToken()
-      
+
       if (token) {
         setIsAuthenticated(true)
-        
+
         if (!currentEntity && !isLoading) {
           await fetchEntity()
         }
@@ -51,7 +50,7 @@ function MessagesContent() {
         setIsAuthenticated(false)
       }
     }
-    
+
     checkAuth()
   }, [currentEntity, fetchEntity, isLoading])
 
@@ -60,7 +59,7 @@ function MessagesContent() {
     if (currentEntity?.id) {
       connect(currentEntity.id)
       fetchConversations(currentEntity.id)
-      
+
       // Cleanup on unmount
       return () => {
         disconnect()
@@ -113,17 +112,17 @@ function MessagesContent() {
       <div className="flex-1 h-full border-l border-gray-200">
         {
           selectedChat ? (
-                <ChatInterface
-                  recipientName={selectedChat.name}
-                  recipientAvatar={selectedChat.avatar}
-                  recipientUsername={selectedChat.username}
-                  recipientVerified={selectedChat.verified}
-                  recipientOnline={selectedChat.online}
-                  initialMessage={decodedMessage}
-                />
-              ) : (
-                <EmptyChatState />
-              )
+            <ChatInterface
+              recipientName={selectedChat.name}
+              recipientAvatar={selectedChat.avatar}
+              recipientUsername={selectedChat.username}
+              recipientVerified={selectedChat.verified}
+              recipientOnline={selectedChat.online}
+              initialMessage={decodedMessage}
+            />
+          ) : (
+            <EmptyChatState />
+          )
         }
       </div>
     </div>

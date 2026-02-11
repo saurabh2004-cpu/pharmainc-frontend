@@ -34,11 +34,18 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+
 import { Application, Job } from '@/lib/api/types';
 import {
     Search, Filter, Download, Eye, FileText, ChevronUp, ChevronDown,
     ArrowLeft, Trash2, Mail, Phone, Clock, Briefcase,
-    CheckCircle, XCircle, Calendar, UserCheck, X
+    CheckCircle, XCircle, Calendar, UserCheck, X, MoreVertical
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -52,6 +59,44 @@ interface ApplicationWithUserAndJob extends Application {
     userProfilePicture?: string;
 }
 
+const TAB_CONFIG = [
+    {
+        id: 'ALL',
+        label: 'All candidates',
+        filter: (status: string) => true
+    },
+    {
+        id: 'APPLIED',
+        label: 'Applied',
+        filter: (status: string) => status === 'APPLIED'
+    },
+    {
+        id: 'SHORTLISTED',
+        label: 'Shortlisted',
+        filter: (status: string) => ['SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'NEXT_ROUND_ACCEPTED'].includes(status)
+    },
+    {
+        id: 'INTERVIEW_SCHEDULED',
+        label: 'Interview Scheduled',
+        filter: (status: string) => status === 'INTERVIEW_SCHEDULED'
+    },
+    {
+        id: 'INTERVIEW_ACCEPTED',
+        label: 'Interview Accepted',
+        filter: (status: string) => status === 'INTERVIEW_ACCEPTED'
+    },
+    {
+        id: 'HIRED',
+        label: 'Hired',
+        filter: (status: string) => status === 'HIRED'
+    },
+    {
+        id: 'REJECTED',
+        label: 'Rejected',
+        filter: (status: string) => ['REJECTED', 'NEXT_ROUND_REJECTED', 'INTERVIEW_REJECTED'].includes(status)
+    },
+];
+
 const JobApplicationsPage = () => {
     const router = useRouter();
     const params = useParams();
@@ -59,7 +104,7 @@ const JobApplicationsPage = () => {
     const { currentInstitution } = useInstitutionStore();
     const [applications, setApplications] = useState<ApplicationWithUserAndJob[]>([]);
     const [loading, setLoading] = useState(true);
-    const [selectedTab, setSelectedTab] = useState<'all' | 'shortlisted' | 'scheduled' | 'interviewed'>('all');
+    const [selectedTab, setSelectedTab] = useState<string>('ALL');
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedJob, setSelectedJob] = useState<Job | null>(null);
     const [selectedApplications, setSelectedApplications] = useState<string[]>([]);
@@ -287,8 +332,8 @@ const JobApplicationsPage = () => {
     };
 
     // Filtering
-    const filterApplications = (apps: ApplicationWithUserAndJob[]) => {
-        let filtered = apps;
+    const getFilteredApplications = () => {
+        let filtered = applications;
         if (searchTerm) {
             const lowerTerm = searchTerm.toLowerCase();
             filtered = filtered.filter(app =>
@@ -297,10 +342,17 @@ const JobApplicationsPage = () => {
                 app.currentPosition?.toLowerCase().includes(lowerTerm)
             );
         }
+
+        // Filter by Tab Status
+        const activeTab = TAB_CONFIG.find(t => t.id === selectedTab);
+        if (activeTab) {
+            filtered = filtered.filter(app => activeTab.filter(app.status || 'APPLIED'));
+        }
+
         return filtered;
     };
 
-    const filteredAndSortedApplications = sortApplications(filterApplications(applications));
+    const filteredAndSortedApplications = sortApplications(getFilteredApplications());
 
     const totalPages = Math.ceil(filteredAndSortedApplications.length / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -427,6 +479,38 @@ const JobApplicationsPage = () => {
                 </div>
             </div>
 
+            {/* Custom Tabs */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {TAB_CONFIG.map((tab) => {
+                    const count = applications.filter(app => tab.filter(app.status || 'APPLIED')).length;
+                    const isActive = selectedTab === tab.id;
+
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={() => {
+                                setSelectedTab(tab.id);
+                                setCurrentPage(1);
+                            }}
+                            className={`
+                                flex flex-col items-center justify-center p-4 rounded-lg border transition-all duration-200
+                                ${isActive
+                                    ? 'border-green-600 bg-green-50 text-green-700 shadow-sm ring-1 ring-green-600'
+                                    : 'border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50/50'
+                                }
+                            `}
+                        >
+                            <span className={`text-2xl font-bold mb-1 ${isActive ? 'text-green-700' : 'text-gray-700'}`}>
+                                {count}
+                            </span>
+                            <span className="text-sm font-medium">
+                                {tab.label}
+                            </span>
+                        </button>
+                    );
+                })}
+            </div>
+
             {/* Search & Filter */}
             <div className="flex items-center justify-between bg-white p-4 rounded-lg border">
                 <div className="relative w-72">
@@ -451,7 +535,7 @@ const JobApplicationsPage = () => {
                                     <th className="px-6 py-3">Contact</th>
                                     <th className="px-6 py-3">Experience</th>
                                     <th className="px-6 py-3">Current Position</th>
-                                    <th className="px-6 py-3">Applied Date</th>
+                                    {/* <th className="px-6 py-3">Applied Date</th> */}
                                     <th className="px-6 py-3">Status</th>
                                     <th className="px-6 py-3 text-right">Actions</th>
                                 </tr>
@@ -460,7 +544,7 @@ const JobApplicationsPage = () => {
                                 {paginatedApplications.length === 0 ? (
                                     <tr>
                                         <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
-                                            No applicants found.
+                                            No applicants found for <strong>{TAB_CONFIG.find(t => t.id === selectedTab)?.label}</strong>.
                                         </td>
                                     </tr>
                                 ) : (
@@ -480,9 +564,6 @@ const JobApplicationsPage = () => {
                                                     <div className="flex items-center gap-1">
                                                         <Mail className="h-3 w-3" /> {app.email}
                                                     </div>
-                                                    {/* <div className="flex items-center gap-1">
-                                                        <Phone className="h-3 w-3" /> {app.phone}
-                                                    </div> */}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -494,15 +575,15 @@ const JobApplicationsPage = () => {
                                                     {app.currentPosition || 'Not Specified'}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4 text-gray-500">
+                                            {/* <td className="px-6 py-4 text-gray-500">
                                                 {app.appliedDate ? new Date(app.appliedDate).toLocaleDateString() : '-'}
-                                            </td>
+                                            </td> */}
                                             <td className="px-6 py-4">
                                                 <Badge variant={getStatusBadgeVariant(app.status || 'applied')}>
                                                     {app.status || 'APPLIED'}
                                                 </Badge>
                                             </td>
-                                            <td className="px-6 py-4 relative">
+                                            <td className=" py-4 relative">
                                                 <div className="flex items-center justify-end min-h-[2rem]">
                                                     {/* Dynamic Actions */}
                                                     <div className="mr-24 flex items-center gap-2">
@@ -511,30 +592,29 @@ const JobApplicationsPage = () => {
 
                                                     {/* Fixed Icons - Absolutely positioned */}
                                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white pl-2">
-                                                        {/* View Resume Button - Keeps slot even if empty for consistent alignment if preferred, or just conditional */}
-                                                        <div className="w-8 h-8 flex items-center justify-center">
-                                                            {app.userId && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="h-8 w-8"
-                                                                    onClick={() => handleDownloadResume(app.userId, app.userName || 'Applicant')}
-                                                                    disabled={isProcessing(`download-${app.userId}`)}
-                                                                    title="Download Resume"
-                                                                >
-                                                                    {isProcessing(`download-${app.userId}`) ? (
-                                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                                                    ) : (
-                                                                        <Download className="h-4 w-4 text-blue-600" />
-                                                                    )}
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                    <span className="sr-only">Open menu</span>
+                                                                    <MoreVertical className="h-4 w-4" />
                                                                 </Button>
-                                                            )}
-                                                        </div>
-
-                                                        {/* View Details Button */}
-                                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleViewApplication(app)} title="View Details">
-                                                            <Eye className="h-4 w-4 text-gray-600" />
-                                                        </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end">
+                                                                <DropdownMenuItem onClick={() => handleViewApplication(app)}>
+                                                                    <Eye className="mr-2 h-4 w-4" />
+                                                                    View Details
+                                                                </DropdownMenuItem>
+                                                                {app.userId && (
+                                                                    <DropdownMenuItem
+                                                                        onClick={() => handleDownloadResume(app.userId, app.userName || 'Applicant')}
+                                                                        disabled={isProcessing(`download-${app.userId}`)}
+                                                                    >
+                                                                        <Download className="mr-2 h-4 w-4" />
+                                                                        Download Resume
+                                                                    </DropdownMenuItem>
+                                                                )}
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
                                                     </div>
                                                 </div>
                                             </td>

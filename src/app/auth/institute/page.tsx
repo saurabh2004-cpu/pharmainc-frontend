@@ -33,6 +33,8 @@ function InstitutionAuthContent() {
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   // Fetch countries on mount
@@ -117,13 +119,22 @@ function InstitutionAuthContent() {
   };
 
   const handleSignUp = async () => {
-    if (loading) return;
+    const newErrors: Record<string, string> = {};
+    if (!name) newErrors.name = "Required field";
+    if (!email) newErrors.email = "Required field";
+    if (!password) newErrors.password = "Required field";
+    if (!country) newErrors.country = "Required field";
+    if (!city) newErrors.city = "Required field";
+    if (!contactNumber) newErrors.contactNumber = "Required field";
+    if (!institutionType) newErrors.type = "Required field";
+    if (services.length === 0) newErrors.services = "Select at least one service";
 
-    // Validation
-    if (!name || !email || !password || !country || !city || !contactNumber || !institutionType || services.length === 0) {
-      alert("Please fill in all required fields.");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
+    if (loading) return;
 
     setLoading(true);
 
@@ -186,23 +197,48 @@ function InstitutionAuthContent() {
       services={services}
       bedsCount={bedsCount}
       staffCount={staffCount}
-      onNameChange={setName}
-      onCountryChange={handleCountryChange}
-      onCityChange={setCity}
-      onEmailChange={setEmail}
-      onPasswordChange={setPassword}
+      onNameChange={(val) => {
+        setName(val);
+        if (errors.name) setErrors({ ...errors, name: "" });
+      }}
+      onCountryChange={(val) => {
+        handleCountryChange(val);
+        if (errors.country) setErrors({ ...errors, country: "" });
+      }}
+      onCityChange={(val) => {
+        setCity(val);
+        if (errors.city) setErrors({ ...errors, city: "" });
+      }}
+      onEmailChange={(val) => {
+        setEmail(val);
+        if (errors.email) setErrors({ ...errors, email: "" });
+      }}
+      onPasswordChange={(val) => {
+        setPassword(val);
+        if (errors.password) setErrors({ ...errors, password: "" });
+      }}
       countryOptions={countries}
       cityOptions={cities}
       loadingCountries={isLoadingCountries}
       loadingCities={isLoadingCities}
       // onLocationChange={setLocation} // removed
-      onContactNumberChange={setContactNumber}
-      onTypeChange={setInstitutionType}
-      onServicesChange={setServices}
+      onContactNumberChange={(val) => {
+        setContactNumber(val);
+        if (errors.contactNumber) setErrors({ ...errors, contactNumber: "" });
+      }}
+      onTypeChange={(val) => {
+        setInstitutionType(val);
+        if (errors.type) setErrors({ ...errors, type: "" });
+      }}
+      onServicesChange={(val) => {
+        setServices(val);
+        if (errors.services) setErrors({ ...errors, services: "" });
+      }}
       onBedsCountChange={setBedsCount}
       onStaffCountChange={setStaffCount}
       onSubmit={handleSignUp}
       loading={loading}
+      errors={errors}
     />
   );
 
@@ -219,10 +255,17 @@ function InstitutionAuthContent() {
           <SignInForm
             email={email}
             password={password}
-            onEmailChange={setEmail}
-            onPasswordChange={setPassword}
+            onEmailChange={(val) => {
+              setEmail(val);
+              if (errors.email) setErrors({ ...errors, email: "" });
+            }}
+            onPasswordChange={(val) => {
+              setPassword(val);
+              if (errors.password) setErrors({ ...errors, password: "" });
+            }}
             onSubmit={handleSignIn}
             loading={loading}
+            errors={errors}
           />
         }
         signUpContent={signUpContent}

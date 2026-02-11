@@ -43,6 +43,8 @@ function StudentAuthContent() {
   const [specialization, setSpecialization] = useState("");
   const [subSpeciality, setSubSpeciality] = useState("");
 
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   // Derived options for Student
@@ -117,6 +119,7 @@ function StudentAuthContent() {
   const handleCountryChange = (value: string) => {
     setCountry(value);
     setCity("");
+    if (errors.country) setErrors({ ...errors, country: "" });
   };
 
   const router = useRouter();
@@ -125,6 +128,15 @@ function StudentAuthContent() {
   const type = searchParams?.get("type") ?? "";
 
   const handleSignIn = async () => {
+    const newErrors: Record<string, string> = {};
+    if (!email) newErrors.email = "Required field";
+    if (!password) newErrors.password = "Required field";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     if (loading) return;
     setLoading(true);
 
@@ -146,12 +158,22 @@ function StudentAuthContent() {
   };
 
   const handleSignUp = async () => {
-    if (loading) return;
+    const newErrors: Record<string, string> = {};
+    if (!firstName) newErrors.firstName = "Required field";
+    if (!lastName) newErrors.lastName = "Required field";
+    if (!email) newErrors.email = "Required field";
+    if (!password) newErrors.password = "Required field";
+    if (!country) newErrors.country = "Required field";
+    if (!city) newErrors.city = "Required field";
+    if (!university) newErrors.university = "Required field";
+    // if (!speciality) newErrors.speciality = "Required field"; // Optional?
 
-    if (!firstName || !lastName || !email || !password || !country || !city || !university || !speciality || !specialization || !subSpeciality || !yearOfStudy) {
-      alert("Please fill in all required fields.");
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+
+    if (loading) return;
 
     setLoading(true);
 
@@ -204,10 +226,15 @@ function StudentAuthContent() {
           type="text"
           placeholder="Enter your university name"
           value={university}
-          onChange={(e) => setUniversity(e.target.value)}
+          onChange={(e) => {
+            setUniversity(e.target.value);
+            if (errors.university) setErrors({ ...errors, university: "" });
+          }}
           disabled={loading}
           required
+          className={errors.university ? "border-red-500 focus:ring-red-500" : ""}
         />
+        {errors.university && <p className="text-red-500 text-xs mt-1">{errors.university}</p>}
       </div>
 
       <div className="space-y-2">
@@ -296,10 +323,17 @@ function StudentAuthContent() {
           <SignInForm
             email={email}
             password={password}
-            onEmailChange={setEmail}
-            onPasswordChange={setPassword}
+            onEmailChange={(val) => {
+              setEmail(val);
+              if (errors.email) setErrors({ ...errors, email: "" });
+            }}
+            onPasswordChange={(val) => {
+              setPassword(val);
+              if (errors.password) setErrors({ ...errors, password: "" });
+            }}
             onSubmit={handleSignIn}
             loading={loading}
+            errors={errors}
           />
         }
         signUpContent={
@@ -312,19 +346,37 @@ function StudentAuthContent() {
             country={country}
             city={city}
             onCountryChange={handleCountryChange}
-            onCityChange={setCity}
+            onCityChange={(val) => {
+              setCity(val);
+              if (errors.city) setErrors({ ...errors, city: "" });
+            }}
             countryOptions={countries}
             cityOptions={cities}
             loadingCountries={isLoadingCountries}
             loadingCities={isLoadingCities}
 
-            onFirstNameChange={setFirstName}
-            onLastNameChange={setLastName}
-            onEmailChange={setEmail}
-            onPasswordChange={setPassword}
+            onFirstNameChange={(val) => {
+              setFirstName(val);
+              if (errors.firstName) setErrors({ ...errors, firstName: "" });
+            }}
+            onLastNameChange={(val) => {
+              setLastName(val);
+              if (errors.lastName) setErrors({ ...errors, lastName: "" });
+            }}
+            onEmailChange={(val) => {
+              setEmail(val);
+              if (errors.email) setErrors({ ...errors, email: "" });
+            }}
+            onPasswordChange={(val) => {
+              setPassword(val);
+              if (errors.password) setErrors({ ...errors, password: "" });
+            }}
             onSubmit={handleSignUp}
             loading={loading}
             roleSpecificFields={studentSpecificFields}
+            location={'location'}
+            onLocationChange={() => { }}
+            errors={errors}
           />
         }
         defaultTab={type === "signup" ? "signup" : "signin"}

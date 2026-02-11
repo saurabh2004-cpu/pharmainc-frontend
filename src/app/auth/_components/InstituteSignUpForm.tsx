@@ -71,6 +71,7 @@ interface InstituteSignUpFormProps {
 
     onSubmit: () => void;
     loading?: boolean;
+    errors?: Record<string, string>;
 }
 
 export function InstituteSignUpForm({
@@ -102,6 +103,7 @@ export function InstituteSignUpForm({
     loadingCities = false,
     onSubmit,
     loading = false,
+    errors = {}
 }: InstituteSignUpFormProps) {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -113,17 +115,6 @@ export function InstituteSignUpForm({
         }
     };
 
-    const isFormValid =
-        name &&
-        country &&
-        city &&
-        email &&
-        password &&
-        // location &&
-        contactNumber &&
-        type &&
-        services.length > 0; // Simple validation
-
     return (
         <div className="space-y-4">
             <div className="space-y-2">
@@ -134,8 +125,9 @@ export function InstituteSignUpForm({
                     value={name}
                     onChange={(e) => onNameChange(e.target.value)}
                     disabled={loading}
-                    className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.name ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -146,7 +138,7 @@ export function InstituteSignUpForm({
                         onValueChange={onCountryChange}
                         disabled={loading || loadingCountries}
                     >
-                        <SelectTrigger className="h-11 bg-gray-50 border-gray-200 focus:bg-white">
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder={loadingCountries ? "Loading..." : "Select Country"} />
                         </SelectTrigger>
                         <SelectContent>
@@ -157,6 +149,7 @@ export function InstituteSignUpForm({
                             ))}
                         </SelectContent>
                     </Select>
+                    {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="city" className="text-gray-600">City *</Label>
@@ -165,7 +158,7 @@ export function InstituteSignUpForm({
                         onValueChange={onCityChange}
                         disabled={loading || !country || loadingCities}
                     >
-                        <SelectTrigger className="h-11 bg-gray-50 border-gray-200 focus:bg-white">
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder={loadingCities ? "Loading..." : "Select City"} />
                         </SelectTrigger>
                         <SelectContent>
@@ -176,6 +169,7 @@ export function InstituteSignUpForm({
                             ))}
                         </SelectContent>
                     </Select>
+                    {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                 </div>
             </div>
 
@@ -183,7 +177,7 @@ export function InstituteSignUpForm({
                 <div className="space-y-2">
                     <Label htmlFor="institute-type" className="text-gray-600">Institute Type *</Label>
                     <Select value={type} onValueChange={onTypeChange} disabled={loading}>
-                        <SelectTrigger className="h-11 bg-gray-50 border-gray-200 focus:bg-white">
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.type ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -194,6 +188,7 @@ export function InstituteSignUpForm({
                             ))}
                         </SelectContent>
                     </Select>
+                    {errors.type && <p className="text-red-500 text-xs mt-1">{errors.type}</p>}
                 </div>
             </div>
 
@@ -206,8 +201,9 @@ export function InstituteSignUpForm({
                     value={email}
                     onChange={(e) => onEmailChange(e.target.value)}
                     disabled={loading}
-                    className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -219,8 +215,9 @@ export function InstituteSignUpForm({
                         value={contactNumber}
                         onChange={(e) => onContactNumberChange(e.target.value)}
                         disabled={loading}
-                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+                        className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.contactNumber ? "border-red-500 focus:ring-red-500" : ""}`}
                     />
+                    {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="password" className="text-gray-600">Password *</Label>
@@ -232,7 +229,7 @@ export function InstituteSignUpForm({
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
                             disabled={loading}
-                            className="h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10"
+                            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
                         />
                         <button
                             type="button"
@@ -242,6 +239,7 @@ export function InstituteSignUpForm({
                             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                         </button>
                     </div>
+                    {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
             </div>
 
@@ -295,6 +293,7 @@ export function InstituteSignUpForm({
                 {services.length === 0 && (
                     <p className="text-xs text-red-500">Please select at least one service.</p>
                 )}
+                {errors.services && <p className="text-red-500 text-xs mt-1">{errors.services}</p>}
             </div>
 
             <div className="flex items-center space-x-2 pt-2">
@@ -314,7 +313,7 @@ export function InstituteSignUpForm({
             <Button
                 onClick={onSubmit}
                 className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold h-11 rounded-lg mt-2"
-                disabled={loading || !isFormValid}
+                disabled={loading}
             >
                 {loading ? "Creating Institution Account..." : "Register Institution"}
             </Button>

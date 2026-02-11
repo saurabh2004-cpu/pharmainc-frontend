@@ -9,7 +9,7 @@ export const connectSocket = (token: string) => {
     // Use env var or default to backend URL. 
     // Assuming standard local backend port 8000 based on common practices, 
     // but this should match the backend structure.
-    const SOCKET_URL = "http://localhost:3001";
+    const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL!;
 
     socket = io(SOCKET_URL, {
         auth: {

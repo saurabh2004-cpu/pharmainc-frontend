@@ -15,7 +15,7 @@ interface SignUpFormProps {
   lastName: string;
   email: string;
   password: string;
-  // location: string; // Removed
+  location: string;
   country: string;
   city: string;
 
@@ -23,7 +23,7 @@ interface SignUpFormProps {
   onLastNameChange: (value: string) => void;
   onEmailChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
-  // onLocationChange: (value: string) => void; // Removed
+  onLocationChange: (value: string) => void; // Removed
 
   onCountryChange: (value: string) => void;
   onCityChange: (value: string) => void;
@@ -36,6 +36,7 @@ interface SignUpFormProps {
   onSubmit: () => void;
   loading?: boolean;
   roleSpecificFields?: React.ReactNode;
+  errors?: Record<string, string>;
 }
 
 export function SignUpForm({
@@ -57,9 +58,9 @@ export function SignUpForm({
   loadingCities = false,
   onSubmit,
   loading = false,
-  roleSpecificFields
+  roleSpecificFields,
+  errors = {}
 }: SignUpFormProps) {
-  const isFormValid = firstName && lastName && email && password && country && city;
 
   return (
     <div className="space-y-4">
@@ -72,8 +73,9 @@ export function SignUpForm({
             value={firstName}
             onChange={(e) => onFirstNameChange(e.target.value)}
             disabled={loading}
-            className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.firstName ? "border-red-500 focus:ring-red-500" : ""}`}
           />
+          {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="lastName" className="text-gray-600">Last Name</Label>
@@ -83,8 +85,9 @@ export function SignUpForm({
             value={lastName}
             onChange={(e) => onLastNameChange(e.target.value)}
             disabled={loading}
-            className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.lastName ? "border-red-500 focus:ring-red-500" : ""}`}
           />
+          {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
         </div>
       </div>
 
@@ -97,8 +100,9 @@ export function SignUpForm({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           disabled={loading}
-          className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
         />
+        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
       </div>
 
       <div className="space-y-2">
@@ -110,8 +114,9 @@ export function SignUpForm({
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           disabled={loading}
-          className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
         />
+        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -122,7 +127,7 @@ export function SignUpForm({
             onValueChange={onCountryChange}
             disabled={loading || loadingCountries}
           >
-            <SelectTrigger className="h-11 bg-gray-50 border-gray-200 focus:bg-white">
+            <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}>
               <SelectValue placeholder={loadingCountries ? "Loading..." : "Select Country"} />
             </SelectTrigger>
             <SelectContent>
@@ -133,6 +138,7 @@ export function SignUpForm({
               ))}
             </SelectContent>
           </Select>
+          {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="city" className="text-gray-600">City</Label>
@@ -141,7 +147,7 @@ export function SignUpForm({
             onValueChange={onCityChange}
             disabled={loading || !country || loadingCities}
           >
-            <SelectTrigger className="h-11 bg-gray-50 border-gray-200 focus:bg-white">
+            <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}>
               <SelectValue placeholder={loadingCities ? "Loading..." : "Select City"} />
             </SelectTrigger>
             <SelectContent>
@@ -152,12 +158,14 @@ export function SignUpForm({
               ))}
             </SelectContent>
           </Select>
+          {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
         </div>
       </div>
 
+
       {roleSpecificFields}
 
-      <div className="flex items-center space-x-2">
+      < div className="flex items-center space-x-2" >
         <Checkbox id="terms" />
         <Label htmlFor="terms" className="text-sm">
           I agree to the{" "}
@@ -169,16 +177,16 @@ export function SignUpForm({
             Privacy Policy
           </a>
         </Label>
-      </div>
+      </div >
 
       <Button
         onClick={onSubmit}
         className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold h-11 rounded-lg"
-        disabled={loading || !isFormValid}
+        disabled={loading}
       >
         {loading ? "Creating account..." : "Sign up"}
       </Button>
-    </div>
+    </div >
   );
 }
 

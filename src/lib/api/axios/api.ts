@@ -24,7 +24,12 @@ import axios from "axios";
 // export const baseApi = applyInterceptors(axios.create({baseURL : process.env.NEXT_PUBLIC_API_BASE!}));
 
 
+// export const baseApi = axios.create({
+//   baseURL: `http://localhost:3001/api/v1`,
+//   withCredentials: true,
+// });
+
 export const baseApi = axios.create({
-  baseURL: 'http://localhost:3001/api/v1',
+  baseURL: `${process.env.NEXT_PUBLIC_SOCKET_URL}/api/v1`,
   withCredentials: true,
 });

@@ -20,6 +20,13 @@ import { Job, PaginatedResponse } from '@/lib/api/types'
 import { useRouter } from 'next/navigation'
 import { Switch } from '@/components/ui/switch'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -45,6 +52,7 @@ export const PostedJobsTab = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [jobToRenew, setJobToRenew] = useState<Job | null>(null)
   const [renewing, setRenewing] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
   const pageSize = 10
 
   // Fetch current institution on mount to ensure store is hydrated
@@ -54,7 +62,7 @@ export const PostedJobsTab = () => {
 
   useEffect(() => {
     fetchJobs()
-  }, [currentInstitution, currentPage])
+  }, [currentInstitution, currentPage, statusFilter])
 
   const fetchJobs = async () => {
     if (!currentInstitution?.id) {
@@ -72,7 +80,7 @@ export const PostedJobsTab = () => {
         currentPage,
         pageSize,
         undefined,
-        undefined
+        statusFilter === 'all' ? undefined : statusFilter
       )
 
       setJobs(response.data)
@@ -220,6 +228,22 @@ export const PostedJobsTab = () => {
               className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
+          <Select
+            value={statusFilter}
+            onValueChange={(value: 'all' | 'active' | 'inactive') => {
+              setStatusFilter(value)
+              setCurrentPage(1) // Reset to first page when filter changes
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -267,14 +291,14 @@ export const PostedJobsTab = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="min-w-[280px]">Job Title</TableHead>
-                      <TableHead className="min-w-[150px]">Job Position</TableHead>
-                      <TableHead className="min-w-[150px]">Speciality</TableHead>
+                      <TableHead className="w-[300px]">Job Title</TableHead>
+                      <TableHead className="w-[110px]">Job Position</TableHead>
+                      <TableHead className="w-[120px]">Speciality</TableHead>
                       {/* <TableHead className="min-w-[150px]">Sub-Speciality</TableHead> */}
-                      <TableHead className="w-32 min-w-[150px]">Experience Level</TableHead>
+                      <TableHead className="w-[120px]">Experience Level</TableHead>
                       {/* <TableHead className="w-32 min-w-[120px]">Location</TableHead> */}
-                      <TableHead className="w-32 min-w-[120px]">Status</TableHead>
-                      <TableHead className="w-32 min-w-[120px]">Actions</TableHead>
+                      <TableHead className="w-[120px]">Status</TableHead>
+                      <TableHead className="w-[120px] text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -299,7 +323,7 @@ export const PostedJobsTab = () => {
                             {job.role}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className='max-w-[150px]'>
                           <div className="flex items-center gap-1">
                             <Badge variant="outline" className="text-xs">{job.speciality || 'N/A'}</Badge>
                           </div>
@@ -324,7 +348,7 @@ export const PostedJobsTab = () => {
                                   <Switch
                                     checked={job.status === 'active'}
                                     onCheckedChange={() => handleToggleStatus(job.id, job.status)}
-                                    className={job.status === 'active' ? 'data-[state=checked]:bg-green-600' : ''}
+                                    className="data-[state=checked]:bg-green-600"
                                   />
                                   <span className={`text-xs font-medium ${job.status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
                                     {job.status === 'active' ? 'Active' : 'Inactive'}
@@ -341,7 +365,17 @@ export const PostedJobsTab = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex flex-col items-center space-y-2">
+                          <div className="flex items-center justify-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                              title="View Applicants"
+                              onClick={() => handleViewApplications(job.id)}
+                            >
+                              <Users className="w-4 h-4 text-gray-600 hover:text-blue-600" />
+                            </Button>
+
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button
@@ -355,33 +389,30 @@ export const PostedJobsTab = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem
-                                  onClick={() => handleViewApplications(job.id)}
+                                  onClick={() => router.push(`/dashboard/job/${job.id}`)}
                                   className="cursor-pointer group"
                                 >
-                                  <FaEye className="w-4 h-4 mr-2 text-blue-600 group-hover:text-[#000000]" />
-                                  View Applicants
+                                  <FileText className="w-4 h-4 mr-2 text-gray-600 group-hover:text-blue-600" />
+                                  View
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => router.push(`/dashboard/job/${job.id}/edit`)}
                                   className="cursor-pointer group"
                                 >
-                                  <FaEdit className="w-4 h-4 mr-2 text-green-600 group-hover:text-[#000000]" />
+                                  <FaEdit className="w-4 h-4 mr-2 text-gray-600 group-hover:text-green-600" />
                                   Edit
                                 </DropdownMenuItem>
+                                {job.status === 'expired' && (
+                                  <DropdownMenuItem
+                                    onClick={() => setJobToRenew(job)}
+                                    className="cursor-pointer group text-amber-700 focus:text-amber-800 focus:bg-amber-50"
+                                  >
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Renew Job
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
-
-                            {job.status === 'expired' && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => setJobToRenew(job)}
-                                className="w-full text-xs h-7 text-amber-700 border-amber-200 hover:bg-amber-50 hover:text-amber-800"
-                              >
-                                <RefreshCw className="w-3 h-3 mr-1" />
-                                Renew Job
-                              </Button>
-                            )}
                           </div>
                         </TableCell>
                       </TableRow>

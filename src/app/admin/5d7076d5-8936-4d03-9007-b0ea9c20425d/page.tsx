@@ -11,15 +11,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { login, createInstitution, updateInstitution, register, getInstitution } from '@/lib/api';
+import { login, createInstitution, updateInstitution, register, getInstitution, RoleEnum } from '@/lib/api';
 import axios from 'axios';
 
 // Create admin-specific API instance
 const createAdminApiInstance = () => {
-  const instance = axios.create({ 
+  const instance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_INSTITUTE!
   });
-  
+
   instance.interceptors.request.use(
     (config) => {
       // Use debug admin token from localStorage instead of cookies
@@ -28,7 +28,7 @@ const createAdminApiInstance = () => {
           .filter(key => key.startsWith('debug_admin_token_'))
           .map(key => localStorage.getItem(key))
           .filter(Boolean);
-        
+
         const token = tokens[0]; // Use the first available admin token
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -38,7 +38,7 @@ const createAdminApiInstance = () => {
     },
     (error) => Promise.reject(error)
   );
-  
+
   return instance;
 };
 
@@ -74,12 +74,12 @@ interface ImageUploadProps {
   isInstitute?: boolean;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ 
-  onImageUploaded, 
-  currentImage, 
-  label, 
-  userId, 
-  isInstitute = false 
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  onImageUploaded,
+  currentImage,
+  label,
+  userId,
+  isInstitute = false
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -107,7 +107,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       // Use the same upload service as profile
       const formData = new FormData();
       formData.append('file', file);
-      
+
       if (isInstitute && userId) {
         formData.append('instituteId', userId);
       } else if (userId) {
@@ -180,17 +180,17 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 const AdminInstituteOnboardingPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const [institutionData, setInstitutionData] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
   // Form data for both signin and signup
   const [formData, setFormData] = useState({
     // Admin/Auth details
     email: '',
     password: '',
-    
+
     // Institution details (from API schema)
     name: '',
     location: '',
@@ -218,7 +218,7 @@ const AdminInstituteOnboardingPage = () => {
       setIsAuthenticated(true);
       loadInstitutionData();
     }
-    
+
     // Check URL params for default mode
     const modeParam = searchParams?.get('mode');
     if (modeParam === 'signin' || modeParam === 'signup') {
@@ -235,7 +235,7 @@ const AdminInstituteOnboardingPage = () => {
         ...data,
         contact_email: data.contact_email || data.email || '',
       }));
-      
+
       // Parse specializations from area_of_expertise
       if (data.area_of_expertise) {
         setSpecializations(data.area_of_expertise.split(', ').filter(Boolean));
@@ -286,7 +286,7 @@ const AdminInstituteOnboardingPage = () => {
 
   const handleSignin = async () => {
     if (loading) return;
-    
+
     setSuccessMessage('');
     setErrors({});
 
@@ -309,7 +309,7 @@ const AdminInstituteOnboardingPage = () => {
 
   const handleSignup = async () => {
     if (loading) return;
-    
+
     setSuccessMessage('');
     setErrors({});
 
@@ -324,12 +324,17 @@ const AdminInstituteOnboardingPage = () => {
         password: formData.password,
         name: formData.name,
         type: 'institution',
+        firstName: formData.name,
+        lastName: '.',
+        role: RoleEnum.OTHER,
+        country: '',
+        city: formData.location,
       });
 
       if (status === 201) {
         // Login and get debug token
         await adminLogin(formData.email, formData.password);
-        
+
         // Create institution
         const institutionResponse = await adminCreateInstitution({
           name: formData.name,
@@ -353,7 +358,7 @@ const AdminInstituteOnboardingPage = () => {
 
   const handleUpdateInstitution = async () => {
     if (loading) return;
-    
+
     setLoading(true);
     setSuccessMessage('');
     setErrors({});
@@ -372,7 +377,7 @@ const AdminInstituteOnboardingPage = () => {
         bio: formData.bio,
         about: formData.about,
       };
-      
+
       const updatedInstitution = await adminUpdateInstitution(updateData);
       setInstitutionData(updatedInstitution);
       setSuccessMessage('Institution updated successfully!');
@@ -389,7 +394,7 @@ const AdminInstituteOnboardingPage = () => {
     Object.keys(localStorage)
       .filter(key => key.startsWith('debug_admin_token_'))
       .forEach(key => localStorage.removeItem(key));
-    
+
     setIsAuthenticated(false);
     setInstitutionData(null);
     setFormData({
@@ -438,7 +443,7 @@ const AdminInstituteOnboardingPage = () => {
               <p className="text-green-800">{successMessage}</p>
             </div>
           )}
-          
+
           {errors.submit && (
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800">{errors.submit}</p>
@@ -497,7 +502,7 @@ const AdminInstituteOnboardingPage = () => {
                 />
                 {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="location">Location *</Label>
                 <Input
@@ -583,8 +588,8 @@ const AdminInstituteOnboardingPage = () => {
             <h2 className="text-xl font-semibold text-blue-900">Admin Institute Panel</h2>
           </div>
           <p className="text-blue-800 mb-4">
-            {isAuthenticated 
-              ? "Manage your institution's profile and settings." 
+            {isAuthenticated
+              ? "Manage your institution's profile and settings."
               : "Sign in to an existing institution or create a new one."
             }
           </p>
@@ -613,7 +618,7 @@ const AdminInstituteOnboardingPage = () => {
                 <p className="text-green-800">{successMessage}</p>
               </div>
             )}
-            
+
             {errors.submit && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-red-800">{errors.submit}</p>
@@ -800,7 +805,7 @@ const AdminInstituteOnboardingPage = () => {
                   <p className="text-green-800">{successMessage}</p>
                 </div>
               )}
-              
+
               {errors.submit && (
                 <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                   <p className="text-red-800">{errors.submit}</p>
@@ -859,7 +864,7 @@ const AdminInstituteOnboardingPage = () => {
                     />
                     {errors.name && <p className="text-sm text-red-600">{errors.name}</p>}
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="location">Location *</Label>
                     <Input

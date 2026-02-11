@@ -64,6 +64,11 @@ export const getInstituteStats = async (): Promise<InstituteStats> => {
   return response.data;
 };
 
+export const getInstituteWallet = async (): Promise<{ credits: number, id: string }> => {
+  const response = await baseApi.get("/institute/my-wallet");
+  return response.data;
+};
+
 
 // export const createInstitution = async (
 //   institutionData: InstitutionCreateParams

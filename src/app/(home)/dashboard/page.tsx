@@ -13,6 +13,8 @@ import {
 import { DraftConfirmationModal } from '@/components/DraftConfirmationModal'
 import { useJobPostingStore } from '@/store'
 import { Button } from '@/components/ui/button'
+import { getInstituteWallet } from '@/lib/api/services/institute'
+import { getUserType } from '@/lib/api/utils'
 
 const DashboardContent = () => {
   const router = useRouter()
@@ -20,6 +22,8 @@ const DashboardContent = () => {
   const tab = searchParams.get('tab')
   const [activeTab, setActiveTab] = useState(tab || 'overview')
   const [showDraftModal, setShowDraftModal] = useState(false)
+  const [credits, setCredits] = useState<number | null>(null);
+  const [loadingCredits, setLoadingCredits] = useState(true);
 
   const { currentDraft, clearDraft } = useJobPostingStore()
 
@@ -29,12 +33,36 @@ const DashboardContent = () => {
     }
   }, [tab])
 
+  useEffect(() => {
+    const fetchCredits = async () => {
+      const userType = getUserType();
+      if (userType !== 'INSTITUTE' && userType !== 'INSTITUTE') {
+        setLoadingCredits(false);
+        return;
+      }
+
+      try {
+        const res: any = await getInstituteWallet();
+        console.log("res credits", res)
+
+        setCredits(res?.credits[0]?.credits ? res?.credits[0]?.credits : 0);
+      } catch (error) {
+        console.error("Failed to fetch credits", error);
+        setCredits(0);
+      } finally {
+        setLoadingCredits(false);
+      }
+    };
+
+    fetchCredits();
+  }, []);
+
   const handlePostJobClick = (e: React.MouseEvent) => {
     e.preventDefault()
 
     const hasMeaningfulDraft = currentDraft && (
       currentDraft.title ||
-      currentDraft.description ||
+      currentDraft.fullDescription ||
       currentDraft.jobType ||
       (currentDraft.skills && currentDraft.skills.length > 0)
     );
@@ -63,18 +91,25 @@ const DashboardContent = () => {
     <div className="min-h-screen bg-white w-full">
       {/* <DashboardHeader /> */}
 
-      <div className="px-8 py-6 bg-white w-full">
+      <div className="px-2 py-6 bg-white w-full">
         <div className="mb-6 flex justify-between items-start">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Institute Dashboard</h1>
             <p className="text-gray-600">Track your hiring metrics</p>
           </div>
-          <Button
-            onClick={handlePostJobClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
-          >
-            Post a Job
-          </Button>
+          <div className="flex items-center gap-4">
+            {(getUserType() === 'INSTITUTE' || getUserType() === 'INSTITUTE') && (
+              <div className="px-4 py-2 rounded-md bg-muted text-sm font-semibold border border-gray-200">
+                Credits: {loadingCredits ? "--" : credits}
+              </div>
+            )}
+            <Button
+              onClick={handlePostJobClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+            >
+              Post a Job
+            </Button>
+          </div>
         </div>
 
         <DraftConfirmationModal

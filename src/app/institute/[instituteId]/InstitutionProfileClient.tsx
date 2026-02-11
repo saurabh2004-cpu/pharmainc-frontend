@@ -45,6 +45,8 @@ export function InstitutionProfileClient({ institutionData, instituteId }: Insti
     email: "",
     location: institutionProfile?.location,
     verified: institutionProfile?.verified,
+    firstName: institutionProfile?.name || "",
+    lastName: "",
   };
 
   if (!institutionProfile) {

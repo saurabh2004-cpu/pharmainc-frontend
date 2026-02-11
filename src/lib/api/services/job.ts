@@ -117,9 +117,11 @@ export const getInstituteJobs = async (
   page: number = 1,
   pageSize: number = 10,
   fields?: string,
-  active?: boolean
+  status?: string
 ): Promise<PaginatedResponse<Job>> => {
-  const response = await baseApi.get(`/job/institute-jobs/${institute_id}`);
+  const response = await baseApi.get(`/job/institute-jobs/${institute_id}`, {
+    params: { page, pageSize, fields, status }
+  });
 
   const apiResponse = response.data;
   return {

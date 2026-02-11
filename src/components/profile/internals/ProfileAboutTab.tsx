@@ -38,7 +38,7 @@ export const ProfileAboutTab = ({ userId }: ProfileAboutTabProps) => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      await updateUser({ about: aboutText });
+      await updateUser(userId, { about: aboutText });
       toast.success("About section updated successfully");
       setIsEditing(false);
     } catch (error) {

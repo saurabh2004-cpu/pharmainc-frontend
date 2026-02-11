@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { login, createUser, setAuthToken, register } from "@/lib/api";
+import { RoleEnum } from "@/lib/api/types";
 import { useUserStore } from "@/store/userStore";
 import { AuthFormHeader, AuthFormTabs, SignInForm, SignUpForm } from "../_components";
 
@@ -28,17 +29,17 @@ function HealthcareAuthContent() {
   const handleSignIn = async () => {
     if (loading) return;
     setLoading(true);
-    
+
     try {
       const { token } = await login({
         email: email,
         password: password,
         type: "user",
       });
-      
+
       setAuthToken(token, "user");
       await fetchCurrentUser();
-      
+
       router.push("/find-jobs");
     } catch (error) {
       console.error("Sign in error:", error);
@@ -56,7 +57,12 @@ function HealthcareAuthContent() {
       const status = await register({
         email: email,
         password: password,
+        firstName: firstName,
+        lastName: lastName,
         name: `${firstName} ${lastName}`,
+        country: "India", // Defaulting to India as per current form limitation
+        city: location,
+        role: profession.toUpperCase() === "NURSE" ? RoleEnum.NURSE : RoleEnum.OTHER,
         type: "user",
       });
 
@@ -160,6 +166,14 @@ function HealthcareAuthContent() {
             onSubmit={handleSignUp}
             loading={loading}
             roleSpecificFields={healthcareSpecificFields}
+            country={'country'}
+            city={'city'}
+            onCountryChange={() => { }}
+            onCityChange={() => { }}
+            countryOptions={[]}
+            cityOptions={[]}
+            loadingCountries={false}
+            loadingCities={false}
           />
         }
         defaultTab={type === "signup" ? "signup" : "signin"}
