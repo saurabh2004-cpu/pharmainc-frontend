@@ -7,7 +7,7 @@ export default async function InstitutionProfilePage({
   params: Promise<{ instituteId: string }>;
 }) {
   const { instituteId } = await params;
-  
+
   try {
     const institutionData = await getInstitutionById(instituteId);
     return <InstitutionProfileClient institutionData={institutionData} instituteId={instituteId} />;
