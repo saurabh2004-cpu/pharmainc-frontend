@@ -69,7 +69,7 @@ export const getJobInstitute = async (id: string): Promise<any> => {
 export const searchJobs = async (
   params: JobSearchParams
 ): Promise<PaginatedResponse<Job>> => {
-  const response = await baseApi.get("/job/search", { params });
+  const response = await baseApi.get("/job/search-job", { params });
 
   const apiResponse = response.data;
   return {

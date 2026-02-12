@@ -152,7 +152,11 @@ const JobCard = ({ job }: JobCardProps) => {
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-3 min-w-0">
                 <div className="flex items-center gap-1 truncate">
                   <MapPin size={14} className="flex-shrink-0" />
-                  <span className="truncate">{job.workLocation || job.location}</span>
+                  <span className="truncate">
+                    {(job.workLocation?.toLowerCase() === 'on-site' || job.workLocation?.toLowerCase() === 'onsite') && (job.city || job.country)
+                      ? `${[job.city, job.country].filter(Boolean).join(', ')}`
+                      : (job.workLocation || job.location)}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1 truncate">
                   <span className="truncate">{job.pay_range || (job.salaryMin && job.salaryMax ?

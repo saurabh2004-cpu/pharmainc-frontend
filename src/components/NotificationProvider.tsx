@@ -7,6 +7,8 @@ import { connectSocket } from '@/lib/socket'
 import { toast } from "sonner"
 import { getUserById } from '@/lib/api'
 import { Notification } from '@/lib/api/types'
+import { NotificationStack } from './notifications/NotificationStack'
+import { useState } from 'react'
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useUserStore()
@@ -14,6 +16,28 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   const { fetchNotifications, addOptimisticNotification, fetchUnreadCount } = useNotificationStore()
   const processedIds = useRef(new Set<string>()) // Track processed notification IDs session-wise
   const mountTime = useRef(Date.now())
+  const [activePopups, setActivePopups] = useState<any[]>([])
+
+  const removePopup = (id: string) => {
+    setActivePopups(prev => prev.filter(p => p.id !== id))
+  }
+
+  // Debug: Show a test popup on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      console.log("Triggering TEST popup");
+      setActivePopups(prev => [{
+        id: 'test-1',
+        type: 'NEXT_ROUND_REQUESTED',
+        title: 'Test Notification',
+        message: 'This is a test notification to verify popup rendering.',
+        status: 'NEXT_ROUND_REQUESTED',
+        applicationId: 'test-app-id',
+        onClose: removePopup
+      }, ...prev]);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     let socket: any = null;
@@ -94,8 +118,37 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 }
               } else {
                 // Job Seekers: show institute actions (requests, decisions)
-                const allowedStatuses = ['NEXT_ROUND_REQUESTED', 'INTERVIEW_ACCEPTED', 'INTERVIEW_REJECTED', 'HIRED', 'INTERVIEW_SCHEDULED', 'SHORTLISTED', 'REJECTED'];
-                if (allowedStatuses.includes(status) || !status) {
+                const relevantStatuses = [
+                  'SHORTLISTED',
+                  'NEXT_ROUND_REQUESTED',
+                  'INTERVIEW_SCHEDULED',
+                  'INTERVIEW_ACCEPTED',
+                  'HIRED',
+                  'REJECTED',
+                  'NEXT_ROUND_ACCEPTED',
+                  'NEXT_ROUND_REJECTED'
+                ];
+
+                console.log("Checking popup condition:", { status, relevant: relevantStatuses.includes(status) });
+
+                // 1. Show Horizontal Popup for relevant statuses
+                if (relevantStatuses.includes(status)) {
+                  console.log("Adding Popup:", notification);
+                  setActivePopups(prev => [{
+                    id: notification.id,
+                    type: status,
+                    title: notification.title,
+                    message: notification.message,
+                    status: status,
+                    applicationId: notification.relatedApplicationId,
+                    onClose: removePopup
+                  }, ...prev]);
+                } else {
+                  console.warn("Status not relevant for popup:", status);
+                }
+
+                // 2. Show Standard Toast (Simultaneously as requested)
+                if (relevantStatuses.includes(status) || !status) {
                   toast.info(notification.message);
                 }
               }
@@ -114,5 +167,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     }
   }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount])
 
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      <NotificationStack notifications={activePopups} onClose={removePopup} />
+    </>
+  )
 }

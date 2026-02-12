@@ -38,6 +38,9 @@ interface ApplicationWithJob extends Application {
   jobType?: string;
   companyName?: string;
   companyLogo?: string | null;
+  jobWorkLocation?: string;
+  jobCity?: string | null;
+  jobCountry?: string | null;
 }
 
 interface JobWithInstitution extends Job {
@@ -102,12 +105,18 @@ const AppliedJobsPage = () => {
           let jobTitle = 'Job Title Not Available';
           let jobLocation = 'Location not specified';
           let jobType = 'Not specified';
+          let jobWorkLocation = '';
+          let jobCity: string | null = null;
+          let jobCountry: string | null = null;
 
           // Attempt to extract data from embedded job object
           if (job) {
             jobTitle = job.title;
             jobLocation = job.location || job.workLocation || jobLocation;
             jobType = job.jobType || jobType;
+            jobWorkLocation = job.workLocation;
+            jobCity = job.city || null;
+            jobCountry = job.country || null;
 
             if (job.institute) {
               instituteName = job.institute.name;
@@ -132,6 +141,9 @@ const AppliedJobsPage = () => {
             jobType,
             companyName: instituteName,
             companyLogo: instituteLogo,
+            jobWorkLocation,
+            jobCity,
+            jobCountry,
           };
         })
       );
@@ -492,7 +504,11 @@ const AppliedJobsPage = () => {
                                   {application.jobLocation && (
                                     <div className="flex items-center gap-1">
                                       <MapPin className="h-4 w-4" />
-                                      <span>{application.jobLocation}</span>
+                                      <span>
+                                        {(application.jobWorkLocation?.toLowerCase() === 'on-site' || application.jobWorkLocation?.toLowerCase() === 'onsite') && (application.jobCity || application.jobCountry)
+                                          ? `${[application.jobCity, application.jobCountry].filter(Boolean).join(', ')}`
+                                          : application.jobLocation}
+                                      </span>
                                     </div>
                                   )}
                                   {application.jobType && (

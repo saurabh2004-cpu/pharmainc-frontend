@@ -208,9 +208,34 @@ export default function JobApplicationModal({
 
     } catch (error: any) {
       console.error('Error submitting application:', error);
-      toast.error('Submission Failed', {
-        description: error?.response?.data?.message || error?.message || 'Failed to submit application. Please try again.'
-      });
+
+      const status = error?.response?.status;
+      // Backend returns { error: "message" }
+      const errorMessage = error?.response?.data?.error;
+      const fallbackMessage = error?.message || 'Something went wrong. Please try again.';
+
+      if (status === 400 && errorMessage && errorMessage.includes("Profile incomplete")) {
+        toast.error('Profile Incomplete', {
+          description: 'Please complete your profile (education, experience, skills, speciality) before applying.',
+          duration: 5000,
+        });
+      } else if (status === 409) {
+        toast.error('Already Applied', {
+          description: 'You have already applied for this job.'
+        });
+      } else if (status === 404) {
+        toast.error('Job Not Found', {
+          description: 'Job not found.'
+        });
+      } else if (status === 401) {
+        toast.error('Authentication Required', {
+          description: 'Please login to apply for this job.'
+        });
+      } else {
+        toast.error('Submission Failed', {
+          description: errorMessage || fallbackMessage
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

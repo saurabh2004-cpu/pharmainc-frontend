@@ -289,12 +289,11 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
     },
   });
 
-  const handleCountryChange = async (countryName: string) => {
-    form.setValue("country", countryName);
-    form.setValue("city", ""); // Reset city
-    setCities([]);
-
-    if (!countryName) return;
+  const fetchCities = async (countryName: string) => {
+    if (!countryName) {
+      setCities([]);
+      return;
+    }
 
     setIsLoadingCities(true);
     try {
@@ -313,7 +312,6 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
         }));
         setCities(cityOptions);
       } else {
-        // Handle case where no cities are found or API error
         setCities([]);
       }
     } catch (error) {
@@ -323,11 +321,20 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
     }
   };
 
+  const handleCountryChange = async (countryName: string) => {
+    form.setValue("country", countryName);
+    form.setValue("city", ""); // Reset city
+    setCities([]); // Reset cities list UI while loading
+
+    await fetchCities(countryName);
+  };
+
   // Effect to load cities if country is already selected (e.g. edit mode or draft)
   useEffect(() => {
     const currentCountry = form.getValues("country");
+    // Only fetch if we have a country but no cities loaded yet
     if (currentCountry && cities.length === 0 && !isLoadingCities) {
-      handleCountryChange(currentCountry);
+      fetchCities(currentCountry);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.getValues("country")]); // Careful with deps here

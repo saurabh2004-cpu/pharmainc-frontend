@@ -64,12 +64,28 @@ export const useJobStore = create<JobState>()(
         try {
           let response;
 
-          if (currentFilters.searchQuery && currentFilters.searchQuery.trim()) {
+          // Split location filter into work_location vs generic location
+          let workLocationParam: string | undefined;
+          let locationParam: string | undefined;
+
+          if (currentFilters.location && currentFilters.location !== 'all') {
+            const lowerLoc = currentFilters.location.toLowerCase();
+            if (['Remote', 'Hybrid', 'On-site'].includes(lowerLoc)) {
+              // Map "onsite" to "On-site" for backend consistency if needed, assuming Standard
+              workLocationParam = lowerLoc === 'onsite' ? 'On-site' : currentFilters.location;
+            } else {
+              locationParam = currentFilters.location;
+            }
+          }
+
+          // Use search API if we have a search query OR a specific work location filter
+          if ((currentFilters.searchQuery && currentFilters.searchQuery.trim()) || workLocationParam) {
             // Use search API
             // Map filters to search params (snake_case)
             response = await searchJobs({
-              title: currentFilters.searchQuery,
-              location: currentFilters.location === 'all' ? undefined : currentFilters.location,
+              q: currentFilters.searchQuery,
+              work_location: workLocationParam,
+              location: locationParam,
               experience_level: currentFilters.experienceLevel === 'all' ? undefined : currentFilters.experienceLevel,
               active: currentFilters.status === 'active',
               page,
@@ -85,7 +101,7 @@ export const useJobStore = create<JobState>()(
               page,
               pageSize,
               currentFilters.jobType === 'all' ? undefined : currentFilters.jobType,
-              currentFilters.location === 'all' ? undefined : currentFilters.location,
+              locationParam, // Only pass generic location here
               currentFilters.experienceLevel === 'all' ? undefined : currentFilters.experienceLevel,
               currentFilters.status === 'all' ? undefined : currentFilters.status
             )

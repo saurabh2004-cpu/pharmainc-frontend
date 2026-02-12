@@ -340,7 +340,12 @@ const JobDetailPage = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4" />
-                    <span className="font-medium">{job.workLocation}</span>
+                    <span className="font-medium">
+                      {/* {job.workLocation} */}
+                      {(job.workLocation?.toLowerCase() === 'on-site' || job.workLocation?.toLowerCase() === 'onsite') && (job.city || job.country) && (
+                        <span>  {[job.city, job.country].filter(Boolean).join(', ')}</span>
+                      )}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
@@ -461,7 +466,12 @@ const JobDetailPage = () => {
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100 gap-4">
                     <span className="text-gray-600 font-medium flex-shrink-0">Work Location</span>
-                    <span className="font-semibold text-gray-900 text-right break-words">{job.workLocation}</span>
+                    <span className="font-semibold text-gray-900 text-right break-words">
+                      {job.workLocation}
+                      {(job.workLocation?.toLowerCase() === 'on-site' || job.workLocation?.toLowerCase() === 'onsite') && (job.city || job.country) && (
+                        <span className="text-gray-500 font-medium"> • {[job.city, job.country].filter(Boolean).join(', ')}</span>
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center py-2 border-b border-gray-100 gap-4">
                     <span className="text-gray-600 font-medium flex-shrink-0">Salary Range</span>

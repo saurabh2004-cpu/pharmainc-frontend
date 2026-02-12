@@ -478,6 +478,7 @@ export interface JobUpdateParams {
 }
 
 export interface JobSearchParams {
+  q?: string;
   title?: string;
   description?: string;
   pay_range?: string;

@@ -291,7 +291,7 @@ const FindJobsPage = () => {
                       </div>
 
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {['Remote', 'Contract', 'Onsite', 'Hybrid'].map((location) => (
+                        {['Remote', 'On-site', 'Hybrid'].map((location) => (
                           <button
                             key={location}
                             onClick={() => handleFilterChange('location', location)}

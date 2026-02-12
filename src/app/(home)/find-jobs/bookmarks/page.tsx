@@ -380,7 +380,8 @@ const SavedJobsPage = () => {
                             {job.workLocation && (
                               <div className="flex items-center gap-1">
                                 <MapPin className="h-4 w-4" />
-                                {job.workLocation}
+                                {/* {job.workLocation} */}
+                                <span>  {[job.city, job.country].filter(Boolean).join(', ')}</span>
                               </div>
                             )}
                             {job.jobType && (

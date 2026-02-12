@@ -18,67 +18,16 @@ import { createExperience, updateExperience, createEducation, updateEducation } 
 import { toast } from "sonner";
 
 interface ProfilePageClientProps {
-  profileData?: User | null;
+  profileData: User | null;
   instituteData?: Institution | null;
-  currentUserId?: string | null;
+  currentUserId: string | null;
   userId: string;
 }
 
-import { getUserById } from "@/lib/api";
-import { getInstitutionById } from "@/lib/api/services/institute";
-import { getUser } from "@/lib/api/services/user";
-
 export function ProfilePageClient({ profileData, instituteData, currentUserId, userId }: ProfilePageClientProps) {
   const [activeTab, setActiveTab] = useState("Experience");
-  const [userData, setUserData] = useState<User | null>(profileData || null);
+  const [userData, setUserData] = useState<User | null>(profileData);
   const [instituteProfile, setInstituteProfile] = useState<Institution | null>(instituteData || null);
-  const [loading, setLoading] = useState(!profileData && !instituteData);
-  const [error, setError] = useState<string | null>(null);
-  const [fetchedCurrentUserId, setFetchedCurrentUserId] = useState<string | null>(currentUserId || null);
-
-  useEffect(() => {
-    // If we already have data (passed from server), don't fetch
-    if (profileData || instituteData) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // 1. Try fetching current user ID if missing
-        if (!fetchedCurrentUserId) {
-          try {
-            const currentUser = await getUser();
-            setFetchedCurrentUserId(currentUser.id);
-          } catch (e) {
-            console.error("Failed to fetch current user", e);
-          }
-        }
-
-        // 2. Try fetching as User
-        try {
-          const user = await getUserById(userId);
-          setUserData(user);
-        } catch (userError) {
-          // 3. Keep trying as Institute
-          try {
-            const institute = await getInstitutionById(userId);
-            setInstituteProfile(institute);
-          } catch (instituteError) {
-            console.error("Failed to fetch profile as user or institution");
-            setError("Profile not found");
-          }
-        }
-      } catch (err) {
-        setError("An unexpected error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [userId, profileData, instituteData]);
 
   // Debug (Temporary)
   console.log("ProfilePageClient Debug:", { currentUserId, userId, isOwnProfile: currentUserId === userId });
@@ -189,20 +138,12 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
     setInstituteProfile(updatedInstitute);
   };
 
-  if (loading) {
+  if (!userData && !instituteProfile) {
     return (
       <div className="space-y-4">
         <div className="flex justify-center items-center py-12">
           <div className="text-lg text-gray-600">Loading profile...</div>
         </div>
-      </div>
-    );
-  }
-
-  if (error || (!userData && !instituteProfile)) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="text-xl text-gray-700">{error || "Profile not found"}</div>
       </div>
     );
   }
