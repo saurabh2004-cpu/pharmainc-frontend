@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useEffect, useState } from 'react';
+'use client'
 import { useRouter, useParams } from 'next/navigation';
 import { getUserType } from '@/lib/api/utils';
 import { useInstitutionStore } from '@/store';
@@ -8,7 +6,6 @@ import { getJob as fetchJob, getJobInstitute } from '@/lib/api/services/job';
 import {
     getApplicationsByJob,
     requestNextRound,
-    scheduleInterview,
     interviewDecision,
     hire,
     shortlistApplication,
@@ -48,6 +45,8 @@ import {
     CheckCircle, XCircle, Calendar, UserCheck, X, MoreVertical
 } from 'lucide-react';
 import { toast } from 'sonner';
+import ScheduleInterviewModal from './_components/ScheduleInterviewModal';
+import { useEffect, useState } from 'react';
 
 interface ApplicationWithUserAndJob extends Application {
     userName?: string;
@@ -113,6 +112,8 @@ const JobApplicationsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
     const [processingIds, setProcessingIds] = useState<string[]>([]); // Track processing actions
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+    const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
 
     useEffect(() => {
         const userType = getUserType();
@@ -233,18 +234,16 @@ const JobApplicationsPage = () => {
         }
     };
 
-    const handleScheduleInterview = async (appId: string) => {
-        if (isProcessing(appId)) return;
-        addToProcessing(appId);
-        try {
-            await scheduleInterview(appId);
-            updateLocalStatus(appId, 'INTERVIEW_SCHEDULED');
-            toast.success('Interview scheduled successfully');
-        } catch (error) {
-            console.error('Error scheduling interview:', error);
-            toast.error('Failed to schedule interview');
-        } finally {
-            removeFromProcessing(appId);
+    // Removed unused handleScheduleInterview function
+
+    const handleScheduleInterviewClick = (appId: string) => {
+        setSelectedApplicantId(appId);
+        setShowScheduleModal(true);
+    };
+
+    const handleInterviewScheduled = () => {
+        if (selectedApplicantId) {
+            updateLocalStatus(selectedApplicantId, 'INTERVIEW_SCHEDULED');
         }
     };
 
@@ -412,10 +411,10 @@ const JobApplicationsPage = () => {
                     <Button
                         size="sm"
                         className="bg-green-600 hover:bg-green-700 text-white"
-                        onClick={() => handleScheduleInterview(app.id)}
+                        onClick={() => handleScheduleInterviewClick(app.id)}
                         disabled={loading}
                     >
-                        {loading ? 'Processing...' : 'Schedule Interview'}
+                        Schedule Interview
                     </Button>
                 );
             case 'INTERVIEW_SCHEDULED':
@@ -635,6 +634,13 @@ const JobApplicationsPage = () => {
                     <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</Button>
                 </div>
             )}
+
+            <ScheduleInterviewModal
+                isOpen={showScheduleModal}
+                onClose={() => setShowScheduleModal(false)}
+                applicationId={selectedApplicantId}
+                onSuccess={handleInterviewScheduled}
+            />
         </div>
     );
 };

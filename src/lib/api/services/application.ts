@@ -1,4 +1,4 @@
-
+''
 import { baseApi } from "@/lib/api/axios/api";
 
 
@@ -37,8 +37,16 @@ export const getMyApplications = async (status?: string): Promise<any> => {
 };
 
 
-export const scheduleInterview = async (applicationId: string): Promise<any> => {
-    const response = await baseApi.put(`/application/${applicationId}/schedule-interview`, { interviewDetails: "YOUR INTERVIEW DATE" });
+export const scheduleInterview = async (
+    applicationId: string,
+    data: {
+        interviewType: string;
+        interviewDate: string;
+        interviewTime: string;
+        interviewLink?: string;
+    }
+): Promise<any> => {
+    const response = await baseApi.put(`/application/${applicationId}/schedule-interview`, data);
     return response.data;
 };
 

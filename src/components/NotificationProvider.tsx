@@ -100,6 +100,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             // Add to store optimistically
             addOptimisticNotification(notification);
 
+            // Force fetch unread count to ensure accuracy
+            fetchUnreadCount();
+
             // Toast Logic Based on Role
             // Check if we already processed this ID for toast
             if (processedIds.current.has(notification.id)) {
