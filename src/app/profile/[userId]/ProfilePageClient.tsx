@@ -25,7 +25,7 @@ interface ProfilePageClientProps {
 }
 
 export function ProfilePageClient({ profileData, instituteData, currentUserId, userId }: ProfilePageClientProps) {
-  const [activeTab, setActiveTab] = useState("Experience");
+  const [activeTab, setActiveTab] = useState("Education");
   const [userData, setUserData] = useState<User | null>(profileData);
   const [instituteProfile, setInstituteProfile] = useState<Institution | null>(instituteData || null);
 

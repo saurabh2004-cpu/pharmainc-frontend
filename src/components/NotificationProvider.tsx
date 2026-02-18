@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useUserStore, useInstitutionStore, useNotificationStore } from '@/store'
 import { getAuthToken } from '@/lib/api/utils'
 import { connectSocket } from '@/lib/socket'
@@ -8,39 +8,82 @@ import { toast } from "sonner"
 import { getUserById } from '@/lib/api'
 import { Notification } from '@/lib/api/types'
 import { NotificationStack } from './notifications/NotificationStack'
-import { useState } from 'react'
+import { markNotificationAsRead } from '@/lib/api/services/notification'
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useUserStore()
   const { currentInstitution } = useInstitutionStore()
-  const { fetchNotifications, addOptimisticNotification, fetchUnreadCount } = useNotificationStore()
+  const {
+    fetchNotifications,
+    addOptimisticNotification,
+    fetchUnreadCount,
+    fetchUnreadNotifications,
+    markAsRead,
+    markAllAsRead
+  } = useNotificationStore()
   const processedIds = useRef(new Set<string>()) // Track processed notification IDs session-wise
-  const mountTime = useRef(Date.now())
   const [activePopups, setActivePopups] = useState<any[]>([])
 
-  const removePopup = (id: string) => {
-    setActivePopups(prev => prev.filter(p => p.id !== id))
-  }
+  const handleMarkAsRead = useCallback(async (id: string) => {
+    try {
+      await markAsRead(id);
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  }, [markAsRead]);
 
-  // Debug: Show a test popup on mount
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      console.log("Triggering TEST popup");
-      setActivePopups(prev => [{
-        id: 'test-1',
-        type: 'NEXT_ROUND_REQUESTED',
-        title: 'Test Notification',
-        message: 'This is a test notification to verify popup rendering.',
-        status: 'NEXT_ROUND_REQUESTED',
-        applicationId: 'test-app-id',
-        onClose: removePopup
-      }, ...prev]);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
+  const handleMarkAllAsRead = useCallback(async () => {
+    try {
+      setActivePopups([]); // Clear popups immediately
+      await markAllAsRead();
+    } catch (error) {
+      console.error("Failed to mark all notifications as read:", error);
+    }
+  }, [markAllAsRead]);
+
+  const removePopup = useCallback((id: string) => {
+    setActivePopups(prev => prev.filter(p => p.id !== id));
+    // Mark as read when closing the popup
+    handleMarkAsRead(id);
+  }, [handleMarkAsRead]);
+
+  const handleActionComplete = useCallback((id: string) => {
+    // Logic when an action (Accept/Reject) is completed in the popup
+    handleMarkAsRead(id);
+  }, [handleMarkAsRead]);
+
 
   useEffect(() => {
     let socket: any = null;
+
+    const syncUnreadState = async () => {
+      try {
+        const unreadNotifications = await fetchUnreadNotifications();
+        if (unreadNotifications?.length > 0 && !currentInstitution?.id) {
+          const mappedPopups = unreadNotifications.map(n => ({
+            id: n.id,
+            type: n.type || n.status || 'info',
+            title: n.title,
+            message: n.message,
+            status: n.status,
+            receiverRole: n.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
+            applicationId: n.relatedApplicationId,
+            onClose: removePopup
+          }));
+
+          setActivePopups(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newPopups = mappedPopups.filter(p => !existingIds.has(p.id));
+            newPopups.forEach(p => processedIds.current.add(p.id));
+            return [...prev, ...newPopups];
+          });
+        }
+        // Ensure count is synced
+        await fetchUnreadCount();
+      } catch (e) {
+        console.error("Failed to sync unread state:", e);
+      }
+    };
 
     const initializeNotifications = async () => {
       const token = getAuthToken()
@@ -48,9 +91,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const isInstitute = !!currentInstitution?.id;
 
       if (token && entityId) {
-        // Fetch persisted notifications from backend
-        await fetchNotifications()
-        await fetchUnreadCount()
+        // Initial fetch
+        await fetchNotifications();
+        await syncUnreadState();
 
         socket = connectSocket(token);
 
@@ -64,20 +107,31 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             socket.emit('join', { userId: entityId });
           }
 
-          socket.on('notification', async (data: any) => {
-            console.log("Socket Notification:", data);
+          // Re-sync on reconnect
+          socket.on('connect', () => {
+            console.log("Socket connected/reconnected. Syncing unread state...");
+            syncUnreadState();
+          });
+
+          socket.on('notification', async (data: any, statusPayload?: any) => {
+            console.log("Socket Notification received:", { data, statusPayload });
+
+            // Use status from payload if available, otherwise fall back to type or infer from data
+            const currentStatus = statusPayload || data.status || data.type;
 
             // Transform socket notification to match Notification type
             const notification: Notification = {
               id: data.id || Math.random().toString(36).substr(2, 9),
               createdAt: data.timestamp || new Date().toISOString(),
               receiverId: entityId,
-              receiverRole: isInstitute ? (currentInstitution?.role || 'INSTITUTE') : (currentUser?.role || 'USER'),
+              receiverRole: data.receiverRole || (isInstitute ? 'INSTITUTE' : 'USER'),
               title: data.title || 'New Notification',
               message: data.message || '',
               isRead: false,
               relatedJobId: data.jobId || data.relatedJobId || null,
               relatedApplicationId: data.applicationId || data.relatedApplicationId || null,
+              type: data.type,
+              status: currentStatus
             };
 
             // Enrich with user details if it's an institute receiving application notifications
@@ -110,15 +164,14 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             }
             processedIds.current.add(notification.id);
 
-            if (notification.message) {
-              const status = data.status || data.type;
+            // Use status from payload if available, otherwise fall back to type or infer from data
+            const status = statusPayload || data.status || data.type;
 
+            if (notification.message) {
               if (isInstitute) {
                 // Institute: show user actions (APPLIED, responses)
-                const isUserAction = ['APPLIED', 'NEXT_ROUND_ACCEPTED', 'NEXT_ROUND_REJECTED'].includes(status);
-                if (isUserAction || !status) {
-                  toast.info(notification.message);
-                }
+                // For institute, we generally just show toasts for now
+                toast.info(notification.message);
               } else {
                 // Job Seekers: show institute actions (requests, decisions)
                 const relevantStatuses = [
@@ -128,32 +181,26 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                   'INTERVIEW_ACCEPTED',
                   'HIRED',
                   'REJECTED',
-                  'NEXT_ROUND_ACCEPTED',
                   'NEXT_ROUND_REJECTED'
                 ];
 
-                console.log("Checking popup condition:", { status, relevant: relevantStatuses.includes(status) });
-
-                // 1. Show Horizontal Popup for relevant statuses
+                // Check specifically for statuses that require a popup with actions or clear info
                 if (relevantStatuses.includes(status)) {
                   console.log("Adding Popup:", notification);
                   setActivePopups(prev => [{
                     id: notification.id,
-                    type: status,
+                    type: notification.type || notification.status || 'info',
                     title: notification.title,
                     message: notification.message,
-                    status: status,
+                    status: notification.status,
+                    receiverRole: notification.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
                     applicationId: notification.relatedApplicationId,
                     onClose: removePopup
                   }, ...prev]);
-                } else {
-                  console.warn("Status not relevant for popup:", status);
                 }
 
-                // 2. Show Standard Toast (Simultaneously as requested)
-                if (relevantStatuses.includes(status) || !status) {
-                  toast.info(notification.message);
-                }
+                // Show Toast as well
+                toast.info(notification.message);
               }
             }
           });
@@ -166,14 +213,20 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     return () => {
       if (socket) {
         socket.off('notification');
+        socket.off('connect');
       }
     }
-  }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount])
+  }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount, fetchUnreadNotifications, removePopup])
 
   return (
     <>
       {children}
-      <NotificationStack notifications={activePopups} onClose={removePopup} />
+      <NotificationStack
+        notifications={activePopups}
+        onClose={removePopup}
+        onCloseAll={handleMarkAllAsRead}
+        onActionComplete={handleActionComplete}
+      />
     </>
   )
 }

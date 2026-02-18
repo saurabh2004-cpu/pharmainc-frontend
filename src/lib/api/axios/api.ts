@@ -1,5 +1,5 @@
 import axios from "axios";
-// import { applyInterceptors } from "./utils";
+import { applyInterceptors } from "./utils";
 
 // const BASE_URLS = {
 //   auth: process.env.NEXT_PUBLIC_API_AUTH!,
@@ -24,12 +24,12 @@ import axios from "axios";
 // export const baseApi = applyInterceptors(axios.create({baseURL : process.env.NEXT_PUBLIC_API_BASE!}));
 
 
-// export const baseApi = axios.create({
-//   baseURL: `http://localhost:3001/api/v1`,
-//   withCredentials: true,
-// });
-
-export const baseApi = axios.create({
-  baseURL: `${process.env.NEXT_PUBLIC_SOCKET_URL}/api/v1`,
+export const baseApi = applyInterceptors(axios.create({
+  baseURL: `http://localhost:3001/api/v1`,
   withCredentials: true,
-});
+}));
+
+// export const baseApi = applyInterceptors(axios.create({
+//   baseURL: `${process.env.NEXT_PUBLIC_SOCKET_URL}/api/v1`,
+//   withCredentials: true,
+// }));

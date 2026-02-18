@@ -8,5 +8,6 @@ export * from "@/lib/api/services/content";
 export * from "@/lib/api/services/chat";
 export * from "@/lib/api/services/specialty";
 export * from "@/lib/api/services/notification";
+export * from "@/lib/api/services/verification";
 export * from "@/lib/api/types";
 export * from "@/lib/api/utils";

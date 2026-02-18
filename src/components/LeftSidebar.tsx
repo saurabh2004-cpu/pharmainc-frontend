@@ -47,7 +47,7 @@ const navigations = [
     ]
   },
   // { href: '/societies', icon: Network, label: 'Societies' },
-  { href: 'https://forms.gle/MWEQhRt9T8GZyDWo7', icon: Crown, label: 'Verifications', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
+  { href: '/verification', icon: Crown, label: 'Verifications', },
 ];
 
 export default function LeftSidebar({ user = null }: LeftSidebarProps) {
@@ -56,7 +56,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
   const { clearUser } = useUserStore();
   const { clearInstitution } = useInstitutionStore();
   const { unreadCount, clearNotifications } = useNotificationStore();
-  const { currentEntity, userType } = useCurrentEntity();
+  const { currentEntity, userType, entityType } = useCurrentEntity();
 
   console.log("current entity", currentEntity)
 
@@ -221,7 +221,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
             {showProfileMenu && (
               <div className="absolute bottom-full left-0 mb-2 w-full min-w-[200px] bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-[999] animate-in slide-in-from-bottom-2 duration-200">
                 <Link
-                  href={`/${userType === 'institution' ? "institute" : "profile"}/${displayUser.id}`}
+                  href={`/profile/${displayUser.id}`}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
                   onClick={() => setShowProfileMenu(false)}
                 >

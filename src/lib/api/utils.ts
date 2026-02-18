@@ -12,17 +12,17 @@ const API_BASE_URLS = {
 
 export const setAuthToken = (token: string, userType?: string) => {
   if (typeof window !== "undefined") {
-    // Set cookie with httpOnly flag for security
-    // document.cookie = `accessToken=${token}; path=/; secure; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
-
-    // if (userType) {
-    //   document.cookie = `userType=${userType}; path=/; secure; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
-    // }
     document.cookie = `accessToken=${token}; path=/; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
 
     if (userType) {
       document.cookie = `userType=${userType}; path=/; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
     }
+
+    // document.cookie = `accessToken=${token}; path=/; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
+
+    // if (userType) {
+    //   document.cookie = `userType=${userType}; path=/; samesite=strict; max-age=${7 * 24 * 60 * 60}`; // 7 days
+    // }
   }
 };
 

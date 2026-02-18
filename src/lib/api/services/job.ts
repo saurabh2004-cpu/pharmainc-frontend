@@ -123,6 +123,8 @@ export const getInstituteJobs = async (
     params: { page, pageSize, fields, status }
   });
 
+  console.log("get jobs by instituteId", response.data);
+
   const apiResponse = response.data;
   return {
     data: apiResponse.jobs || [],

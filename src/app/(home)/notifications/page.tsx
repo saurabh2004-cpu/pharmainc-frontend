@@ -13,6 +13,7 @@ import { requestNextRound, respondToNextRound } from '@/lib/api/services/applica
 import { toast } from "sonner"
 
 const NotificationsPage = () => {
+  console.log("NotificationsPage rendering");
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
   const { currentEntity, isLoading, userType } = useCurrentEntity()
@@ -22,70 +23,86 @@ const NotificationsPage = () => {
     loading: notificationLoading,
     fetchNotifications,
     markAsRead,
-    markAllAsRead
+    markAllAsRead,
+    hasMore,
+    page
   } = useNotificationStore()
 
   // Combine notifications
   const generalNotificationsList = notifications || [];
+  const loadMoreRef = React.useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = getAuthToken()
-      console.log('Auth token:', token ? 'exists' : 'not found')
-      console.log('User type:', userType)
-
+      // ... existing auth check logic ...
       if (token) {
         setIsAuthenticated(true)
-
-        if (!currentEntity && !isLoading) {
-          console.log('Fetching current entity...')
-          // fetchEntity is not needed - entity is fetched by entity stores
-        } else {
-          console.log('Current entity:', currentEntity ? { id: currentEntity.id, name: currentEntity.name } : 'null')
-        }
       } else {
-        console.log('No auth token, entity not authenticated')
         setIsAuthenticated(false)
       }
     }
-
     checkAuth()
-  }, [currentEntity, isLoading, userType])
+  }, [])
 
   const [activeTab, setActiveTab] = useState("all")
 
+  // Initial fetch
   useEffect(() => {
     const fetchPersistedNotifications = async () => {
-      if (!isAuthenticated) {
-        console.log('Cannot fetch notifications - not authenticated')
-        return
+      if (!isAuthenticated) return
+      // Only fetch if we have no notifications or just starting
+      if (generalNotificationsList.length === 0) {
+        await fetchNotifications(1)
       }
-
-      console.log('Fetching persisted notifications')
-      await fetchNotifications()
     }
 
     if (isAuthenticated) {
       fetchPersistedNotifications()
     }
-  }, [isAuthenticated, fetchNotifications])
+  }, [isAuthenticated, fetchNotifications]) // Removed generalNotificationsList.length dependency to avoid loops
+
+  // Infinite Scroll Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !notificationLoading) {
+          console.log("Loading more notifications, page:", page + 1);
+          fetchNotifications(page + 1)
+        }
+      },
+      { threshold: 0.5 }
+    )
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current)
+    }
+
+    return () => {
+      if (loadMoreRef.current) {
+        observer.unobserve(loadMoreRef.current)
+      }
+    }
+  }, [hasMore, notificationLoading, fetchNotifications, page])
 
   // Mark all notifications as read when user views the page and "all" tab is active
   useEffect(() => {
     const markRead = async () => {
-      if (isAuthenticated && unreadCount > 0 && activeTab === "all") {
+      console.log("NotificationsPage markRead effect executing", { isAuthenticated, unreadCount, activeTab });
+      if (isAuthenticated && activeTab === "all") {
+        console.log("Calling markAllAsRead from effect");
         await markAllAsRead();
       }
     };
-    markRead();
-  }, [isAuthenticated, unreadCount, markAllAsRead, activeTab]);
+    if (isAuthenticated) {
+      markRead();
+    }
+  }, [isAuthenticated, activeTab, markAllAsRead]);
 
   // Connection requests are handled separately - this is for persisted notifications only
   const handleNotificationClick = async (notificationId: string) => {
     await markAsRead(notificationId)
   }
-
-
 
   const handleNextRoundAccept = async (notificationId: string, applicationId: string) => {
     try {
@@ -159,6 +176,15 @@ const NotificationsPage = () => {
         <div className="flex items-center gap-2">
           <Bell className="w-6 h-6 text-gray-900" />
           <h1 className="text-xl font-bold text-gray-900 font-sans">Notifications</h1>
+          {/*<button
+            onClick={() => {
+              console.log("Debug Button clicked");
+              markAllAsRead();
+            }}
+            className="text-xs bg-red-100 p-1"
+          >
+            DEBUG: Mark All Read
+          </button>*/}
         </div>
       </div>
 
@@ -185,7 +211,7 @@ const NotificationsPage = () => {
         <div className="flex-1">
           <TabsContent value="all" className="">
             <div className="bg-white">
-              {notificationLoading ? (
+              {notificationLoading && generalNotificationsList.length === 0 ? (
                 <div className="flex items-center justify-center py-16">
                   <div className="flex flex-col items-center space-y-4">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
@@ -206,11 +232,19 @@ const NotificationsPage = () => {
                         read={notification.isRead}
                         relatedJobId={notification.relatedJobId}
                         relatedApplicationId={notification.relatedApplicationId}
-                        onAccept={handleNextRoundAccept}
-                        onReject={handleNextRoundReject}
+                        status={notification.application?.status || (notification.message?.includes('Shortlisted') ? 'SHORTLISTED' : undefined)}
+                        jobTitle={notification.job?.title}
+                        instituteName={notification.job?.institute?.name}
+                        applicantName={notification.application?.user?.name}
+                        applicationId={notification.relatedApplicationId || undefined}
                       />
                     </div>
                   ))}
+                  <div ref={loadMoreRef} className="h-4 w-full flex justify-center p-4">
+                    {notificationLoading && hasMore && (
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center py-16 px-4">

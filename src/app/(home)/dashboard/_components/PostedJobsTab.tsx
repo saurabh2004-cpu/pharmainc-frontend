@@ -290,16 +290,16 @@ export const PostedJobsTab = () => {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
+                    <TableRow> 
                       <TableHead className="w-[300px]">Job Title</TableHead>
                       <TableHead className="w-[110px]">Job Position</TableHead>
-                      <TableHead className="w-[120px]">Speciality</TableHead>
+                      <TableHead className="w-[240px]">Speciality</TableHead>
                       {/* <TableHead className="min-w-[150px]">Sub-Speciality</TableHead> */}
-                      <TableHead className="w-[120px]">Experience Level</TableHead>
+                      <TableHead className="w-[150px]">Experience Level</TableHead>
                       {/* <TableHead className="w-32 min-w-[120px]">Location</TableHead> */}
-                      <TableHead className="w-[120px]">Status</TableHead>
+                      <TableHead className="w-[40px]">Status</TableHead>
                       <TableHead className="w-[120px] text-center">Actions</TableHead>
-                    </TableRow>
+                    </TableRow> 
                   </TableHeader>
                   <TableBody>
                     {filteredJobs.map((job) => (
@@ -325,7 +325,7 @@ export const PostedJobsTab = () => {
                         </TableCell>
                         <TableCell className='max-w-[150px]'>
                           <div className="flex items-center gap-1">
-                            <Badge variant="outline" className="text-xs">{job.speciality || 'N/A'}</Badge>
+                            <p className="text-xs truncate max-w-full" title={job.speciality || 'N/A'}>{job.speciality || 'N/A'}</p>
                           </div>
                         </TableCell>
 
@@ -335,6 +335,7 @@ export const PostedJobsTab = () => {
                             {job.experienceLevel}
                           </div>
                         </TableCell>
+
                         {/* <TableCell>
                           <div className="flex items-center text-sm text-gray-600">
                             {job.country ? job.country + ',' + job.city : "'Remote'"}
@@ -364,6 +365,7 @@ export const PostedJobsTab = () => {
                             </div>
                           </div>
                         </TableCell>
+
                         <TableCell>
                           <div className="flex items-center justify-center gap-2">
                             <Button
@@ -373,6 +375,9 @@ export const PostedJobsTab = () => {
                               title="View Applicants"
                               onClick={() => handleViewApplications(job.id)}
                             >
+                              <Badge variant="secondary" className="font-semibold">
+                                {job.applicationsCount || 0}
+                              </Badge>
                               <Users className="w-4 h-4 text-gray-600 hover:text-blue-600" />
                             </Button>
 

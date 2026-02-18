@@ -58,7 +58,7 @@ export default function JobApplicationModal({
   // Fetch current organization data when modal opens
   React.useEffect(() => {
     const fetchCurrentOrganization = async () => {
-      if (isOpen && currentUser?.id) {
+      if (isOpen && currentUser?.id && currentUser?.role !== 'STUDENT') {
         setIsLoadingOrgData(true);
         try {
           const orgData = await getCurrentOrganization();
@@ -148,7 +148,7 @@ export default function JobApplicationModal({
         setIsSubmitting(false);
         return;
       }
-      if (!formData.experienceYears) {
+      if (currentUser.role !== 'STUDENT' && !formData.experienceYears) {
         toast.error('Missing Information', {
           description: 'Please specify your experience level'
         });
@@ -292,59 +292,63 @@ export default function JobApplicationModal({
             </div>
 
             {/* Experience Years */}
-            <div className="space-y-2">
-              <Label htmlFor="experienceYears" className="text-sm font-medium">
-                Years of Experience *
-              </Label>
-              <Select onValueChange={(value) => handleInputChange('experienceYears', value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your experience level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Entry Level (0-1 years)</SelectItem>
-                  <SelectItem value="2">Junior (2-3 years)</SelectItem>
-                  <SelectItem value="4">Mid-Level (4-6 years)</SelectItem>
-                  <SelectItem value="7">Senior (7-10 years)</SelectItem>
-                  <SelectItem value="11">Expert (10+ years)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {currentUser?.role !== 'STUDENT' && (
+              <div className="space-y-2">
+                <Label htmlFor="experienceYears" className="text-sm font-medium">
+                  Years of Experience *
+                </Label>
+                <Select onValueChange={(value) => handleInputChange('experienceYears', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your experience level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="0">Entry Level (0-1 years)</SelectItem>
+                    <SelectItem value="2">Junior (2-3 years)</SelectItem>
+                    <SelectItem value="4">Mid-Level (4-6 years)</SelectItem>
+                    <SelectItem value="7">Senior (7-10 years)</SelectItem>
+                    <SelectItem value="11">Expert (10+ years)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Current Position & Institute */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="currentPosition" className="text-sm font-medium flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Current Position
-                </Label>
-                <Input
-                  id="currentPosition"
-                  placeholder="e.g., Software Engineer, Doctor, etc."
-                  value={formData.currentPosition}
-                  onChange={(e) => handleInputChange('currentPosition', e.target.value)}
-                  disabled={isLoadingOrgData}
-                />
-                {isLoadingOrgData && (
-                  <p className="text-xs text-gray-500">Loading your current position...</p>
-                )}
+            {currentUser?.role !== 'STUDENT' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="currentPosition" className="text-sm font-medium flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    Current Position
+                  </Label>
+                  <Input
+                    id="currentPosition"
+                    placeholder="e.g., Software Engineer, Doctor, etc."
+                    value={formData.currentPosition}
+                    onChange={(e) => handleInputChange('currentPosition', e.target.value)}
+                    disabled={isLoadingOrgData}
+                  />
+                  {isLoadingOrgData && (
+                    <p className="text-xs text-gray-500">Loading your current position...</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="currentInstitute" className="text-sm font-medium flex items-center gap-2">
+                    <Building2 className="w-4 h-4" />
+                    Current Organization
+                  </Label>
+                  <Input
+                    id="currentInstitute"
+                    placeholder="e.g., ABC Hospital, XYZ Tech, etc."
+                    value={formData.currentInstitute}
+                    onChange={(e) => handleInputChange('currentInstitute', e.target.value)}
+                    disabled={isLoadingOrgData}
+                  />
+                  {isLoadingOrgData && (
+                    <p className="text-xs text-gray-500">Loading your current organization...</p>
+                  )}
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="currentInstitute" className="text-sm font-medium flex items-center gap-2">
-                  <Building2 className="w-4 h-4" />
-                  Current Organization
-                </Label>
-                <Input
-                  id="currentInstitute"
-                  placeholder="e.g., ABC Hospital, XYZ Tech, etc."
-                  value={formData.currentInstitute}
-                  onChange={(e) => handleInputChange('currentInstitute', e.target.value)}
-                  disabled={isLoadingOrgData}
-                />
-                {isLoadingOrgData && (
-                  <p className="text-xs text-gray-500">Loading your current organization...</p>
-                )}
-              </div>
-            </div>
+            )}
 
             {/* Resume Upload */}
             <div className="space-y-2">

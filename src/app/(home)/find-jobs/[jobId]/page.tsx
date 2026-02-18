@@ -11,7 +11,10 @@ import { Job, Institution } from '@/lib/api/types';
 import JobApplicationModal from './_components/JobApplicationModal';
 import JobShareModal from '../_components/JobShareModal';
 import InstituteProfileModal from './_components/InstituteProfileModal';
+import ProfileIncompleteModal from './_components/ProfileIncompleteModal';
 import { useEntity } from '@/hooks/useEntity';
+import { checkProfileCompletion } from '@/lib/api/services/user';
+import { toast } from 'sonner';
 
 
 
@@ -77,6 +80,9 @@ const JobDetailPage = () => {
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showInstituteModal, setShowInstituteModal] = useState(false);
+  const [showProfileIncompleteModal, setShowProfileIncompleteModal] = useState(false);
+  const [profileErrorMessage, setProfileErrorMessage] = useState('');
+  const [isApplying, setIsApplying] = useState(false);
   const isBookmarked = isJobSaved(jobId);
 
   const [matchingScore, setMatchingScore] = useState<number | null>(null);
@@ -149,8 +155,39 @@ const JobDetailPage = () => {
     });
   };
 
-  const handleApply = () => {
-    setShowApplicationModal(true);
+  const handleApply = async () => {
+    // Prevent duplicate clicks
+    if (isApplying) return;
+
+    setIsApplying(true);
+
+    try {
+      const result = await checkProfileCompletion();
+
+      if (result.isComplete) {
+        // Profile is complete - proceed with application
+        setShowApplicationModal(true);
+      }
+    } catch (error: any) {
+      // Handle different error scenarios
+      if (error.response?.status === 400) {
+        // Profile incomplete - show modal with backend error message
+        const errorMsg = error.response?.data?.error ||
+          'Profile incomplete. Please complete your education, skills, and speciality before applying.';
+        setProfileErrorMessage(errorMsg);
+        setShowProfileIncompleteModal(true);
+      } else if (error.response?.status === 401) {
+        // Unauthorized - redirect to login
+        toast.error('Please login to apply for jobs');
+        router.push('/login');
+      } else {
+        // Other errors (network, 500, etc.)
+        console.error('Error checking profile completion:', error);
+        toast.error('Failed to check profile status. Please try again.');
+      }
+    } finally {
+      setIsApplying(false);
+    }
   };
 
   const handleViewInstituteProfile = () => {
@@ -256,9 +293,10 @@ const JobDetailPage = () => {
                 ) : (
                   <Button
                     onClick={handleApply}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6"
+                    disabled={isApplying}
+                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 disabled:opacity-60"
                   >
-                    APPLY NOW →
+                    {isApplying ? 'Checking...' : 'APPLY NOW →'}
                   </Button>
                 )
               )}
@@ -717,6 +755,14 @@ const JobDetailPage = () => {
               isOpen={showInstituteModal}
               onClose={() => setShowInstituteModal(false)}
               instituteId={job.instituteId}
+            />
+          )}
+          {currentUser && (
+            <ProfileIncompleteModal
+              isOpen={showProfileIncompleteModal}
+              onClose={() => setShowProfileIncompleteModal(false)}
+              errorMessage={profileErrorMessage}
+              userId={currentUser?.id}
             />
           )}
         </>

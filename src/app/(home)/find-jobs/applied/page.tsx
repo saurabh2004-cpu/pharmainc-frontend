@@ -60,6 +60,39 @@ const APPLICATION_STATUSES = [
   { value: 'HIRED', label: 'Hired' },
 ];
 
+const TAB_CONFIG = [
+  {
+    id: 'all',
+    label: 'All',
+    filter: (status: string) => true
+  },
+  {
+    id: 'SHORTLISTED',
+    label: 'Shortlisted',
+    filter: (status: string) => status === 'SHORTLISTED'
+  },
+  {
+    id: 'NEXT_ROUND_REQUESTED',
+    label: 'Next Round Requested',
+    filter: (status: string) => status === 'NEXT_ROUND_REQUESTED'
+  },
+  {
+    id: 'INTERVIEW_SCHEDULED',
+    label: 'Interview Scheduled',
+    filter: (status: string) => status === 'INTERVIEW_SCHEDULED'
+  },
+  {
+    id: 'HIRED',
+    label: 'Hired',
+    filter: (status: string) => status === 'HIRED'
+  },
+  {
+    id: 'REJECTED',
+    label: 'Rejected',
+    filter: (status: string) => status === 'REJECTED'
+  },
+];
+
 const AppliedJobsPage = () => {
   const router = useRouter();
   const { currentUser } = useUserStore();
@@ -252,8 +285,13 @@ const AppliedJobsPage = () => {
 
     // 2. Status Filter (Client-Side)
     if (statusFilter !== 'all') {
-      // Exact Enum Match
-      result = result.filter(app => app.status === statusFilter);
+      const activeTab = TAB_CONFIG.find(t => t.id === statusFilter);
+      if (activeTab) {
+        result = result.filter(app => activeTab.filter(app.status || 'APPLIED'));
+      } else {
+        // Fallback for Select filter values not in TAB_CONFIG
+        result = result.filter(app => app.status === statusFilter);
+      }
     }
 
     return result;
@@ -326,7 +364,7 @@ const AppliedJobsPage = () => {
   };
 
   const getAvatarColor = (name: string) => {
-    const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500', 'bg-orange-500', 'bg-cyan-500'];
+    const colors = ['bg-[blue-500]', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-yellow-500', 'bg-red-500', 'bg-teal-500', 'bg-orange-500', 'bg-cyan-500'];
     return colors[name.charCodeAt(0) % colors.length];
   };
 
@@ -414,6 +452,38 @@ const AppliedJobsPage = () => {
               <p className="text-gray-600 mt-2">Track and manage your job applications</p>
             </div>
 
+            {/* Status Tabs */}
+            <div className="flex border-b border-gray-200 mb-6 overflow-x-auto no-scrollbar bg-white rounded-lg p-1 shadow-sm">
+              {TAB_CONFIG.map((tab) => {
+                const isActive = statusFilter === tab.id;
+                const count = applications.filter(app => tab.filter(app.status || 'APPLIED')).length;
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setStatusFilter(tab.id);
+                      setCurrentPage(1);
+                    }}
+                    className={`
+                                flex items-center justify-center py-2.5 px-6 text-sm font-medium transition-all duration-200 whitespace-nowrap rounded-md
+                                ${isActive
+                        ? 'bg-[#398865] text-white shadow-md'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                      }
+                            `}
+                  >
+                    {tab.label}
+                    {count > 0 && (
+                      <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${isActive ? 'bg-white text-black' : 'bg-gray-100 text-gray-600'}`}>
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Filter Section */}
             <Card className="mb-6">
               <CardContent className="p-4">
@@ -428,19 +498,7 @@ const AppliedJobsPage = () => {
                       className="pl-10"
                     />
                   </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-full sm:w-56">
-                      <SelectValue placeholder="Filter by status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      {APPLICATION_STATUSES.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+
                 </div>
               </CardContent>
             </Card>
@@ -551,27 +609,9 @@ const AppliedJobsPage = () => {
                                 </div>
                               )}
 
-                              {/* Respond to Interview Schedule */}
-                              {application.status === 'INTERVIEW_SCHEDULED' && (
-                                <div className="flex gap-2">
-                                  <Button
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white"
-                                    onClick={() => handleInterviewResponse(application.id, 'accept')}
-                                    disabled={actionLoading === application.id}
-                                  >
-                                    Accept Interview
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    className="bg-red-600 hover:bg-red-700 text-white"
-                                    onClick={() => handleInterviewResponse(application.id, 'reject')}
-                                    disabled={actionLoading === application.id}
-                                  >
-                                    Reject Interview
-                                  </Button>
-                                </div>
-                              )}
+                              {/* Respond to Interview Schedule - REMOVED as per new flow */}
+                              {/* Users no longer respond to INTERVIEW_SCHEDULED */}
+                              {/* Institute now directly finalizes after scheduling */}
 
                               <div className="flex gap-2">
                                 <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${application.jobId}`)}>

@@ -14,9 +14,12 @@ const Navbar = () => {
     const { currentInstitution } = useInstitutionStore();
 
     const navLinks = [
-        { title: "Jobs", href: "/jobs" },
-        { title: "Resources", href: "/resources" },
-        { title: "About us", href: "/about-us" },
+        // { title: "Jobs", href: "/jobs" },
+        // { title: "Resources", href: "/resources" },
+        // { title: "About us", href: "/about-us" },
+        { title: "Jobs", href: "/" },
+        { title: "Resources", href: "/" },
+        { title: "About us", href: "/" },
     ];
 
     useEffect(() => {

@@ -419,9 +419,24 @@ const JobApplicationsPage = () => {
                 );
             case 'INTERVIEW_SCHEDULED':
                 return (
-                    <span className="text-xs text-gray-400 font-medium opacity-50 cursor-not-allowed">
-                        Waiting for Candidate Response
-                    </span>
+                    <div className="flex gap-2 justify-end">
+                        <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                            onClick={() => handleHire(app.id)}
+                            disabled={loading}
+                        >
+                            {loading ? '...' : 'Hire'}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleReject(app.id)}
+                            disabled={loading}
+                        >
+                            {loading ? '...' : 'Reject'}
+                        </Button>
+                    </div>
                 );
             case 'INTERVIEW_ACCEPTED': // Status 5
                 return (

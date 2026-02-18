@@ -9,7 +9,8 @@ export interface JobApplicationPopupProps {
     type: string;
     title: string;
     message: string;
-    status: string;
+    status?: string | null;
+    receiverRole?: string; // Role of the receiver
     applicationId?: string; // Essential for actions
     onClose: (id: string) => void;
     onActionComplete?: (id: string) => void;
@@ -21,6 +22,7 @@ export const JobApplicationPopup = ({
     title,
     message,
     status,
+    receiverRole,
     applicationId,
     onClose,
     onActionComplete
@@ -62,57 +64,71 @@ export const JobApplicationPopup = ({
 
     const isNextRoundRequest = status === 'NEXT_ROUND_REQUESTED';
     const isInterviewRequest = status === 'INTERVIEW_SCHEDULED';
-    const showActions = (isNextRoundRequest || isInterviewRequest) && !actionPerformed && applicationId;
 
-    // Render Icons based on type
+    const showActions = isNextRoundRequest &&
+        !actionPerformed &&
+        applicationId;
+
+    // Render Icons based on type or status
     const renderIcon = () => {
-        if (isNextRoundRequest) return <Briefcase className="w-5 h-5 text-purple-600" />;
-        if (isInterviewRequest) return <Calendar className="w-5 h-5 text-blue-600" />;
-        if (status === 'HIRED') return <Check className="w-5 h-5 text-green-600" />;
-        if (status?.includes('REJECTED')) return <X className="w-5 h-5 text-red-600" />;
-        if (status === 'SHORTLISTED') return <Briefcase className="w-5 h-5 text-blue-500" />;
+        const iconType = status || type;
+        if (iconType === 'NEXT_ROUND_REQUESTED') return <Briefcase className="w-5 h-5 text-purple-600" />;
+        // Case 2 fallback: no action buttons for other statuses
+        if (iconType === 'HIRED') return <Check className="w-5 h-5 text-green-600" />;
+        if (iconType?.includes('REJECTED')) return <X className="w-5 h-5 text-red-600" />;
+        if (iconType === 'SHORTLISTED') return <Briefcase className="w-5 h-5 text-blue-500" />;
+        if (iconType === 'INTERVIEW_SCHEDULED') return <Calendar className="w-5 h-5 text-blue-600" />;
         return <Check className="w-5 h-5 text-green-600" />;
     };
 
+
     return (
-        <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-4 w-full max-w-md mx-auto pointer-events-auto flex flex-col gap-3 animate-in slide-in-from-top-2 fade-in duration-300">
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex items-start gap-3 flex-1">
-                    <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
+        <div
+            className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 pointer-events-auto flex flex-col gap-4"
+            style={{
+                width: '550px',
+                height: '180px',
+                minHeight: '180px',
+                maxHeight: '180px'
+            }}
+        >
+            <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center flex-shrink-0">
                         {renderIcon()}
                     </div>
-                    <div>
-                        <h4 className="font-semibold text-gray-900 text-sm leading-tight">{title}</h4>
-                        <p className="text-sm text-gray-600 mt-1 leading-snug">{message}</p>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                        <h4 className="font-bold text-gray-900 text-lg leading-tight mb-2">{title}</h4>
+                        <p className="text-base text-gray-600 leading-relaxed line-clamp-3">{message}</p>
                     </div>
                 </div>
                 <button
                     onClick={() => onClose(id)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                    className="text-gray-400 hover:text-gray-600 transition-colors p-1.5 rounded-full hover:bg-gray-100 flex-shrink-0"
                     aria-label="Close notification"
                 >
-                    <X size={16} />
+                    <X size={20} />
                 </button>
             </div>
 
             {showActions && (
-                <div className="flex gap-2 justify-end mt-1 pt-2 border-t border-gray-50">
+                <div className="flex gap-3 justify-end pt-3 border-t border-gray-100">
                     <Button
-                        size="sm"
+                        size="default"
                         variant="ghost"
                         onClick={() => isNextRoundRequest ? handleNextRoundResponse('reject') : handleInterviewResponse('reject')}
                         disabled={processing}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 text-xs font-medium"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-10 text-sm font-medium px-6"
                     >
-                        Reject
+                        {isNextRoundRequest ? 'Reject Next Round' : 'Reject'}
                     </Button>
                     <Button
-                        size="sm"
+                        size="default"
                         onClick={() => isNextRoundRequest ? handleNextRoundResponse('accept') : handleInterviewResponse('accept')}
                         disabled={processing}
-                        className="bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs font-medium px-4"
+                        className="bg-blue-600 hover:bg-blue-700 text-white h-10 text-sm font-medium px-6"
                     >
-                        {processing ? 'Processing...' : 'Accept'}
+                        {processing ? 'Processing...' : (isNextRoundRequest ? 'Accept Next Round' : 'Accept')}
                     </Button>
                 </div>
             )}

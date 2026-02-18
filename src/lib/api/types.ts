@@ -25,6 +25,12 @@ export type EntityRole = RoleEnum | InstituteRoles;
 // Forward declaration - will be fully defined below
 export type Entity = User | Institution;
 
+export enum VerificationStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+}
+
 
 export interface AuthParams {
   firstName: string;
@@ -413,6 +419,7 @@ export interface Job {
   experience_level?: string;
   institute_id?: string;
   active?: boolean;
+  applicationsCount?: number;
 }
 
 export interface JobCreateParams {
@@ -752,6 +759,8 @@ export interface Notification {
   relatedApplicationId?: string | null;
   job?: Job;
   application?: Application;
+  type?: string;
+  status?: string;
 }
 
 export interface ApplicationStats {

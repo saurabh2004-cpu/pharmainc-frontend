@@ -72,8 +72,8 @@ export const NotificationItem = ({
   }
 
   // Logic to show Accept/Reject actions
-  // Only for NEXT_ROUND_REQUESTED and if action hasn't been taken locally
-  const showActions = status === 'NEXT_ROUND_REQUESTED' && !actionTaken && onAccept && onReject;
+  // Disabled for the notification list as requested
+  const showActions = false;
 
   return (
     <div className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150 font-sans ${getBgColor()}`}>
@@ -125,7 +125,7 @@ export const NotificationItem = ({
                 onClick={(e) => { e.stopPropagation(); handleAction('accept'); }}
                 disabled={processing}
               >
-                {processing ? 'Processing...' : 'Accept'}
+                {processing ? 'Processing...' : 'Accept Next Round'}
               </Button>
               <Button
                 size="sm"
@@ -134,7 +134,7 @@ export const NotificationItem = ({
                 onClick={(e) => { e.stopPropagation(); handleAction('reject'); }}
                 disabled={processing}
               >
-                Reject
+                Reject Next Round
               </Button>
             </div>
           )}
