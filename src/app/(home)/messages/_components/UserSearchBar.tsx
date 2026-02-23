@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, User } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import { searchUsers } from '@/lib/api/services/user'
 import { searchInstitutions } from '@/lib/api/services/institute'
 import { useChatStore } from '@/store'
@@ -70,7 +70,7 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
             q: query
           })
         ])
-        
+
         setSearchResults(userResponse.users || [])
         setInstitutionResults(institutionResponse.institutes || [])
         setHasSearched(true)
@@ -119,33 +119,33 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
 
   const getUserProfilePicture = (user: UserType) => {
     const profilePicture = user.profile_picture;
-    
+
     if (!profilePicture) return "/pp.png";
-    
+
     if (isProfilePictureUrl(profilePicture)) {
       return profilePicture;
     }
-    
+
     if (profilePicture.startsWith('http') || profilePicture.startsWith('/')) {
       return profilePicture;
     }
-    
+
     return getProfilePictureUrl(user.id, profilePicture);
   }
 
   const getInstitutionProfilePicture = (institution: Institution) => {
     const profilePicture = institution.profile_picture;
-    
+
     if (!profilePicture) return "/pp.png";
-    
+
     if (isProfilePictureUrl(profilePicture)) {
       return profilePicture;
     }
-    
+
     if (profilePicture.startsWith('http') || profilePicture.startsWith('/')) {
       return profilePicture;
     }
-    
+
     return getProfilePictureUrl(institution.id, profilePicture);
   }
 
@@ -158,12 +158,12 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
       verified: user.verified || false,
       online: false
     })
-    
+
     setSearchOpen(false)
     setSearchValue("")
     setSearchResults([])
     setInstitutionResults([])
-    
+
     onUserSelect?.()
   }
 
@@ -176,12 +176,12 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
       verified: institution.verified || false,
       online: false
     })
-    
+
     setSearchOpen(false)
     setSearchValue("")
     setSearchResults([])
     setInstitutionResults([])
-    
+
     onUserSelect?.()
   }
 
@@ -198,7 +198,7 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
           className="w-full bg-transparent border-0 rounded-full py-3 pl-12 pr-4 text-base placeholder:text-gray-500 focus:outline-none focus:ring-0"
         />
       </form>
-      
+
       {searchOpen && searchValue && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-20">
           <div className="max-h-96 overflow-y-auto">
@@ -223,12 +223,7 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
                           onClick={() => handleUserClick(user)}
                           className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3"
                         >
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage src={getUserProfilePicture(user)} alt={user.name} />
-                            <AvatarFallback>
-                              {user.name.split(' ').map((n, i) => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar name={user.name} className="w-10 h-10" />
                           <div className="flex-1">
                             <div className="flex items-center gap-1">
                               <span className="font-medium text-gray-900">{user.name}</span>
@@ -244,7 +239,7 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
                       ))}
                     </>
                   )}
-                  
+
                   {institutionResults.length > 0 && (
                     <>
                       <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -256,12 +251,7 @@ export default function UserSearchBar({ onUserSelect }: UserSearchBarProps = {})
                           onClick={() => handleInstitutionClick(institution)}
                           className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3"
                         >
-                          <Avatar className="w-10 h-10">
-                            <AvatarImage src={getInstitutionProfilePicture(institution)} alt={institution.name} />
-                            <AvatarFallback>
-                              {institution.name.split(' ').map((n, i) => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
+                          <UserAvatar name={institution.name} className="w-10 h-10" />
                           <div className="flex-1">
                             <div className="flex items-center gap-1">
                               <span className="font-medium text-gray-900">{institution.name}</span>

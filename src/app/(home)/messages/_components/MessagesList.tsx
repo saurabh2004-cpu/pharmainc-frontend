@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, MoreHorizontal, MessageCircle, Plus, X } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useChatStore } from '@/store'
 import { useUserStore } from '@/store'
@@ -32,12 +32,12 @@ export default function MessagesList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null)
   const [showNewChatPanel, setShowNewChatPanel] = useState(false)
-  const { 
-    setSelectedChat, 
-    conversations, 
+  const {
+    setSelectedChat,
+    conversations,
     selectedChat,
     onlineUsers,
-    fetchConversations 
+    fetchConversations
   } = useChatStore()
   const { fetchUserById } = useUserStore()
   const { fetchInstitutionById } = useInstitutionStore()
@@ -65,14 +65,14 @@ export default function MessagesList() {
   useEffect(() => {
     if (currentEntity?.id) {
       fetchConversations(currentEntity.id)
-      
+
       // Refresh conversations every 30 seconds
       const interval = setInterval(() => {
         if (currentEntity?.id) {
           fetchConversations(currentEntity.id)
         }
       }, 30000)
-      
+
       return () => clearInterval(interval)
     }
   }, [currentEntity?.id, fetchConversations])
@@ -85,61 +85,61 @@ export default function MessagesList() {
   // Convert conversations to messages format for display
   const [messages, setMessages] = useState<Message[]>([])
   const [loadingConversations, setLoadingConversations] = useState(false)
-  
+
   useEffect(() => {
     const convertConversationsToMessages = async () => {
       if (!conversations.length || !currentEntity?.id) {
         setMessages([])
         return
       }
-      
+
       setLoadingConversations(true)
-      
+
       try {
         const messagePromises = conversations.map(async (conv) => {
           // Find the other participant (not the current entity)
           const otherUserId = conv.participants.find(p => p !== currentEntity.id)
           if (!otherUserId) return null
-          
+
           // Format timestamp for display
           const messageDate = new Date(conv.lastMessageAt)
           const now = new Date()
-          
+
           let timestamp: string
           if (messageDate.toDateString() === now.toDateString()) {
             // Today - show time
-            timestamp = messageDate.toLocaleTimeString('en-US', { 
-              hour: 'numeric', 
+            timestamp = messageDate.toLocaleTimeString('en-US', {
+              hour: 'numeric',
               minute: '2-digit',
-              hour12: true 
+              hour12: true
             })
           } else {
             // Other days - show date
             const diffTime = now.getTime() - messageDate.getTime()
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-            
+
             if (diffDays < 7) {
               timestamp = messageDate.toLocaleDateString('en-US', { weekday: 'short' })
             } else {
-              timestamp = messageDate.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric' 
+              timestamp = messageDate.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
               })
             }
           }
-          
+
           // Try fetching as user first, then as institution
           try {
             const otherUser = await fetchUserById(otherUserId)
             console.log('Fetched user for conversation:', otherUser)
-            
+
             if (otherUser.name === 'Unknown User' && otherUser.role === 'Unknown Role') {
               console.log('Got fallback user, trying institution instead:', otherUserId)
-              
+
               try {
                 const institution = await fetchInstitutionById(otherUserId)
                 console.log('Fetched institution for conversation:', institution)
-                
+
                 if (institution.name === 'Unknown Institution') {
                   // Both failed, return Unknown User
                   return {
@@ -157,7 +157,7 @@ export default function MessagesList() {
                     unread: conv.lastSender !== currentEntity?.id
                   }
                 }
-                
+
                 // Successfully fetched institution
                 return {
                   id: conv._id,
@@ -175,7 +175,7 @@ export default function MessagesList() {
                 }
               } catch (institutionError) {
                 console.error('Error fetching institution for:', otherUserId, institutionError)
-                
+
                 // Return fallback with "Unknown User"
                 return {
                   id: conv._id,
@@ -193,7 +193,7 @@ export default function MessagesList() {
                 }
               }
             }
-            
+
             // Successfully fetched user (not a fallback)
             return {
               id: conv._id,
@@ -211,7 +211,7 @@ export default function MessagesList() {
             }
           } catch (userError) {
             console.error('Unexpected error fetching user:', otherUserId, userError)
-            
+
             // This shouldn't happen since fetchUserById returns a fallback
             // But handle it just in case
             return {
@@ -230,10 +230,10 @@ export default function MessagesList() {
             }
           }
         })
-        
+
         const resolvedMessages = await Promise.all(messagePromises)
         const validMessages = resolvedMessages.filter(Boolean) as Message[]
-        
+
         // Sort by last message time (most recent first)
         validMessages.sort((a, b) => {
           const aConv = conversations.find(c => c._id === a.id)
@@ -241,7 +241,7 @@ export default function MessagesList() {
           if (!aConv || !bConv) return 0
           return new Date(bConv.lastMessageAt).getTime() - new Date(aConv.lastMessageAt).getTime()
         })
-        
+
         setMessages(validMessages)
       } catch (error) {
         console.error('Error converting conversations:', error)
@@ -250,7 +250,7 @@ export default function MessagesList() {
         setLoadingConversations(false)
       }
     }
-    
+
     convertConversationsToMessages()
   }, [conversations, currentEntity?.id, onlineUsers, fetchUserById])
 
@@ -263,19 +263,19 @@ export default function MessagesList() {
   // Helper function to get proper profile picture URL (same logic as ProfileHeader)
   const getUserProfilePicture = (user: { id: string, avatar?: string }) => {
     const profilePicture = user.avatar;
-    
+
     if (!profilePicture) return "/pp.png";
-    
+
     // If it's already a profile picture URL from our API, use it as is
     if (isProfilePictureUrl(profilePicture)) {
       return profilePicture;
     }
-    
+
     // If it's a legacy URL or external URL, use it as is
     if (profilePicture.startsWith('http') || profilePicture.startsWith('/')) {
       return profilePicture;
     }
-    
+
     // Otherwise, assume it's just a filename and construct the URL
     return getProfilePictureUrl(user.id, profilePicture);
   }
@@ -320,7 +320,7 @@ export default function MessagesList() {
             </button>
           </div>
         </div>
-        
+
         {/* Local Message Search - Always visible for existing conversations */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -337,7 +337,7 @@ export default function MessagesList() {
       <AnimatePresence>
         {showNewChatPanel && (
           <div className="absolute inset-0 z-[5]">
-            <motion.div 
+            <motion.div
               className="absolute inset-0 bg-black bg-opacity-20"
               onClick={() => setShowNewChatPanel(false)}
               initial={{ opacity: 0 }}
@@ -345,15 +345,15 @@ export default function MessagesList() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
             />
-            
+
             <motion.div
               className="absolute top-0 right-0 w-full h-full bg-white shadow-2xl"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 400, 
+              transition={{
+                type: "spring",
+                stiffness: 400,
                 damping: 25,
                 duration: 0.3
               }}
@@ -361,7 +361,7 @@ export default function MessagesList() {
               <div className="p-4 border-b border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-xl font-bold font-sans text-gray-800">New Chat</h2>
-                  <button 
+                  <button
                     onClick={() => setShowNewChatPanel(false)}
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     aria-label="Close new chat panel"
@@ -369,10 +369,10 @@ export default function MessagesList() {
                     <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </div>
-                
+
                 <UserSearchBar onUserSelect={() => setShowNewChatPanel(false)} />
               </div>
-              
+
               <div className="p-4 text-center text-gray-500">
                 <MessageCircle className="w-12 h-12 mx-auto mb-3 text-gray-300" />
                 <p className="text-sm">Search for people or institutions to start a new conversation</p>
@@ -392,23 +392,17 @@ export default function MessagesList() {
           <div
             key={message.id}
             onClick={() => handleMessageClick(message)}
-            className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-              selectedMessage === message.id ? 'bg-gray-100' : ''
-            }`}
+            className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${selectedMessage === message.id ? 'bg-gray-100' : ''
+              }`}
           >
             <div className="flex items-start gap-3">
               <div className="relative">
-                <Avatar className="w-12 h-12">
-                  <AvatarImage src={getUserProfilePicture(message.user)} alt={message.user.name} />
-                  <AvatarFallback>
-                    {message.user.name.split(' ').map((n, i) => n[0]).join('')}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar name={message.user.name} className="w-12 h-12" />
                 {message.user.online && (
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
                 )}
               </div>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-1">
@@ -423,7 +417,7 @@ export default function MessagesList() {
                   </div>
                   <span className="text-xs text-gray-500">{message.timestamp}</span>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <p className={`text-sm truncate ${message.unread ? 'font-medium text-black' : 'text-gray-600'}`}>
                     {message.lastMessage}

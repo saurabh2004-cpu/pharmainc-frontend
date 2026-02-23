@@ -21,6 +21,8 @@ import {
 import { User, InstitutionEntity } from "../app/(home)/home/_components/types";
 import Logo from "@/components/logo";
 import { useUserStore, useInstitutionStore, useConnectionsStore, useNotificationStore } from "@/store";
+import { useChatStore } from "@/store/chatStore";
+import { UserAvatar } from "./UserAvatar";
 import { clearAuthToken, getUserType } from "@/lib/api/utils";
 import { getDisplayHandle, getProfilePicture } from "../app/(home)/home/_utils/utils";
 import { BETA_BUILD_VERSION } from "@/config/constants";
@@ -56,6 +58,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
   const { clearUser } = useUserStore();
   const { clearInstitution } = useInstitutionStore();
   const { unreadCount, clearNotifications } = useNotificationStore();
+  const { unreadCount: unreadMessagesCount } = useChatStore();
   const { currentEntity, userType, entityType } = useCurrentEntity();
 
   console.log("current entity", currentEntity)
@@ -148,6 +151,11 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </div>
                       )}
+                      {href === '/messages' && unreadMessagesCount > 0 && !isCurrentActive && (
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                          {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
+                        </div>
+                      )}
                     </div>
                     <span className={`xl:block hidden text-xl text-gray-900 ${isCurrentActive ? 'font-semibold' : 'font-normal'}`}>
                       {label}
@@ -163,6 +171,11 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                       {href === '/notifications' && unreadCount > 0 && (
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                           {unreadCount > 9 ? '9+' : unreadCount}
+                        </div>
+                      )}
+                      {href === '/messages' && unreadMessagesCount > 0 && !isCurrentActive && (
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
+                          {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                         </div>
                       )}
                     </div>
@@ -203,10 +216,9 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
               onClick={handleProfileClick}
               className="flex items-center xl:gap-3 xl:px-3 xl:py-3 rounded-full hover:bg-gray-100 transition-colors w-full text-left"
             >
-              <img
-                src={getProfilePicture(displayUser)}
-                alt="Profile"
-                className="w-10 h-10 rounded-full border border-gray-200 object-cover flex-shrink-0"
+              <UserAvatar
+                name={("firstName" in displayUser && displayUser.firstName) || displayUser.name || "User"}
+                className="w-10 h-10 flex-shrink-0"
               />
               <div className="xl:flex hidden flex-col flex-1 min-w-0">
                 <h3 className="text-base font-bold text-gray-900 truncate">

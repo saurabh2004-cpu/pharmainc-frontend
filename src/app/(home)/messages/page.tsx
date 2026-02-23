@@ -1,145 +1,288 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
-import MessagesList from './_components/MessagesList'
-import EmptyChatState from './_components/EmptyChatState'
-import ChatInterface from './_components/ChatInterface'
-import { LoginPrompt } from './_components/LoginPrompt'
-import { useChatStore } from '@/store'
-import { useUserStore } from '@/store'
-import { getAuthToken } from '@/lib/api/utils'
-import { useCurrentEntity } from '@/lib/utils/entityUtils'
+import React, { useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getConversations, getMessages, sendMessage, markAsRead } from '@/lib/api/services/messages';
+import { connectSocket, getSocket } from '@/lib/socket';
+import { getAuthToken } from '@/lib/api/utils';
+import { Conversation, Message } from '@/types/message';
+import ConversationList from './_components/ConversationList';
+import ChatWindow from './_components/ChatWindow';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { useChatStore } from '@/store/chatStore';
 
-function MessagesContent() {
-  const searchParams = useSearchParams()
-  const userIdFromUrl = searchParams.get('user')
-  const messageFromUrl = searchParams.get('message')
+const MessagesContent = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loadingConversations, setLoadingConversations] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [currentUser, setCurrentUser] = useState<{ id: string, role: string } | null>(null);
 
-  const { selectedChat, setSelectedChat, connect, disconnect, fetchConversations } = useChatStore()
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
-  const [decodedMessage, setDecodedMessage] = useState<string>("")
-  const { fetchUserById } = useUserStore()
-  const { currentEntity, isLoading, userType, fetchEntity } = useCurrentEntity()
+  // Pagination State
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  useEffect(() => {
-    if (messageFromUrl) {
-      try {
-        const decoded = decodeURIComponent(messageFromUrl)
-        setDecodedMessage(decoded)
-      } catch (error) {
-        console.error('Failed to decode message parameter:', error)
-        setDecodedMessage("")
-      }
-    } else {
-      setDecodedMessage("")
-    }
-  }, [messageFromUrl])
+  const { fetchUnreadCount } = useChatStore();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const token = getAuthToken()
-
-      if (token) {
-        setIsAuthenticated(true)
-
-        if (!currentEntity && !isLoading) {
-          await fetchEntity()
-        }
+  // Socket Handler: New Message
+  const handleNewMessage = useCallback((message: Message) => {
+    setConversations(prev => {
+      const exists = prev.find(c => c.id === message.conversationId);
+      if (exists) {
+        return prev.map(c =>
+          c.id === message.conversationId
+            ? { ...c, lastMessage: message, unreadCount: c.lastMessage?.id === message.id ? c.unreadCount : c.unreadCount + 1, updatedAt: message.createdAt }
+            : c
+        ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       } else {
-        setIsAuthenticated(false)
+        // If it's a new conversation we don't know about, refetch all
+        getConversations().then(data => setConversations(data));
+        return prev;
       }
+    });
+
+    setSelectedConversationId(currentId => {
+      if (currentId === message.conversationId) {
+        setMessages(prev => {
+          if (prev.some(m => m.id === message.id)) return prev;
+          return [...prev, message];
+        });
+        markAsRead(message.conversationId).then(() => {
+          fetchUnreadCount();
+        });
+        setConversations(prev => prev.map(c =>
+          c.id === message.conversationId ? { ...c, unreadCount: 0 } : c
+        ));
+      }
+      return currentId;
+    });
+  }, [fetchUnreadCount]);
+
+  // Socket Handler: New Conversation
+  const handleNewConversation = useCallback((conversation: Conversation) => {
+    setConversations(prev => [conversation, ...prev]);
+  }, []);
+
+  // Socket Handler: Messages Read
+  const handleMessagesRead = useCallback(({ conversationId }: { conversationId: string }) => {
+    setMessages(prev => prev.map(m =>
+      (m.conversationId === conversationId && !m.isRead) ? { ...m, isRead: true } : m
+    ));
+  }, []);
+
+  // Initial Load & Auth
+  useEffect(() => {
+    const token = getAuthToken();
+    if (!token) {
+      router.push('/login');
+      return;
     }
 
-    checkAuth()
-  }, [currentEntity, fetchEntity, isLoading])
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      setCurrentUser({ id: payload.id, role: payload.role });
 
-  // Initialize socket connection when entity is authenticated
-  useEffect(() => {
-    if (currentEntity?.id) {
-      connect(currentEntity.id)
-      fetchConversations(currentEntity.id)
+      // Connect Socket
+      const socket = connectSocket(token);
 
-      // Cleanup on unmount
+      // Remove existing listeners first to prevent duplicates on re-renders
+      socket.off('new_message', handleNewMessage);
+      socket.off('new_conversation', handleNewConversation);
+      socket.off('messages_read', handleMessagesRead);
+
+      // Socket Events
+      socket.on('new_message', handleNewMessage);
+      socket.on('new_conversation', handleNewConversation);
+      socket.on('messages_read', handleMessagesRead);
+
+      // Cleanup
       return () => {
-        disconnect()
-      }
-    }
-  }, [currentEntity?.id, connect, disconnect, fetchConversations])
+        socket.off('new_message', handleNewMessage);
+        socket.off('new_conversation', handleNewConversation);
+        socket.off('messages_read', handleMessagesRead);
+      };
 
+    } catch (e) {
+      console.error('Invalid token', e);
+      router.push('/login');
+    }
+  }, [router, handleNewMessage, handleNewConversation, handleMessagesRead]);
+
+  // Fetch Conversations
   useEffect(() => {
-    const selectUserFromUrl = async () => {
-      if (userIdFromUrl && currentEntity?.id && isAuthenticated) {
-        try {
-          const userData = await fetchUserById(userIdFromUrl)
-          if (userData && userData.id && userData.name) {
-            setSelectedChat({
-              id: userData.id,
-              name: userData.name,
-              username: userData.id,
-              avatar: userData.profilePicture,
-              verified: false,
-              online: false
-            })
+    if (!currentUser) return;
+
+    const fetchConvos = async () => {
+      try {
+        const data = await getConversations();
+        setConversations(data);
+
+        const urlUserId = searchParams.get('user');
+
+        if (urlUserId) {
+          const targetConvo = data.find(c => c.participant.id === urlUserId);
+          if (targetConvo) {
+            setSelectedConversationId(targetConvo.id);
           }
-        } catch (error) {
-          console.error('Error fetching user for direct message:', error)
         }
+      } catch (error) {
+        console.error("Failed to fetch conversations", error);
+        toast.error("Failed to load conversations");
+      } finally {
+        setLoadingConversations(false);
       }
+    };
+
+    fetchConvos();
+  }, [currentUser, searchParams]);
+
+  // Fetch Messages when conversation selected
+  useEffect(() => {
+    if (!selectedConversationId) return;
+
+    const fetchInitialMessages = async () => {
+      setLoadingMessages(true);
+      setPage(1);
+      setHasMore(true);
+
+      try {
+        const msgs = await getMessages(selectedConversationId, 1);
+        setMessages(msgs);
+        setHasMore(msgs.length === 20);
+
+        await markAsRead(selectedConversationId);
+
+        setConversations(prev => prev.map(c =>
+          c.id === selectedConversationId ? { ...c, unreadCount: 0 } : c
+        ));
+
+        // Ensure global unread count stays in sync
+        fetchUnreadCount();
+      } catch (error) {
+        console.error("Failed to fetch messages", error);
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    fetchInitialMessages();
+
+    const socket = getSocket();
+    if (socket && socket.connected) {
+      socket.emit('join_conversation', selectedConversationId);
     }
 
-    selectUserFromUrl()
-  }, [userIdFromUrl, currentEntity?.id, isAuthenticated, setSelectedChat, fetchUserById])
+    return () => {
+      if (socket && socket.connected) {
+        socket.emit('leave_conversation', selectedConversationId);
+      }
+    };
+  }, [selectedConversationId, fetchUnreadCount]);
 
-  if (isAuthenticated === null || isLoading) {
-    return (
-      <div className="h-full flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <div className="text-lg text-gray-600">Loading...</div>
-        </div>
-      </div>
-    )
+
+  // Load More Messages
+  const handleLoadMore = useCallback(async () => {
+    if (!selectedConversationId || !hasMore || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const nextPage = page + 1;
+      const olderMsgs = await getMessages(selectedConversationId, nextPage);
+
+      if (olderMsgs.length < 20) {
+        setHasMore(false);
+      }
+
+      setMessages(prev => {
+        // Filter out any messages we already have to prevent duplicates
+        const existingIds = new Set(prev.map(m => m.id));
+        const newUniqueMsgs = olderMsgs.filter(m => !existingIds.has(m.id));
+        return [...newUniqueMsgs, ...prev];
+      });
+      setPage(nextPage);
+    } catch (error) {
+      console.error("Failed to load older messages", error);
+      toast.error("Failed to load older messages");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [selectedConversationId, page, hasMore, loadingMore]);
+
+  const handleSendMessage = async (content?: string, media?: File) => {
+    if (!selectedConversationId) return;
+
+    try {
+      const newMessage = await sendMessage({
+        conversationId: selectedConversationId,
+        content,
+        media,
+        mediaType: media ? (media.type.startsWith('image') ? 'IMAGE' : media.type.startsWith('video') ? 'VIDEO' : 'PDF') : undefined
+      });
+
+      setMessages(prev => [...prev, newMessage]);
+
+      setConversations(prev => prev.map(c =>
+        c.id === selectedConversationId
+          ? { ...c, lastMessage: newMessage, updatedAt: newMessage.createdAt }
+          : c
+      ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
+
+    } catch (error) {
+      console.error("Send message failed", error);
+      toast.error("Failed to send message");
+    }
+  };
+
+  if (loadingConversations) {
+    return <div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
-  if (!isAuthenticated) {
-    return <LoginPrompt />
-  }
+  const selectedConversation = conversations.find(c => c.id === selectedConversationId);
 
   return (
-    <div className="h-full bg-white flex" style={{ height: 'calc(100vh - 24px)' }}>
-      <MessagesList />
-      <div className="flex-1 h-full border-l border-gray-200">
-        {
-          selectedChat ? (
-            <ChatInterface
-              recipientName={selectedChat.name}
-              recipientAvatar={selectedChat.avatar}
-              recipientUsername={selectedChat.username}
-              recipientVerified={selectedChat.verified}
-              recipientOnline={selectedChat.online}
-              initialMessage={decodedMessage}
+    <div className="container mx-auto max-w-6xl h-[calc(100vh-80px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 h-full">
+        <div className="md:col-span-1 h-full overflow-hidden">
+          <ConversationList
+            conversations={conversations}
+            selectedConversationId={selectedConversationId || undefined}
+            onSelectConversation={setSelectedConversationId}
+          />
+        </div>
+        <div className="md:col-span-2 h-full overflow-hidden border-l border-gray-200">
+          {selectedConversation ? (
+            <ChatWindow
+              key={selectedConversation.id}
+              conversation={selectedConversation}
+              messages={messages}
+              currentUserRole={currentUser?.role || ''}
+              currentUserId={currentUser?.id || ''}
+              onSendMessage={handleSendMessage}
+              isLoadingMessages={loadingMessages}
+              onLoadMore={handleLoadMore}
+              hasMore={hasMore}
+              isLoadingMore={loadingMore}
             />
           ) : (
-            <EmptyChatState />
-          )
-        }
+            <div className="flex h-full items-center justify-center bg-slate-50 text-gray-400">
+              Select a conversation to start chatting
+            </div>
+          )}
+        </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default function MessagesPage() {
   return (
-    <Suspense fallback={
-      <div className="h-full flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <div className="text-lg text-gray-600">Loading...</div>
-        </div>
-      </div>
-    }>
+    <React.Suspense fallback={<div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
       <MessagesContent />
-    </Suspense>
-  )
+    </React.Suspense>
+  );
 }

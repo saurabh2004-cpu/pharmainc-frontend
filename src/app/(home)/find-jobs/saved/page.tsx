@@ -7,7 +7,7 @@ import { listJobs } from '@/lib/api/services/job';
 import { useUserStore } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
@@ -327,12 +327,7 @@ const SavedJobsPage = () => {
                                     <Card key={job.savedJobId || job.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/find-jobs/${job.jobId || job.id}`)}>
                                         <CardContent className="p-6">
                                             <div className="flex items-start gap-4">
-                                                <Avatar className="h-12 w-12 rounded-lg">
-                                                    {job.companyLogo && <AvatarImage src={job.companyLogo} />}
-                                                    <AvatarFallback className={`rounded-lg text-white ${getAvatarColor(job.companyName || 'C')}`}>
-                                                        {job.companyName?.charAt(0).toUpperCase()}
-                                                    </AvatarFallback>
-                                                </Avatar>
+                                                <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg" />
 
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex justify-between items-start">

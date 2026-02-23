@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useUserStore, useInstitutionStore, useNotificationStore } from '@/store'
+import { useChatStore } from '@/store/chatStore'
 import { getAuthToken } from '@/lib/api/utils'
 import { connectSocket } from '@/lib/socket'
 import { toast } from "sonner"
 import { getUserById } from '@/lib/api'
 import { Notification } from '@/lib/api/types'
 import { NotificationStack } from './notifications/NotificationStack'
-import { markNotificationAsRead } from '@/lib/api/services/notification'
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { currentUser } = useUserStore()
@@ -21,7 +21,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     markAsRead,
     markAllAsRead
   } = useNotificationStore()
-  const processedIds = useRef(new Set<string>()) // Track processed notification IDs session-wise
+  const { fetchUnreadCount: fetchUnreadMessagesCount, incrementUnreadCount } = useChatStore()
+  const processedIds = useRef(new Set<string>())
   const [activePopups, setActivePopups] = useState<any[]>([])
 
   const handleMarkAsRead = useCallback(async (id: string) => {
@@ -34,7 +35,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   const handleMarkAllAsRead = useCallback(async () => {
     try {
-      setActivePopups([]); // Clear popups immediately
+      setActivePopups([]);
       await markAllAsRead();
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
@@ -43,12 +44,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   const removePopup = useCallback((id: string) => {
     setActivePopups(prev => prev.filter(p => p.id !== id));
-    // Mark as read when closing the popup
     handleMarkAsRead(id);
   }, [handleMarkAsRead]);
 
   const handleActionComplete = useCallback((id: string) => {
-    // Logic when an action (Accept/Reject) is completed in the popup
     handleMarkAsRead(id);
   }, [handleMarkAsRead]);
 
@@ -78,8 +77,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             return [...prev, ...newPopups];
           });
         }
-        // Ensure count is synced
         await fetchUnreadCount();
+        await fetchUnreadMessagesCount();
       } catch (e) {
         console.error("Failed to sync unread state:", e);
       }
@@ -91,35 +90,41 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
       const isInstitute = !!currentInstitution?.id;
 
       if (token && entityId) {
-        // Initial fetch
         await fetchNotifications();
         await syncUnreadState();
 
         socket = connectSocket(token);
 
         if (socket) {
-          // Join room based on entity type
           if (isInstitute) {
-            console.log("Joining socket room for institute:", entityId);
             socket.emit('join', { instituteId: entityId });
           } else {
-            console.log("Joining socket room for user:", entityId);
             socket.emit('join', { userId: entityId });
           }
 
-          // Re-sync on reconnect
-          socket.on('connect', () => {
-            console.log("Socket connected/reconnected. Syncing unread state...");
+          const onConnect = () => {
             syncUnreadState();
-          });
+          };
 
-          socket.on('notification', async (data: any, statusPayload?: any) => {
-            console.log("Socket Notification received:", { data, statusPayload });
+          const onNewMessage = (message: any) => {
+            console.log("Global New message received:", message);
+            if (message.senderId !== entityId) {
+              incrementUnreadCount();
+              fetchUnreadMessagesCount();
+            }
+          };
 
-            // Use status from payload if available, otherwise fall back to type or infer from data
+          const onNewConversation = (conversation: any) => {
+            console.log("Global New conversation received:", conversation);
+            fetchUnreadMessagesCount();
+          };
+
+          const onMessagesRead = () => {
+            fetchUnreadMessagesCount();
+          };
+
+          const onNotification = async (data: any, statusPayload?: any) => {
             const currentStatus = statusPayload || data.status || data.type;
-
-            // Transform socket notification to match Notification type
             const notification: Notification = {
               id: data.id || Math.random().toString(36).substr(2, 9),
               createdAt: data.timestamp || new Date().toISOString(),
@@ -134,14 +139,12 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               status: currentStatus
             };
 
-            // Enrich with user details if it's an institute receiving application notifications
             if (isInstitute && !data.applicantName && (data.applicantId || data.userId)) {
               try {
                 const idToFetch = data.applicantId || data.userId;
                 const user = await getUserById(idToFetch);
                 if (user) {
                   const applicantName = user.name;
-                  // Update message if it contains the ID
                   if (notification.message && notification.message.includes(idToFetch)) {
                     notification.message = notification.message.replace(idToFetch, applicantName);
                   }
@@ -151,42 +154,23 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               }
             }
 
-            // Add to store optimistically
             addOptimisticNotification(notification);
-
-            // Force fetch unread count to ensure accuracy
             fetchUnreadCount();
 
-            // Toast Logic Based on Role
-            // Check if we already processed this ID for toast
-            if (processedIds.current.has(notification.id)) {
-              return;
-            }
+            if (processedIds.current.has(notification.id)) return;
             processedIds.current.add(notification.id);
 
-            // Use status from payload if available, otherwise fall back to type or infer from data
             const status = statusPayload || data.status || data.type;
 
             if (notification.message) {
               if (isInstitute) {
-                // Institute: show user actions (APPLIED, responses)
-                // For institute, we generally just show toasts for now
                 toast.info(notification.message);
               } else {
-                // Job Seekers: show institute actions (requests, decisions)
                 const relevantStatuses = [
-                  'SHORTLISTED',
-                  'NEXT_ROUND_REQUESTED',
-                  'INTERVIEW_SCHEDULED',
-                  'INTERVIEW_ACCEPTED',
-                  'HIRED',
-                  'REJECTED',
-                  'NEXT_ROUND_REJECTED'
+                  'SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'INTERVIEW_SCHEDULED',
+                  'INTERVIEW_ACCEPTED', 'HIRED', 'REJECTED', 'NEXT_ROUND_REJECTED'
                 ];
-
-                // Check specifically for statuses that require a popup with actions or clear info
                 if (relevantStatuses.includes(status)) {
-                  console.log("Adding Popup:", notification);
                   setActivePopups(prev => [{
                     id: notification.id,
                     type: notification.type || notification.status || 'info',
@@ -198,25 +182,37 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                     onClose: removePopup
                   }, ...prev]);
                 }
-
-                // Show Toast as well
                 toast.info(notification.message);
               }
             }
-          });
+          };
+
+          socket.on('connect', onConnect);
+          socket.on('new_message', onNewMessage);
+          socket.on('new_conversation', onNewConversation);
+          socket.on('messages_read', onMessagesRead);
+          socket.on('notification', onNotification);
+
+          return () => {
+            socket.off('connect', onConnect);
+            socket.off('new_message', onNewMessage);
+            socket.off('new_conversation', onNewConversation);
+            socket.off('messages_read', onMessagesRead);
+            socket.off('notification', onNotification);
+          };
         }
       }
-    }
+    };
 
-    initializeNotifications()
+    let cleanupFn: (() => void) | void;
+    initializeNotifications().then(cleanup => {
+      cleanupFn = cleanup;
+    });
 
     return () => {
-      if (socket) {
-        socket.off('notification');
-        socket.off('connect');
-      }
+      if (cleanupFn) cleanupFn();
     }
-  }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount, fetchUnreadNotifications, removePopup])
+  }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount, fetchUnreadNotifications, removePopup, fetchUnreadMessagesCount, incrementUnreadCount])
 
   return (
     <>

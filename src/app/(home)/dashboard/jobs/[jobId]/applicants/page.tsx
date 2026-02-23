@@ -16,7 +16,7 @@ import { downloadResume } from '@/lib/api/services/user';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Popover,
@@ -566,10 +566,7 @@ const JobApplicationsPage = () => {
                                         <tr key={app.id} className="hover:bg-gray-50 group">
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <Avatar>
-                                                        <AvatarImage src={app.userProfilePicture} />
-                                                        <AvatarFallback>{app.userName?.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
+                                                    <UserAvatar name={app.userName} className="h-10 w-10" />
                                                     <div className="font-medium text-gray-900">{app.userName}</div>
                                                 </div>
                                             </td>

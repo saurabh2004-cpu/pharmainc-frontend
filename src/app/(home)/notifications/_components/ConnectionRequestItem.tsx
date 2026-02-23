@@ -1,6 +1,6 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { UserAvatar } from "@/components/UserAvatar"
 import { Check, X, UserPlus } from "lucide-react"
 import { User } from "@/lib/api"
 
@@ -13,8 +13,8 @@ interface ConnectionRequestItemProps {
   isLoading: { accept: boolean; reject: boolean }
 }
 
-export const ConnectionRequestItem = ({ 
-  user, 
+export const ConnectionRequestItem = ({
+  user,
   connectionId,
   time,
   onAccept,
@@ -22,15 +22,7 @@ export const ConnectionRequestItem = ({
   isLoading
 }: ConnectionRequestItemProps) => (
   <div className="flex items-start space-x-3">
-    <Avatar className="h-10 w-10">
-      <AvatarImage
-        src={user.profile_picture || "/pp.png"}
-        alt={user.name}
-      />
-      <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold text-sm">
-        {user.name?.[0] || "U"}
-      </AvatarFallback>
-    </Avatar>
+    <UserAvatar name={user.name} className="h-10 w-10" />
     <div className="flex-1 min-w-0">
       <div className="flex items-start justify-between">
         <p className="text-sm text-gray-900 leading-relaxed">
@@ -45,7 +37,7 @@ export const ConnectionRequestItem = ({
         <p className="text-xs text-gray-600 mt-1">{user.role}</p>
       )}
       <p className="text-xs text-gray-500 mt-1">{time}</p>
-      
+
       <div className="flex gap-2 mt-3">
         <Button
           variant="default"
@@ -66,7 +58,7 @@ export const ConnectionRequestItem = ({
             </div>
           )}
         </Button>
-        
+
         <Button
           variant="outline"
           size="sm"

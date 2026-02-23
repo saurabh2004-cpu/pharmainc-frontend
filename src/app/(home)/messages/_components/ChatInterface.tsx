@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Send, MoreHorizontal, Phone, Video, Info } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { UserAvatar } from '@/components/UserAvatar'
 import { useChatStore } from '@/store/chatStore'
 import { getProfilePictureUrl, isProfilePictureUrl } from '@/lib/utils'
 import { useCurrentEntity } from '@/lib/utils/entityUtils'
@@ -17,7 +17,7 @@ interface ChatInterfaceProps {
   initialMessage?: string
 }
 
-export default function ChatInterface({ 
+export default function ChatInterface({
   recipientName = "Dr. Sarah Johnson",
   recipientAvatar = "/api/placeholder/40/40",
   recipientUsername = "sarah_j",
@@ -30,23 +30,23 @@ export default function ChatInterface({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const router = useRouter()
-  
-  const { 
-    messages, 
-    sendMessage, 
+
+  const {
+    messages,
+    sendMessage,
     fetchMessages,
     selectedChat,
-    onlineUsers 
+    onlineUsers
   } = useChatStore()
-  
+
   const { currentEntity } = useCurrentEntity()
-  
+
   const conversationKey = useMemo(() => {
-    return selectedChat && currentEntity 
+    return selectedChat && currentEntity
       ? [currentEntity.id, selectedChat.id].sort().join('_')
       : ''
   }, [selectedChat?.id, currentEntity?.id])
-    
+
   const currentMessages = conversationKey ? (messages[conversationKey] || []) : []
 
   useEffect(() => {
@@ -95,27 +95,27 @@ export default function ChatInterface({
 
   const formatTimestamp = useCallback((timestamp: string) => {
     const date = new Date(timestamp)
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     })
   }, [])
 
   const getRecipientProfilePicture = useMemo(() => {
     const profilePicture = selectedChat?.avatar || recipientAvatar;
     const recipientId = selectedChat?.id || recipientUsername || '';
-    
+
     if (!profilePicture || profilePicture === "/api/placeholder/40/40") return "/pp.png";
-    
+
     if (isProfilePictureUrl(profilePicture)) {
       return profilePicture;
     }
-    
+
     if (profilePicture.startsWith('http') || profilePicture.startsWith('/')) {
       return profilePicture;
     }
-    
+
     return getProfilePictureUrl(recipientId, profilePicture);
   }, [selectedChat?.avatar, recipientAvatar, selectedChat?.id, recipientUsername])
 
@@ -150,11 +150,10 @@ export default function ChatInterface({
 
   const buttonClassName = useMemo(() => {
     const canSend = message.trim() && selectedChat
-    return `p-3 rounded-full transition-colors flex-shrink-0 ${
-      canSend
-        ? 'bg-blue-500 text-white hover:bg-blue-600'
-        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-    }`
+    return `p-3 rounded-full transition-colors flex-shrink-0 ${canSend
+      ? 'bg-blue-500 text-white hover:bg-blue-600'
+      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+      }`
   }, [message, selectedChat])
 
   const isButtonDisabled = useMemo(() => {
@@ -165,22 +164,20 @@ export default function ChatInterface({
     <div className="h-full flex flex-1 flex-col bg-white w-full">
       <div className="p-4 border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <div 
+          <div
             className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2 transition-colors"
             onClick={handleProfileClick}
           >
             <div className="relative">
-              <Avatar className="w-10 h-10">
-                <AvatarImage src={getRecipientProfilePicture} alt={selectedChat?.name || recipientName} />
-                <AvatarFallback>
-                  {(selectedChat?.name || recipientName).split(' ').map((n, i) => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                name={selectedChat?.name || recipientName}
+                className="w-10 h-10"
+              />
               {isRecipientOnline && (
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
               )}
             </div>
-            
+
             <div>
               <div className="flex items-center gap-1">
                 <h2 className="font-semibold text-gray-900 font-sans">
@@ -197,7 +194,7 @@ export default function ChatInterface({
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
               <Info className="w-5 h-5 text-gray-600" />
@@ -229,16 +226,14 @@ export default function ChatInterface({
                 key={msg.id}
                 className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${
-                  isFromMe 
-                    ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-900'
-                }`}>
+                <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl ${isFromMe
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 text-gray-900'
+                  }`}>
                   <p className="text-sm">{msg.content}</p>
                   <div className="flex items-center gap-1 mt-1">
-                    <p className={`text-xs ${
-                      isFromMe ? 'text-blue-100' : 'text-gray-500'
-                    }`}>
+                    <p className={`text-xs ${isFromMe ? 'text-blue-100' : 'text-gray-500'
+                      }`}>
                       {formatTimestamp(msg.timestamp)}
                     </p>
                     {msg.sending && isFromMe && (
@@ -264,8 +259,8 @@ export default function ChatInterface({
               placeholder="Start a new message"
               className="w-full py-3 pl-4 pr-12 border border-gray-200 rounded-3xl resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent overflow-y-auto"
               rows={1}
-              style={{ 
-                maxHeight: '120px', 
+              style={{
+                maxHeight: '120px',
                 minHeight: '44px',
                 height: 'auto',
                 lineHeight: '1.5'
@@ -274,7 +269,7 @@ export default function ChatInterface({
             />
 
           </div>
-          
+
           <button
             onClick={handleSendMessage}
             disabled={isButtonDisabled}

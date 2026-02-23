@@ -10,7 +10,7 @@ import { downloadResume } from '@/lib/api/services/user';
 import { useUserStore } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Application, Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
@@ -547,14 +547,7 @@ const AppliedJobsPage = () => {
                         <div key={application.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
                           <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex items-start gap-4 flex-1">
-                              <Avatar className="h-12 w-12 flex-shrink-0">
-                                {application.companyLogo && (
-                                  <AvatarImage src={application.companyLogo} alt={application.companyName} />
-                                )}
-                                <AvatarFallback className={`${getAvatarColor(application.companyName || 'C')} text-white font-semibold`}>
-                                  {application.companyName?.charAt(0).toUpperCase() || 'C'}
-                                </AvatarFallback>
-                              </Avatar>
+                              <UserAvatar name={application.companyName} className="h-12 w-12 flex-shrink-0" />
                               <div className="flex-1 min-w-0">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-1">{application.jobTitle}</h3>
                                 <p className="text-sm text-gray-600 mb-2">{application.companyName}</p>

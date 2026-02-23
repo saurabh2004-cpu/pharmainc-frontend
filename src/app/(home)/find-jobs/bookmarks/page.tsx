@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { getSavedJobs, listJobs } from '@/lib/api/services/job';
 import { useUserStore } from '@/store';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
@@ -350,12 +350,7 @@ const SavedJobsPage = () => {
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <Avatar className="h-12 w-12 rounded-lg border border-gray-100">
-                          {job.companyLogo && <AvatarImage src={job.companyLogo} />}
-                          <AvatarFallback className={`rounded-lg text-white ${getAvatarColor(job.companyName || 'C')}`}>
-                            {job.companyName?.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg border border-gray-100" />
 
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">

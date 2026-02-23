@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { io, Socket } from 'socket.io-client'
 import { useUserStore } from './userStore'
 import { fetchMessages as fetchMessagesService, fetchConversations as fetchConversationsService } from '@/lib/api/services/chat'
+import { getUnreadMessagesCount } from '@/lib/api/services/messages'
 import { ChatUser, ChatMessage, Conversation } from '@/lib/api/types'
 import { getCurrentEntity } from '@/lib/utils/entityUtils'
 import { getUserType } from '@/lib/api'
@@ -22,6 +23,12 @@ function getAuthToken(): string | null {
 }
 
 interface ChatStore {
+  unreadCount: number
+  setUnreadCount: (count: number) => void
+  incrementUnreadCount: () => void
+  decrementUnreadCount: (amount?: number) => void
+  fetchUnreadCount: () => Promise<void>
+
   selectedChat: ChatUser | null
   setSelectedChat: (user: ChatUser | null) => void
 
@@ -49,6 +56,19 @@ interface ChatStore {
 }
 
 export const useChatStore = create<ChatStore>((set, get) => ({
+  unreadCount: 0,
+  setUnreadCount: (count) => set({ unreadCount: count }),
+  incrementUnreadCount: () => set((state) => ({ unreadCount: state.unreadCount + 1 })),
+  decrementUnreadCount: (amount = 1) => set((state) => ({ unreadCount: Math.max(0, state.unreadCount - amount) })),
+  fetchUnreadCount: async () => {
+    try {
+      const count = await getUnreadMessagesCount()
+      set({ unreadCount: count })
+    } catch (error) {
+      console.error('Error fetching unread messages count:', error)
+    }
+  },
+
   selectedChat: null,
   socket: null,
   isConnected: false,
@@ -150,6 +170,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
     newSocket.on('new_message', (message: ChatMessage) => {
       console.log('New message received:', message)
       get().addMessage(message)
+      // Sync unread count and conversations list for sidebar/badge updates
+      get().fetchUnreadCount()
+      const currentEntityId = getCurrentEntity()?.id
+      if (currentEntityId) {
+        get().fetchConversations(currentEntityId)
+      }
+    })
+
+    newSocket.on('new_conversation', (conversation: Conversation) => {
+      console.log('New conversation received:', conversation)
+      const currentEntityId = getCurrentEntity()?.id
+      if (currentEntityId) {
+        get().fetchConversations(currentEntityId)
+        get().fetchUnreadCount()
+      }
     })
 
     newSocket.on('message_sent', (data: { messageId: string, timestamp: string, delivered: boolean }) => {
@@ -170,9 +205,6 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       console.log('Successfully joined with userId:', userId)
     })
 
-    newSocket.on('message_sent', ({ messageId, timestamp, delivered }: any) => {
-      console.log('Message sent confirmation:', { messageId, timestamp, delivered })
-    })
 
     newSocket.on('error', (error) => {
       console.error('Socket error:', error)

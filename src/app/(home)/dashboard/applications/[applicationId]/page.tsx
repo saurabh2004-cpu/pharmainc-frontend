@@ -19,12 +19,13 @@ import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/UserAvatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { getApplicationById } from '@/lib/api/services/application';
 import { downloadResume } from '@/lib/api/services/user';
+import { initiateConversation } from '@/lib/api/services/messages'; // Import initiateConversation
 import { getAuthToken } from '@/lib/api/utils';
 
 interface ApplicationDetails {
@@ -95,6 +96,7 @@ const ApplicationDetailsPage = () => {
     const [loading, setLoading] = useState(true);
     const [downloadingResume, setDownloadingResume] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [initiatingChat, setInitiatingChat] = useState(false);
 
     useEffect(() => {
         // Check auth
@@ -167,6 +169,22 @@ const ApplicationDetailsPage = () => {
             }
         } finally {
             setDownloadingResume(false);
+        }
+    };
+
+    const handleMessageCandidate = async () => {
+        if (!application) return;
+
+        setInitiatingChat(true);
+        try {
+            await initiateConversation(applicationId);
+            toast.success('Conversation started');
+            router.push(`/messages?user=${application.user.id}`); // Redirect to messages page
+        } catch (error: any) {
+            console.error('Error initiating conversation:', error);
+            toast.error(error.response?.data?.error || 'Failed to start conversation');
+        } finally {
+            setInitiatingChat(false);
         }
     };
 
@@ -267,10 +285,7 @@ const ApplicationDetailsPage = () => {
                     <Card>
                         <CardHeader>
                             <div className="flex items-start gap-4">
-                                <Avatar className="h-20 w-20">
-                                    <AvatarImage src={user.profile_picture || '/pp.png'} alt={displayName} />
-                                    <AvatarFallback>{displayName?.charAt(0) || 'U'}</AvatarFallback>
-                                </Avatar>
+                                <UserAvatar name={displayName} className="h-20 w-20" />
                                 <div className="flex-1">
                                     <CardTitle className="text-2xl mb-2">{displayName}</CardTitle>
                                     <CardDescription className="text-base">
@@ -310,8 +325,8 @@ const ApplicationDetailsPage = () => {
                                 <Button onClick={handleDownloadResume} disabled={downloadingResume}>
                                     {downloadingResume ? 'Downloading...' : 'Download Resume'}
                                 </Button>
-                                <Button variant="outline" onClick={() => router.push(`/messages?user=${user.id}`)}>
-                                    Message Candidate
+                                <Button variant="outline" onClick={handleMessageCandidate} disabled={initiatingChat}>
+                                    {initiatingChat ? 'Starting Chat...' : 'Message Candidate'}
                                 </Button>
                             </div>
                         </CardContent>

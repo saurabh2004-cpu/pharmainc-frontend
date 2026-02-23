@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -443,15 +443,10 @@ export const ProfileHeader = ({
 
                 <div className="absolute -bottom-16 left-6">
                     <div className="relative">
-                        <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                            <AvatarImage
-                                src={getDisplayProfilePicture()}
-                                alt={(institution ? displayInstitution?.name : displayUser?.name) || "User"}
-                            />
-                            <AvatarFallback className="text-2xl bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700 font-bold">
-                                {(institution ? displayInstitution?.name?.[0] : displayUser?.name?.[0]) || "U"}
-                            </AvatarFallback>
-                        </Avatar>
+                        <UserAvatar
+                            name={(institution ? displayInstitution?.name : displayUser?.firstName) || "User"}
+                            className="h-32 w-32 border-4 border-white shadow-lg text-4xl"
+                        />
                         {(isOwnProfile || isOwnInstitute) && (
                             <button
                                 onClick={() => setIsProfilePictureModalOpen(true)}

@@ -4,7 +4,7 @@ import { io, Socket } from "socket.io-client";
 let socket: Socket | null = null;
 
 export const connectSocket = (token: string) => {
-    if (socket?.connected) return socket;
+    if (socket) return socket;
 
     // Use env var or default to backend URL. 
     // Assuming standard local backend port 8000 based on common practices, 

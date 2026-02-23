@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 
 interface ConnectionRequest {
   id: string;
@@ -13,7 +13,7 @@ interface ConnectionRequest {
 
 export const ProfileConnectionsCard = () => {
   const router = useRouter();
-  
+
   // Mock connection requests
   const [requests, setRequests] = useState<ConnectionRequest[]>([
     {
@@ -65,10 +65,7 @@ export const ProfileConnectionsCard = () => {
         {requests.map((req) => (
           <div key={req.id} className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10">
-                <AvatarImage src={req.avatarUrl} alt={req.name} />
-                <AvatarFallback>{req.name.charAt(0)}</AvatarFallback>
-              </Avatar>
+              <UserAvatar name={req.name} className="h-10 w-10" />
               <div>
                 <div className="font-medium">{req.name}</div>
                 <div className="text-sm text-gray-600">{req.role}</div>
