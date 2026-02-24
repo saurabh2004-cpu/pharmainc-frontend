@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getSavedJobs, listJobs } from '@/lib/api/services/job';
 import { useUserStore } from '@/store';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
+import { buildImageUrl } from '@/utils/buildImageUrl';
 import {
   ArrowLeft,
   Search,
@@ -350,7 +352,20 @@ const SavedJobsPage = () => {
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg border border-gray-100" />
+                        {/* Institute logo: image if available, else colored initial */}
+                        {job.companyLogo ? (
+                          <div className="h-12 w-12 rounded-lg border border-gray-100 flex-shrink-0 overflow-hidden">
+                            <Image
+                              src={buildImageUrl(job.companyLogo)}
+                              alt={job.companyName || 'Institute'}
+                              width={48}
+                              height={48}
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                        ) : (
+                          <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg border border-gray-100" />
+                        )}
 
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">

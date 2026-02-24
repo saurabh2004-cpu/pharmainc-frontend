@@ -31,7 +31,7 @@ import {
 import Image from "next/image";
 import { EditProfileModal } from "./EditProfileModal";
 import { EditInstituteModal } from "./EditInstituteModal";
-// import { EditProfilePictureModal } from "./EditProfilePictureModal";
+import { EditImageModal } from "./EditImageModal";
 import ProfileShareModal from "./ProfileShareModal";
 import InstitutionShareModal from "./InstitutionShareModal";
 import { useUserStore, useConnectionsStore, useInstitutionStore } from "@/store";
@@ -86,7 +86,8 @@ export const ProfileHeader = ({
     const [connectionsCount, setConnectionsCount] = useState(user?.connections || 0);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isEditInstituteModalOpen, setIsEditInstituteModalOpen] = useState(false);
-    const [isProfilePictureModalOpen, setIsProfilePictureModalOpen] = useState(false);
+    const [isEditImageModalOpen, setIsEditImageModalOpen] = useState(false);
+    const [imageModalType, setImageModalType] = useState<'profileImage' | 'coverImage'>('profileImage');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
     const [currentUserProfile, setCurrentUserProfile] = useState(user);
@@ -363,56 +364,70 @@ export const ProfileHeader = ({
         }
     };
 
-    const handleProfilePictureUpdate = (newProfilePictureUrl: string) => {
-        const updatedUser = {
-            ...currentUserProfile,
-            profile_picture: newProfilePictureUrl
-        } as User;
+    const handleProfilePictureUpdate = (newUrl: string | null) => {
+        if (institution) {
+            handleInstituteProfilePictureUpdate(newUrl || "");
+        } else {
+            const updatedUser = {
+                ...currentUserProfile,
+                profile_picture: newUrl
+            } as User;
 
-        setCurrentUserProfile(updatedUser);
-
-        if (onUserUpdate) {
-            onUserUpdate(updatedUser);
+            setCurrentUserProfile(updatedUser);
+            if (onUserUpdate) onUserUpdate(updatedUser);
+            fetchCurrentUser();
         }
-
-        // Trigger a refetch of current user data
-        fetchCurrentUser();
     };
 
-    const handleInstituteProfilePictureUpdate = (newProfilePictureUrl: string) => {
+    const handleCoverPictureUpdate = (newUrl: string | null) => {
+        if (institution) {
+            const updatedInstitution = {
+                ...currentInstituteProfile,
+                banner_picture: newUrl
+            } as Institution;
+            setCurrentInstituteProfile(updatedInstitution);
+            if (onInstituteUpdate) onInstituteUpdate(updatedInstitution);
+        } else {
+            const updatedUser = {
+                ...currentUserProfile,
+                banner_picture: newUrl
+            } as User;
+            setCurrentUserProfile(updatedUser);
+            if (onUserUpdate) onUserUpdate(updatedUser);
+        }
+    };
+
+    const handleInstituteProfilePictureUpdate = (newUrl: string | null) => {
         const updatedInstitution = {
             ...currentInstituteProfile,
-            profile_picture: newProfilePictureUrl
+            profile_picture: newUrl
         } as Institution;
 
         setCurrentInstituteProfile(updatedInstitution);
-
-        if (onInstituteUpdate) {
-            onInstituteUpdate(updatedInstitution);
-        }
+        if (onInstituteUpdate) onInstituteUpdate(updatedInstitution);
     };
 
     const displayUser = currentUserProfile || user;
     const displayInstitution = currentInstituteProfile || institution;
 
+    // Utility: ensure image URLs always have https:// and are safe for next/image
+    const buildImageUrl = (raw?: string | null): string | null => {
+        if (!raw) return null;
+        if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+        if (raw.startsWith('/')) return raw; // Relative path — valid for next/image
+        // Missing protocol — assume https (CloudFront case)
+        return `https://${raw}`;
+    };
+
     // Get the proper profile picture URL
-    const getDisplayProfilePicture = () => {
+    const getDisplayProfilePicture = (): string | null => {
         const entityToDisplay = institution ? displayInstitution : displayUser;
+        return buildImageUrl(entityToDisplay?.profile_picture);
+    };
 
-        if (!entityToDisplay?.profile_picture) return "/pp.png";
-
-        // If it's already a profile picture URL from our API, use it as is
-        if (isProfilePictureUrl(entityToDisplay.profile_picture)) {
-            return entityToDisplay.profile_picture;
-        }
-
-        // If it's a legacy URL or external URL, use it as is
-        if (entityToDisplay.profile_picture.startsWith('http') || entityToDisplay.profile_picture.startsWith('/')) {
-            return entityToDisplay.profile_picture;
-        }
-
-        // Otherwise, assume it's just a filename and construct the URL
-        return getProfilePictureUrl(entityToDisplay.id, entityToDisplay.profile_picture);
+    const getDisplayBannerPicture = (): string => {
+        const entityToDisplay = institution ? displayInstitution : displayUser;
+        return buildImageUrl(entityToDisplay?.banner_picture) || "/banner.png";
     };
 
     const renderLocation = () => {
@@ -427,29 +442,39 @@ export const ProfileHeader = ({
         <div className="bg-white rounded-xl overflow-hidden">
             <div className="relative h-32 sm:h-36">
                 <Image
-                    src={displayUser?.banner_picture || "/banner.png"}
+                    src={getDisplayBannerPicture()}
                     alt="Cover photo"
                     className="w-full h-full object-cover"
                     width={1200}
                     height={400}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
-                {/* {isOwnProfile && (
-          <button className="absolute top-4 right-4 bg-black/50 hover:bg-black/60 text-white backdrop-blur-sm px-3 py-2 text-sm rounded-full flex items-center transition-colors">
-            <Camera className="h-4 w-4 mr-2" />
-            Edit cover
-          </button>
-        )} */}
+                {(isOwnProfile || isOwnInstitute) && (
+                    <button
+                        onClick={() => {
+                            setImageModalType('coverImage');
+                            setIsEditImageModalOpen(true);
+                        }}
+                        className="absolute top-4 right-4 bg-black/50 hover:bg-black/60 text-white backdrop-blur-sm px-3 py-2 text-sm rounded-full flex items-center transition-colors z-10"
+                    >
+                        <Camera className="h-4 w-4 mr-2" />
+                        Edit cover
+                    </button>
+                )}
 
                 <div className="absolute -bottom-16 left-6">
                     <div className="relative">
                         <UserAvatar
                             name={(institution ? displayInstitution?.name : displayUser?.firstName) || "User"}
+                            src={getDisplayProfilePicture() || undefined}
                             className="h-32 w-32 border-4 border-white shadow-lg text-4xl"
                         />
                         {(isOwnProfile || isOwnInstitute) && (
                             <button
-                                onClick={() => setIsProfilePictureModalOpen(true)}
+                                onClick={() => {
+                                    setImageModalType('profileImage');
+                                    setIsEditImageModalOpen(true);
+                                }}
                                 className="absolute bottom-2 right-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-2 shadow-sm transition-colors cursor-pointer z-10"
                             >
                                 <Camera className="h-4 w-4 text-gray-600" />
@@ -635,31 +660,16 @@ export const ProfileHeader = ({
                 </div>
             </div>
 
-            {/* Profile Picture Modal for Users */}
-            {/* {isOwnProfile && displayUser && (
-                <EditProfilePictureModal
-                    isOpen={isProfilePictureModalOpen}
-                    onClose={() => setIsProfilePictureModalOpen(false)}
-                    currentProfilePicture={getDisplayProfilePicture()}
-                    userName={displayUser.name}
-                    userId={displayUser.id}
-                    isInstitute={false}
-                    onUpdate={handleProfilePictureUpdate}
-                />
-            )} */}
-
-            {/* Profile Picture Modal for Institutions */}
-            {/* {isOwnInstitute && displayInstitution && (
-                <EditProfilePictureModal
-                    isOpen={isProfilePictureModalOpen}
-                    onClose={() => setIsProfilePictureModalOpen(false)}
-                    currentProfilePicture={getDisplayProfilePicture()}
-                    userName={displayInstitution.name}
-                    userId={displayInstitution.id}
-                    isInstitute={true}
-                    onUpdate={handleInstituteProfilePictureUpdate}
-                />
-            )} */}
+            {/* Image Edit Modal */}
+            <EditImageModal
+                isOpen={isEditImageModalOpen}
+                onClose={() => setIsEditImageModalOpen(false)}
+                onUpdate={imageModalType === 'profileImage' ? handleProfilePictureUpdate : handleCoverPictureUpdate}
+                type={imageModalType}
+                isInstitute={!!institution}
+                currentImage={imageModalType === 'profileImage' ? getDisplayProfilePicture() : (institution ? displayInstitution?.banner_picture : displayUser?.banner_picture)}
+                title={imageModalType === 'profileImage' ? "Profile Picture" : "Cover Photo"}
+            />
 
             {/* Edit Profile Modal */}
             {isOwnProfile && displayUser && (

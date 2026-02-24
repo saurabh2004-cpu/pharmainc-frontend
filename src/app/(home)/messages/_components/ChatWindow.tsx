@@ -128,7 +128,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         <div className="flex flex-col h-full bg-slate-50">
             {/* Header */}
             <div className="p-4 bg-white border-b border-gray-200 flex items-center gap-3 shadow-sm">
-                <UserAvatar name={displayName} className="h-10 w-10" />
+                <UserAvatar name={displayName} src={participant.profile_picture} className="h-10 w-10" />
                 <div>
                     <h3 className="font-semibold">{displayName}</h3>
                     <p className="text-xs text-gray-500">{participant.role || ''}</p>

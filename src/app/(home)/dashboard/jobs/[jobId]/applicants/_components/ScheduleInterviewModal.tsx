@@ -105,7 +105,7 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({ isOpen,
                         />
                     </div>
 
-                    <div className="grid gap-2">
+                    {formData.interviewType === "videoInterview" && <div className="grid gap-2">
                         <Label htmlFor="interviewLink">Link (Optional)</Label>
                         <Input
                             id="interviewLink"
@@ -114,7 +114,7 @@ const ScheduleInterviewModal: React.FC<ScheduleInterviewModalProps> = ({ isOpen,
                             value={formData.interviewLink}
                             onChange={(e) => handleChange('interviewLink', e.target.value)}
                         />
-                    </div>
+                    </div>}
 
                     <DialogFooter>
                         <Button type="button" variant="outline" onClick={onClose} disabled={loading}>

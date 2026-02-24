@@ -1,11 +1,11 @@
 "use client"
 
-import React from 'react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 
 interface UserAvatarProps {
     name?: string;
+    src?: string;
     className?: string;
     onClick?: React.MouseEventHandler<HTMLDivElement>;
 }
@@ -23,7 +23,7 @@ const AVATAR_COLORS = [
     'bg-orange-500',
 ];
 
-export function UserAvatar({ name, className, onClick }: UserAvatarProps) {
+export function UserAvatar({ name, src, className, onClick }: UserAvatarProps) {
     const displayName = name || 'User';
 
     // Get initials (max 2 characters)
@@ -48,6 +48,7 @@ export function UserAvatar({ name, className, onClick }: UserAvatarProps) {
 
     return (
         <Avatar className={cn(className, "border-0")} onClick={onClick}>
+            {src && <AvatarImage src={src} alt={displayName} className="object-cover" />}
             <AvatarFallback className={cn(bgColor, "text-white font-semibold uppercase")}>
                 {initials}
             </AvatarFallback>

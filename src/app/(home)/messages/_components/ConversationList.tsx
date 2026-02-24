@@ -42,7 +42,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                     isSelected && "bg-blue-50 border-l-4 border-l-blue-500"
                                 )}
                             >
-                                <UserAvatar name={displayName} className="h-10 w-10" />
+                                <UserAvatar name={displayName} src={participant.profile_picture} className="h-10 w-10" />
                                 <div className="flex-1 overflow-hidden">
                                     <div className="flex justify-between items-baseline">
                                         <h3 className="font-medium text-sm truncate">{displayName}</h3>

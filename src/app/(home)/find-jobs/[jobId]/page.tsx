@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Image from 'next/image';
 import { ArrowLeft, MapPin, Building2, Clock, DollarSign, Users, Briefcase, Calendar, Globe, CheckCircle, Share, Bookmark, TrendingUp, Target, Award, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ import ProfileIncompleteModal from './_components/ProfileIncompleteModal';
 import { useEntity } from '@/hooks/useEntity';
 import { checkProfileCompletion } from '@/lib/api/services/user';
 import { toast } from 'sonner';
+import { buildImageUrl } from '@/utils/buildImageUrl';
 
 
 
@@ -335,17 +337,32 @@ const JobDetailPage = () => {
           {/* Left Content */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-start gap-6">
-              <div
-                onClick={handleViewInstituteProfile}
-                className={`w-20 h-20 bg-black rounded-2xl flex items-center justify-center flex-shrink-0 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-blue-200 transition-all duration-200' : ''
-                  }`}
-                title={isUser ? 'Click to view institute profile' : ''}
-              >
-                <span className="text-white text-2xl font-bold">
-                  {job.institute?.name ? getInitials(job.institute.name) :
-                    getInitials(job.title)}
-                </span>
-              </div>
+              {/* Institute logo: image if available, else black square with initials */}
+              {buildImageUrl((job.institute as any)?.profile_picture ?? undefined, '') ? (
+                <div
+                  onClick={handleViewInstituteProfile}
+                  className={`w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden border border-gray-200 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-blue-200 transition-all duration-200' : ''}`}
+                  title={isUser ? 'Click to view institute profile' : ''}
+                >
+                  <Image
+                    src={buildImageUrl((job.institute as any)?.profile_picture)}
+                    alt={job.institute?.name || 'Institute'}
+                    width={80}
+                    height={80}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              ) : (
+                <div
+                  onClick={handleViewInstituteProfile}
+                  className={`w-20 h-20 bg-black rounded-2xl flex items-center justify-center flex-shrink-0 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-blue-200 transition-all duration-200' : ''}`}
+                  title={isUser ? 'Click to view institute profile' : ''}
+                >
+                  <span className="text-white text-2xl font-bold">
+                    {job.institute?.name ? getInitials(job.institute.name) : getInitials(job.title)}
+                  </span>
+                </div>
+              )}
 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-2">

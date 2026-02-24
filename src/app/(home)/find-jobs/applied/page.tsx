@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { getAllUserApplications } from '@/lib/api/services/job';
 import { getInstitutionById } from '@/lib/api/services/institute';
 import { listJobs } from '@/lib/api/services/job';
@@ -14,6 +15,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Application, Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
+import { buildImageUrl } from '@/utils/buildImageUrl';
 import {
   ArrowLeft,
   Search,
@@ -153,8 +155,8 @@ const AppliedJobsPage = () => {
 
             if (job.institute) {
               instituteName = job.institute.name;
-              // Institute inside job usually doesn't have profile_picture directly in some backends, 
-              // but checking just in case. If not, we might need a separate fetch or use what's available.
+              // Use profile_picture mapped from backend (instituteImages)
+              instituteLogo = (job.institute as any).profile_picture || null;
             } else if (job.instituteId) {
               // Determine if we need to fetch institute details separately
               try {
@@ -547,7 +549,20 @@ const AppliedJobsPage = () => {
                         <div key={application.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
                           <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex items-start gap-4 flex-1">
-                              <UserAvatar name={application.companyName} className="h-12 w-12 flex-shrink-0" />
+                              {/* Institute logo: image if available, else colored initial */}
+                              {application.companyLogo ? (
+                                <div className="h-12 w-12 flex-shrink-0 rounded overflow-hidden border border-gray-100">
+                                  <Image
+                                    src={buildImageUrl(application.companyLogo)}
+                                    alt={application.companyName || 'Institute'}
+                                    width={48}
+                                    height={48}
+                                    className="object-cover w-full h-full"
+                                  />
+                                </div>
+                              ) : (
+                                <UserAvatar name={application.companyName} className="h-12 w-12 flex-shrink-0" />
+                              )}
                               <div className="flex-1 min-w-0">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-1">{application.jobTitle}</h3>
                                 <p className="text-sm text-gray-600 mb-2">{application.companyName}</p>

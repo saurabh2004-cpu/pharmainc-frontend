@@ -121,6 +121,7 @@ export const useJobStore = create<JobState>()(
               contact_email: job.institute.contactEmail,
               contact_number: job.institute.contactNumber,
               about: job.institute.about,
+              profile_picture: (job.institute as any).profile_picture || null, // CloudFront image URL
             } as Institution : undefined,
             location: job.workLocation, // Map workLocation to location for compatibility
             institute_id: job.instituteId, // Map instituteId for compatibility
@@ -187,6 +188,7 @@ export const useJobStore = create<JobState>()(
               contact_email: job.institute.contactEmail,
               contact_number: job.institute.contactNumber,
               about: job.institute.about,
+              profile_picture: (job.institute as any).profile_picture || null, // CloudFront image URL
             } as Institution;
           } else {
             const instituteId = job.instituteId || job.institute_id

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Building2, Clock, Bookmark, MoreHorizontal, Flag, EyeOff, Ban, AlertTriangle } from "lucide-react";
@@ -117,6 +118,15 @@ const JobCard = ({ job }: JobCardProps) => {
     return colors[index];
   };
 
+  const buildJobImageUrl = (raw?: string | null): string | null => {
+    if (!raw) return null;
+    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+    if (raw.startsWith('/')) return raw;
+    return `https://${raw}`;
+  };
+
+  const instituteImageUrl = buildJobImageUrl((job.institution as any)?.profile_picture);
+
   return (
     <div
       onClick={handleCardClick}
@@ -124,14 +134,26 @@ const JobCard = ({ job }: JobCardProps) => {
     >
       <div className="flex items-start gap-3">
         {/* Company Logo */}
-        <div className={cn(
-          "w-12 h-12 rounded flex items-center justify-center flex-shrink-0",
-          getCompanyColor(job.institution?.name || job.title)
-        )}>
-          <span className="text-white font-semibold text-lg">
-            {getCompanyInitial(job.institution?.name || job.title)}
-          </span>
-        </div>
+        {instituteImageUrl ? (
+          <div className="w-12 h-12 rounded flex-shrink-0 overflow-hidden border border-gray-100">
+            <Image
+              src={instituteImageUrl}
+              alt={job.institution?.name || 'Institute'}
+              width={48}
+              height={48}
+              className="object-cover w-full h-full"
+            />
+          </div>
+        ) : (
+          <div className={cn(
+            "w-12 h-12 rounded flex items-center justify-center flex-shrink-0",
+            getCompanyColor(job.institution?.name || job.title)
+          )}>
+            <span className="text-white font-semibold text-lg">
+              {getCompanyInitial(job.institution?.name || job.title)}
+            </span>
+          </div>
+        )}
 
         {/* Job Details */}
         <div className="flex-1 min-w-0">

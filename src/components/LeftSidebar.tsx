@@ -106,6 +106,18 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
     setShowProfileMenu(!showProfileMenu);
   };
 
+  // Ensure profile picture URL is always valid for next/image
+  const buildSidebarImageUrl = (raw?: string | null): string | undefined => {
+    if (!raw) return undefined;
+    if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
+    if (raw.startsWith('/')) return raw;
+    return `https://${raw}`;
+  };
+
+  const sidebarProfilePicture = buildSidebarImageUrl(
+    (displayUser as any)?.profile_picture
+  );
+
   return (
     <aside className="h-screen bg-white border-r border-gray-200 flex flex-col font-sans pt-3">
       <div className="p-4 pb-0 flex-shrink-0">
@@ -218,6 +230,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
             >
               <UserAvatar
                 name={("firstName" in displayUser && displayUser.firstName) || displayUser.name || "User"}
+                src={sidebarProfilePicture}
                 className="w-10 h-10 flex-shrink-0"
               />
               <div className="xl:flex hidden flex-col flex-1 min-w-0">
