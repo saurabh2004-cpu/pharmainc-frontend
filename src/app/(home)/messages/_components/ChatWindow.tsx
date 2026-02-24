@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Paperclip, Image as ImageIcon, Video, FileText } from 'lucide-react';
+import { Send, Paperclip, Image as ImageIcon, Video, FileText, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/UserAvatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Conversation, Message } from '@/types/message';
 import { cn } from '@/lib/utils';
-import { Loader2 } from 'lucide-react'; // Added Loader2 import
+import { Loader2 } from 'lucide-react';
+import { VoiceRecorder } from './VoiceRecorder';
+import { AudioMessage } from './AudioMessage';
 
 interface ChatWindowProps {
     conversation: Conversation;
@@ -14,6 +16,7 @@ interface ChatWindowProps {
     currentUserRole: string; // 'USER' | 'INSTITUTE'
     currentUserId: string;
     onSendMessage: (content?: string, media?: File) => void;
+    onSendVoiceMessage?: (audioBlob: Blob) => void;
     isLoadingMessages: boolean;
     onLoadMore?: () => void;
     hasMore?: boolean;
@@ -26,6 +29,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     currentUserRole,
     currentUserId,
     onSendMessage,
+    onSendVoiceMessage,
     isLoadingMessages,
     onLoadMore,
     hasMore,
@@ -33,6 +37,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 }) => {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
+    const [isVoiceRecording, setIsVoiceRecording] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -166,6 +171,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                     <img src={msg.mediaUrl} alt="Shared image" className="rounded-md max-h-60 w-auto object-cover" />
                                                 ) : msg.mediaType === 'VIDEO' ? (
                                                     <video src={msg.mediaUrl} controls className="rounded-md max-h-60 w-auto" />
+                                                ) : msg.mediaType === 'VOICE' ? (
+                                                    <AudioMessage url={msg.mediaUrl} isMe={isMe} />
                                                 ) : (
                                                     <a href={msg.mediaUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 bg-black/10 p-2 rounded hover:bg-black/20 text-sm">
                                                         <FileText className="h-4 w-4" /> Download PDF
@@ -202,18 +209,33 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-blue-600">
                         <Paperclip className="h-5 w-5" />
                     </Button>
-                    <Input
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder="Type a message..."
-                        className="flex-1"
-                        disabled={isSending}
-                        autoFocus
-                    />
-                    <Button onClick={handleSend} disabled={isSending || (!newMessage.trim() && !fileInputRef.current?.files?.length)} className="bg-blue-600 hover:bg-blue-700">
-                        <Send className="h-5 w-5" />
-                    </Button>
+                    {isVoiceRecording ? (
+                        <VoiceRecorder
+                            onSend={(blob) => {
+                                if (onSendVoiceMessage) onSendVoiceMessage(blob);
+                                setIsVoiceRecording(false);
+                            }}
+                            onCancel={() => setIsVoiceRecording(false)}
+                        />
+                    ) : (
+                        <>
+                            <Input
+                                value={newMessage}
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                placeholder="Type a message..."
+                                className="flex-1"
+                                disabled={isSending}
+                                autoFocus
+                            />
+                            <Button variant="ghost" size="icon" onClick={() => setIsVoiceRecording(true)} className="text-gray-500 hover:text-blue-600">
+                                <Mic className="h-5 w-5" />
+                            </Button>
+                            <Button onClick={handleSend} disabled={isSending || (!newMessage.trim() && !fileInputRef.current?.files?.length)} className="bg-blue-600 hover:bg-blue-700">
+                                <Send className="h-5 w-5" />
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
         </div>

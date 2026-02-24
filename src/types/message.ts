@@ -20,7 +20,7 @@ export interface Message {
     senderId: string;
     content: string;
     mediaUrl?: string;
-    mediaType?: 'IMAGE' | 'VIDEO' | 'PDF';
+    mediaType?: 'IMAGE' | 'VIDEO' | 'PDF' | 'VOICE';
     isRead: boolean;
     createdAt: string;
 }
@@ -29,5 +29,5 @@ export interface SendMessagePayload {
     conversationId: string;
     content?: string;
     media?: File;
-    mediaType?: 'IMAGE' | 'VIDEO' | 'PDF';
+    mediaType?: 'IMAGE' | 'VIDEO' | 'PDF' | 'VOICE';
 }

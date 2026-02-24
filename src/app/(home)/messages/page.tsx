@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getConversations, getMessages, sendMessage, markAsRead } from '@/lib/api/services/messages';
+import { getConversations, getMessages, sendMessage, markAsRead, sendVoiceMessage } from '@/lib/api/services/messages';
 import { connectSocket, getSocket } from '@/lib/socket';
 import { getAuthToken } from '@/lib/api/utils';
 import { Conversation, Message } from '@/types/message';
@@ -238,6 +238,23 @@ const MessagesContent = () => {
     }
   };
 
+  const handleSendVoiceMessage = async (audioBlob: Blob) => {
+    if (!selectedConversationId) return;
+
+    try {
+      const newMessage = await sendVoiceMessage(selectedConversationId, audioBlob);
+      setMessages(prev => [...prev, newMessage]);
+      setConversations(prev => prev.map(c =>
+        c.id === selectedConversationId
+          ? { ...c, lastMessage: newMessage, updatedAt: newMessage.createdAt }
+          : c
+      ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
+    } catch (error) {
+      console.error("Voice send failed", error);
+      toast.error("Failed to send voice message");
+    }
+  };
+
   if (loadingConversations) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
@@ -263,6 +280,7 @@ const MessagesContent = () => {
               currentUserRole={currentUser?.role || ''}
               currentUserId={currentUser?.id || ''}
               onSendMessage={handleSendMessage}
+              onSendVoiceMessage={handleSendVoiceMessage}
               isLoadingMessages={loadingMessages}
               onLoadMore={handleLoadMore}
               hasMore={hasMore}
