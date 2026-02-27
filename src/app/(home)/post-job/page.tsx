@@ -4,9 +4,41 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, FileText } from 'lucide-react';
 import JobPostingForm from '../jobs/_components/JobPostingForm';
+import { useEffect, useState } from 'react';
+import { checkInstituteVerificationStatus } from '@/lib/api/services/institute';
+import { InstituteVerificationModal } from '../dashboard/_components';
+import { toast } from 'sonner';
 
 const PostJobPage = () => {
   const router = useRouter();
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkVerification = async () => {
+      try {
+        const result = await checkInstituteVerificationStatus();
+        if (!result.verified) {
+          setShowVerificationModal(true);
+        }
+      } catch (error) {
+        console.error("Failed to check verification status", error);
+        toast.error("Failed to check verification status. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkVerification();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -24,8 +56,13 @@ const PostJobPage = () => {
           </div>
         </div>
       </div>
-      
+
       <JobPostingForm />
+
+      <InstituteVerificationModal
+        isOpen={showVerificationModal}
+        onClose={() => router.push('/dashboard')}
+      />
     </div>
   );
 };

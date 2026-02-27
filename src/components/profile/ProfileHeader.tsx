@@ -599,7 +599,7 @@ export const ProfileHeader = ({
                     </div>
 
                     {/* Links Management Section - Only for own profile */}
-                    {isOwnProfile && (
+                    {isOwnProfile && !institution && (
                         <div className="mt-4 space-y-3">
                             {/* Display Links */}
                             {isLoadingLinks ? (

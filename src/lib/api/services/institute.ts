@@ -69,6 +69,11 @@ export const getInstituteWallet = async (): Promise<{ credits: number, id: strin
   return response.data;
 };
 
+export const checkInstituteVerificationStatus = async (): Promise<{ verified: boolean, status: string }> => {
+  const response = await baseApi.get("/institute/verification-status");
+  return response.data;
+};
+
 
 // export const createInstitution = async (
 //   institutionData: InstitutionCreateParams

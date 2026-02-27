@@ -386,48 +386,52 @@ const AppliedJobsPage = () => {
   const removeFromProcessing = (id: string) => setProcessingIds(prev => prev.filter(pid => pid !== id));
   const isProcessing = (id: string) => processingIds.includes(id);
 
-  const handleDownloadResume = async (userId: string | undefined, userName: string) => {
-    if (!userId) {
-      toast.error("Cannot download resume: User ID missing");
-      return;
-    }
+  // const handleDownloadResume = async (userId: string | undefined, userName: string) => {
+  //   if (!userId) {
+  //     toast.error("Cannot download resume: User ID missing");
+  //     return;
+  //   }
 
-    const processingKey = `download-${userId}`;
-    if (isProcessing(processingKey)) return;
+  //   const processingKey = `download-${userId}`;
+  //   if (isProcessing(processingKey)) return;
 
-    addToProcessing(processingKey);
-    try {
-      const blob = await downloadResume(userId);
+  //   addToProcessing(processingKey);
+  //   try {
+  //     const blob = await downloadResume(userId);
 
-      // Create URL
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
+  //     // Create URL
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement('a');
+  //     link.href = url;
 
-      // Determine extension
-      const type = blob.type;
-      let extension = 'pdf';
-      if (type === 'application/msword') extension = 'doc';
-      if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
+  //     // Determine extension
+  //     const type = blob.type;
+  //     let extension = 'pdf';
+  //     if (type === 'application/msword') extension = 'doc';
+  //     if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
 
-      link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+  //     link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //     window.URL.revokeObjectURL(url);
 
-      toast.success('Resume downloaded successfully');
-    } catch (error: any) {
-      console.error('Download error:', error);
-      if (error.response && error.response.status === 404) {
-        toast.error("Resume not uploaded by applicant");
-      } else {
-        toast.error("Failed to download resume");
-      }
-    } finally {
-      removeFromProcessing(processingKey);
-    }
-  };
+  //     toast.success('Resume downloaded successfully');
+  //   } catch (error: any) {
+  //     console.error('Download error:', error);
+  //     if (error.response && error.response.status === 404) {
+  //       toast.error("Resume not uploaded by applicant");
+  //     } else {
+  //       toast.error("Failed to download resume");
+  //     }
+  //   } finally {
+  //     removeFromProcessing(processingKey);
+  //   }
+  // };
+
+  const handleDownloadResume = async (resumeUrl) => {
+    window.open(resumeUrl, '_blank');
+  }
 
   if (loading && applications.length === 0) {
     return (
@@ -626,7 +630,7 @@ const AppliedJobsPage = () => {
                                   <Eye className="mr-1 h-4 w-4" /> View Job
                                 </Button>
                                 {(application.resume_url || application.resumeUrl) && (
-                                  <Button variant="outline" size="sm" onClick={() => handleDownloadResume(currentUser?.id, `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || 'User')}>
+                                  <Button variant="outline" size="sm" onClick={() => handleDownloadResume(application.resume_url || application.resumeUrl)}>
                                     <Download className="mr-1 h-4 w-4" /> Resume
                                   </Button>
                                 )}

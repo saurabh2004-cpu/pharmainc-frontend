@@ -8,13 +8,15 @@ import {
   CandidateEngagementTab,
   PostedJobsTab,
   ComingSoonTab,
-  DashboardHeader
+  DashboardHeader,
+  InstituteVerificationModal
 } from './_components'
 import { DraftConfirmationModal } from '@/components/DraftConfirmationModal'
 import { useJobPostingStore } from '@/store'
 import { Button } from '@/components/ui/button'
-import { getInstituteWallet } from '@/lib/api/services/institute'
+import { getInstituteWallet, checkInstituteVerificationStatus } from '@/lib/api/services/institute'
 import { getUserType } from '@/lib/api/utils'
+import { toast } from 'sonner'
 
 const DashboardContent = () => {
   const router = useRouter()
@@ -22,8 +24,10 @@ const DashboardContent = () => {
   const tab = searchParams.get('tab')
   const [activeTab, setActiveTab] = useState(tab || 'overview')
   const [showDraftModal, setShowDraftModal] = useState(false)
+  const [showVerificationModal, setShowVerificationModal] = useState(false)
   const [credits, setCredits] = useState<number | null>(null);
   const [loadingCredits, setLoadingCredits] = useState(true);
+  const [checkingVerification, setCheckingVerification] = useState(false)
 
   const { currentDraft, clearDraft } = useJobPostingStore()
 
@@ -57,22 +61,38 @@ const DashboardContent = () => {
     fetchCredits();
   }, []);
 
-  const handlePostJobClick = (e: React.MouseEvent) => {
+  const handlePostJobClick = async (e: React.MouseEvent) => {
     e.preventDefault()
 
-    const hasMeaningfulDraft = currentDraft && (
-      currentDraft.title ||
-      currentDraft.fullDescription ||
-      currentDraft.jobType ||
-      (currentDraft.skills && currentDraft.skills.length > 0)
-    );
+    if (checkingVerification) return;
 
-    if (hasMeaningfulDraft) {
-      // Has meaningful draft data
-      setShowDraftModal(true)
-    } else {
-      // No draft, go directly
-      router.push('/dashboard/post-job')
+    setCheckingVerification(true)
+    try {
+      const result = await checkInstituteVerificationStatus();
+      if (!result.verified) {
+        setShowVerificationModal(true);
+        return;
+      }
+
+      const hasMeaningfulDraft = currentDraft && (
+        currentDraft.title ||
+        currentDraft.fullDescription ||
+        currentDraft.jobType ||
+        (currentDraft.skills && currentDraft.skills.length > 0)
+      );
+
+      if (hasMeaningfulDraft) {
+        // Has meaningful draft data
+        setShowDraftModal(true)
+      } else {
+        // No draft, go directly
+        router.push('/dashboard/post-job')
+      }
+    } catch (error) {
+      console.error("Failed to check verification status", error);
+      toast.error("Failed to check verification status. Please try again.");
+    } finally {
+      setCheckingVerification(false)
     }
   }
 
@@ -105,12 +125,18 @@ const DashboardContent = () => {
             )}
             <Button
               onClick={handlePostJobClick}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200"
+              disabled={checkingVerification}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-70"
             >
-              Post a Job
+              {checkingVerification ? "Checking..." : "Post a Job"}
             </Button>
           </div>
         </div>
+
+        <InstituteVerificationModal
+          isOpen={showVerificationModal}
+          onClose={() => setShowVerificationModal(false)}
+        />
 
         <DraftConfirmationModal
           open={showDraftModal}

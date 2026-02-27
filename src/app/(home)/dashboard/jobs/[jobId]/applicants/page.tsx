@@ -140,9 +140,9 @@ const JobApplicationsPage = () => {
             const response = await getApplicationsByJob(jobId);
 
             const apps = response.applications || response || [];
-            console.log("applicants", apps)
 
-            const formattedApps: ApplicationWithUserAndJob[] = apps.map((app: any) => ({
+
+            const formattedApps: ApplicationWithUserAndJob[] = apps.data.map((app: any) => ({
                 ...app,
                 userName: app.user?.firstName + ' ' + app.user?.lastName || app.user?.name || 'Unknown Candidate',
                 email: app.user?.email || 'N/A',
@@ -151,8 +151,11 @@ const JobApplicationsPage = () => {
                 currentPosition: app.currentPosition || app.user?.role || 'N/A',
                 experienceYears: app.experienceYears || 0,
                 appliedDate: app.appliedDate || app.created_at,
-                status: app.status || 'APPLIED' // Default status
+                status: app.status || 'APPLIED',// Default status
+                resumeUrl: app.resumeUrl
             }));
+
+            console.log("formattedApps", formattedApps)
 
             setApplications(formattedApps);
         } catch (error) {
@@ -270,48 +273,52 @@ const JobApplicationsPage = () => {
 
     // ... (resume download existing)
 
-    const handleDownloadResume = async (userId: string | undefined, userName: string) => {
-        if (!userId) {
-            toast.error("Cannot download resume: User ID missing");
-            return;
-        }
+    // const handleDownloadResume = async (userId: string | undefined, userName: string) => {
+    //     if (!userId) {
+    //         toast.error("Cannot download resume: User ID missing");
+    //         return;
+    //     }
 
-        const processingKey = `download-${userId}`;
-        if (isProcessing(processingKey)) return;
+    //     const processingKey = `download-${userId}`;
+    //     if (isProcessing(processingKey)) return;
 
-        addToProcessing(processingKey);
-        try {
-            const blob = await downloadResume(userId);
+    //     addToProcessing(processingKey);
+    //     try {
+    //         const blob = await downloadResume(userId);
 
-            // Create URL
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
+    //         // Create URL
+    //         const url = window.URL.createObjectURL(blob);
+    //         const link = document.createElement('a');
+    //         link.href = url;
 
-            // Determine extension
-            const type = blob.type;
-            let extension = 'pdf';
-            if (type === 'application/msword') extension = 'doc';
-            if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
+    //         // Determine extension
+    //         const type = blob.type;
+    //         let extension = 'pdf';
+    //         if (type === 'application/msword') extension = 'doc';
+    //         if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
 
-            link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
+    //         link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         link.remove();
+    //         window.URL.revokeObjectURL(url);
 
-            toast.success('Resume downloaded successfully');
-        } catch (error: any) {
-            console.error('Download error:', error);
-            if (error.response && error.response.status === 404) {
-                toast.error("Resume not uploaded by applicant");
-            } else {
-                toast.error("Failed to download resume");
-            }
-        } finally {
-            removeFromProcessing(processingKey);
-        }
-    };
+    //         toast.success('Resume downloaded successfully');
+    //     } catch (error: any) {
+    //         console.error('Download error:', error);
+    //         if (error.response && error.response.status === 404) {
+    //             toast.error("Resume not uploaded by applicant");
+    //         } else {
+    //             toast.error("Failed to download resume");
+    //         }
+    //     } finally {
+    //         removeFromProcessing(processingKey);
+    //     }
+    // };
+
+    const handleDownloadResume = async (resumeUrl) => {
+        window.open(resumeUrl, '_blank');
+    }
 
     // Sorting
     const sortApplications = (apps: ApplicationWithUserAndJob[]) => {
@@ -357,6 +364,8 @@ const JobApplicationsPage = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const paginatedApplications = filteredAndSortedApplications.slice(startIndex, endIndex);
+
+    console.log("paginatedApplications", paginatedApplications);
 
     // Status Badge Helper
     const getStatusBadgeVariant = (status: string) => {
@@ -617,7 +626,8 @@ const JobApplicationsPage = () => {
                                                                 </DropdownMenuItem>
                                                                 {app.userId && (
                                                                     <DropdownMenuItem
-                                                                        onClick={() => handleDownloadResume(app.userId, app.userName || 'Applicant')}
+                                                                        // onClick={() => handleDownloadResume(app.userId, app.userName || 'Applicant')}
+                                                                        onClick={() => handleDownloadResume(app.resumeUrl)}
                                                                         disabled={isProcessing(`download-${app.userId}`)}
                                                                     >
                                                                         <Download className="mr-2 h-4 w-4" />

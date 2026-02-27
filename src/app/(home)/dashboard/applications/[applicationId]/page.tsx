@@ -133,44 +133,49 @@ const ApplicationDetailsPage = () => {
         }
     };
 
-    const handleDownloadResume = async () => {
-        if (!application?.user?.id) return;
+    // const handleDownloadResume = async () => {
+    //     if (!application?.user?.id) return;
 
-        setDownloadingResume(true);
-        try {
-            const blob = await downloadResume(application.user.id);
+    //     setDownloadingResume(true);
+    //     try {
+    //         const blob = await downloadResume(application.user.id);
 
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
+    //         const url = window.URL.createObjectURL(blob);
+    //         const link = document.createElement('a');
+    //         link.href = url;
 
-            const type = blob.type;
-            let extension = 'pdf';
-            if (type === 'application/msword') extension = 'doc';
-            if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
+    //         const type = blob.type;
+    //         let extension = 'pdf';
+    //         if (type === 'application/msword') extension = 'doc';
+    //         if (type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') extension = 'docx';
 
-            const userName = application.user.firstName
-                ? `${application.user.firstName}_${application.user.lastName || ''}`
-                : application.user.name || 'Applicant';
+    //         const userName = application.user.firstName
+    //             ? `${application.user.firstName}_${application.user.lastName || ''}`
+    //             : application.user.name || 'Applicant';
 
-            link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
+    //         link.setAttribute('download', `${userName.replace(/\s+/g, '_')}_Resume.${extension}`);
+    //         document.body.appendChild(link);
+    //         link.click();
+    //         link.remove();
+    //         window.URL.revokeObjectURL(url);
 
-            toast.success('Resume downloaded successfully');
-        } catch (error: any) {
-            console.error('Download error:', error);
-            if (error?.response?.status === 404) {
-                toast.error('Resume not uploaded by applicant');
-            } else {
-                toast.error('Failed to download resume');
-            }
-        } finally {
-            setDownloadingResume(false);
-        }
-    };
+    //         toast.success('Resume downloaded successfully');
+    //     } catch (error: any) {
+    //         console.error('Download error:', error);
+    //         if (error?.response?.status === 404) {
+    //             toast.error('Resume not uploaded by applicant');
+    //         } else {
+    //             toast.error('Failed to download resume');
+    //         }
+    //     } finally {
+    //         setDownloadingResume(false);
+    //     }
+    // };
+
+
+    const handleDownloadResume = async (resumeUrl) => {
+        window.open(resumeUrl, '_blank');
+    }
 
     const handleMessageCandidate = async () => {
         if (!application) return;
@@ -322,7 +327,7 @@ const ApplicationDetailsPage = () => {
                             </div>
 
                             <div className="flex gap-3 mt-6">
-                                <Button onClick={handleDownloadResume} disabled={downloadingResume}>
+                                <Button onClick={() => handleDownloadResume(application.resumeUrl)} disabled={downloadingResume}>
                                     {downloadingResume ? 'Downloading...' : 'Download Resume'}
                                 </Button>
                                 <Button variant="outline" onClick={handleMessageCandidate} disabled={initiatingChat}>

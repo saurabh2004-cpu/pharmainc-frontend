@@ -204,10 +204,10 @@ const parseApiError = (error: any): string => {
 
 interface JobPostingFormProps {
   jobId?: string;
+  isVerified?: boolean;
 }
 
-
-const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
+const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   const router = useRouter();
   const { currentDraft, setDraft, submitJob, clearDraft, isSubmitting: storeIsSubmitting, setEditMode } = useJobPostingStore();
   const [currentStep, setCurrentStep] = useState(1);
@@ -248,9 +248,6 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
   // Fetch cities when country changes
   // We'll handle this logic inside the render mainly or via a specific effect if needed.
   // Ideally, when country changes, we fetch cities.
-
-
-
 
 
   const isSubmitting = storeIsSubmitting || isLoading;
@@ -833,316 +830,27 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
       <CardContent className="pt-6">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Step 1: Job Information */}
-            {currentStep === 1 && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                {/* Row 1: Job Title, Job Role */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Job Title <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Senior Cardiologist"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="jobType"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Job Type <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                              <SelectValue placeholder="Select job type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {jobTypes.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Row 2: Role, Speciality */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => {
-                      const jobType = form.watch("jobType");
-
-                      const filteredRoles = roleOptions.filter(role => {
-                        if (jobType === "Internship") {
-                          return true;
-                        } else {
-                          return role.value !== "STUDENT";
-                        }
-                      });
-
-                      return (
-                        <FormItem>
-                          <FormLabel className="text-gray-700 font-medium">
-                            Role <span className="text-red-500">*</span>
-                          </FormLabel>
-
-                          <Select
-                            disabled={isEditMode}
-                            onValueChange={(val) => {
-                              field.onChange(val);
-                              // Explicitly reset children on manual change? 
-                              // The useEffect handles it, but immediate feedback is nice.
-                              form.setValue("speciality", "");
-                              form.clearErrors("speciality");
-                              form.setValue("subSpeciality", "");
-                              form.clearErrors("subSpeciality");
-                            }}
-                            defaultValue={field.value}
-                            value={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                <SelectValue placeholder="Select role" />
-                              </SelectTrigger>
-                            </FormControl>
-
-                            <SelectContent>
-                              {filteredRoles.map((role) => (
-                                <SelectItem
-                                  key={role.value}
-                                  value={role.value}
-                                  className="cursor-pointer"
-                                >
-                                  {role.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <FormMessage />
-                        </FormItem>
-                      );
-                    }}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="speciality"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-gray-700 font-medium">
-                          Speciality
-                        </FormLabel>
-                        <Popover open={openSpeciality} onOpenChange={setOpenSpeciality}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                                disabled={!selectedRole || isLoading}
-                              >
-                                {field.value
-                                  ? field.value
-                                  : "Select speciality"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0" align="start">
-                            <Command>
-                              <CommandInput placeholder="Search speciality..." />
-                              <CommandList>
-                                <CommandGroup>
-                                  {specialityOptions.map((option) => (
-                                    <div
-                                      key={option}
-                                      className={cn(
-                                        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                        "cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                                      )}
-                                      onClick={() => {
-                                        field.onChange(option);
-                                        form.setValue("subSpeciality", "");
-                                        form.clearErrors("subSpeciality");
-                                        setOpenSpeciality(false);
-                                      }}
-                                      onMouseDown={(e) => e.preventDefault()}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          field.value === option ? "opacity-100" : "opacity-0"
-                                        )}
-                                      />
-                                      {option}
-                                    </div>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Row 3: Sub-Speciality, Work Location */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="subSpeciality"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel className="text-gray-700 font-medium">
-                          Sub-Speciality
-                        </FormLabel>
-                        <Popover open={openSubSpeciality} onOpenChange={setOpenSubSpeciality}>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                role="combobox"
-                                className={cn(
-                                  "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                                disabled={!selectedSpeciality || isLoading}
-                              >
-                                {field.value
-                                  ? field.value
-                                  : "Select sub-speciality"}
-                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-[400px] p-0" align="start">
-                            <Command>
-                              <CommandInput placeholder="Search sub-speciality..." />
-                              <CommandList>
-                                <CommandGroup>
-                                  {subSpecialityOptions.map((option) => (
-                                    <div
-                                      key={option}
-                                      className={cn(
-                                        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                        "cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                                      )}
-                                      onClick={() => {
-                                        field.onChange(option);
-                                        setOpenSubSpeciality(false);
-                                      }}
-                                      onMouseDown={(e) => e.preventDefault()}
-                                    >
-                                      <Check
-                                        className={cn(
-                                          "mr-2 h-4 w-4",
-                                          field.value === option ? "opacity-100" : "opacity-0"
-                                        )}
-                                      />
-                                      {option}
-                                    </div>
-                                  ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="workLocation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Work Location <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                              <SelectValue placeholder="Select work location" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {workLocations.map((location) => (
-                              <SelectItem key={location.value} value={location.value}>
-                                {location.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                {/* Conditional Country/City fields */}
-                {(form.watch("workLocation") === "On-site" || form.watch("workLocation") === "Hybrid") && (
+            <fieldset disabled={!isVerified} className="space-y-6 border-none p-0 m-0">
+              {/* Step 1: Job Information */}
+              {currentStep === 1 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  {/* Row 1: Job Title, Job Role */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormField
                       control={form.control}
-                      name="country"
+                      name="title"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-gray-700 font-medium">
-                            Country <span className="text-red-500">*</span>
+                            Job Title <span className="text-red-500">*</span>
                           </FormLabel>
-                          <Select
-                            onValueChange={(value) => {
-                              handleCountryChange(value);
-                              // Manually invoke form onChange as well if needed by controller, but we set it manually in handleCountryChange
-                              // Actually better to refrain from manual setValue in handleCountryChange for the field itself if we use field.onChange
-                              // Let's adjust: call field.onChange(value) then fetch cities.
-                              field.onChange(value);
-                            }}
-                            value={field.value}
-                            disabled={isLoadingCountries}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select country"} />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {countries.map((country) => (
-                                <SelectItem key={country.value} value={country.value}>
-                                  {country.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., Senior Cardiologist"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -1150,26 +858,22 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
 
                     <FormField
                       control={form.control}
-                      name="city"
+                      name="jobType"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-gray-700 font-medium">
-                            City <span className="text-red-500">*</span>
+                            Job Type <span className="text-red-500">*</span>
                           </FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            disabled={!form.watch("country") || isLoadingCities}
-                          >
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select city"} />
+                                <SelectValue placeholder="Select job type" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {cities.map((city) => (
-                                <SelectItem key={city.value} value={city.value}>
-                                  {city.label}
+                              {jobTypes.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -1179,456 +883,751 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                       )}
                     />
                   </div>
-                )}
 
-                {/* Row 4: Experience Level, Skills */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="experienceLevel"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Experience Level <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                              <SelectValue placeholder="Select experience level" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {experienceLevels.map((level) => (
-                              <SelectItem key={level.value} value={level.value}>
-                                {level.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  {/* Row 2: Role, Speciality */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="role"
+                      render={({ field }) => {
+                        const jobType = form.watch("jobType");
 
-                  <FormField
-                    control={form.control}
-                    name="skills"
-                    render={({ field }) => {
-                      const selectedSkills: string[] = field.value ?? [];
+                        const filteredRoles = roleOptions.filter(role => {
+                          if (jobType === "Internship") {
+                            return true;
+                          } else {
+                            return role.value !== "STUDENT";
+                          }
+                        });
 
-                      const toggleSkill = (skill: string) => {
-                        if (selectedSkills.includes(skill)) {
-                          field.onChange(selectedSkills.filter((s) => s !== skill));
-                        } else {
-                          field.onChange([...selectedSkills, skill]);
-                        }
-                      };
+                        return (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">
+                              Role <span className="text-red-500">*</span>
+                            </FormLabel>
 
-                      return (
-                        <FormItem>
+                            <Select
+                              disabled={isEditMode}
+                              onValueChange={(val) => {
+                                field.onChange(val);
+                                // Explicitly reset children on manual change? 
+                                // The useEffect handles it, but immediate feedback is nice.
+                                form.setValue("speciality", "");
+                                form.clearErrors("speciality");
+                                form.setValue("subSpeciality", "");
+                                form.clearErrors("subSpeciality");
+                              }}
+                              defaultValue={field.value}
+                              value={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                  <SelectValue placeholder="Select role" />
+                                </SelectTrigger>
+                              </FormControl>
+
+                              <SelectContent>
+                                {filteredRoles.map((role) => (
+                                  <SelectItem
+                                    key={role.value}
+                                    value={role.value}
+                                    className="cursor-pointer"
+                                  >
+                                    {role.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="speciality"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
                           <FormLabel className="text-gray-700 font-medium">
-                            Skills <span className="text-red-500">*</span>
+                            Speciality
                           </FormLabel>
-
-                          <FormControl>
-                            <Popover open={open} onOpenChange={setOpen}>
-                              <PopoverTrigger asChild>
+                          <Popover open={openSpeciality} onOpenChange={setOpenSpeciality}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
                                 <Button
-                                  type="button"
                                   variant="outline"
                                   role="combobox"
-                                  className="w-full justify-between min-h-[44px] bg-gray-50 border-gray-200 px-3 py-2"
+                                  className={cn(
+                                    "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                  disabled={!selectedRole || isLoading}
                                 >
-                                  <div className="flex flex-wrap gap-1 items-center text-left">
-                                    {selectedSkills.length > 0 ? (
-                                      selectedSkills.map((skill) => (
-                                        <Badge
-                                          key={skill}
-                                          variant="secondary"
-                                          className="flex items-center gap-1"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleSkill(skill);
-                                          }}
-                                        >
-                                          {skill}
-                                          <X className="h-3 w-3 cursor-pointer hover:text-red-500" />
-                                        </Badge>
-                                      ))
-                                    ) : (
-                                      <span className="text-muted-foreground">
-                                        Select skills...
-                                      </span>
-                                    )}
-                                  </div>
-
+                                  {field.value
+                                    ? field.value
+                                    : "Select speciality"}
                                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
-                              </PopoverTrigger>
-
-                              <PopoverContent className="w-[400px] p-0" align="start">
-                                <Command>
-                                  <CommandInput placeholder="Search skills..." />
-                                  <CommandList>
-                                    {/* <CommandEmpty>No skill found.</CommandEmpty> */}
-
-                                    <CommandGroup>
-                                      {skillOptions.map((option) => {
-                                        const isSelected = selectedSkills.includes(option.value);
-
-                                        return (
-                                          <div
-                                            key={option.value}
-                                            className={cn(
-                                              "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                              "cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                                            )}
-                                            onClick={() => toggleSkill(option.value)}
-                                            onMouseDown={(e) => e.preventDefault()}
-                                          >
-                                            <div className="flex items-center w-full">
-                                              <Check
-                                                className={cn(
-                                                  "mr-2 h-4 w-4 flex-shrink-0",
-                                                  isSelected ? "opacity-100" : "opacity-0"
-                                                )}
-                                              />
-                                              <span className="flex-grow">{option.label}</span>
-                                            </div>
-                                          </div>
-                                        );
-                                      })}
-                                    </CommandGroup>
-                                  </CommandList>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormControl>
-
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0" align="start">
+                              <Command>
+                                <CommandInput placeholder="Search speciality..." />
+                                <CommandList>
+                                  <CommandGroup>
+                                    {specialityOptions.map((option) => (
+                                      <div
+                                        key={option}
+                                        className={cn(
+                                          "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                                          "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                        )}
+                                        onClick={() => {
+                                          field.onChange(option);
+                                          form.setValue("subSpeciality", "");
+                                          form.clearErrors("subSpeciality");
+                                          setOpenSpeciality(false);
+                                        }}
+                                        onMouseDown={(e) => e.preventDefault()}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === option ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        {option}
+                                      </div>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
                           <FormMessage />
                         </FormItem>
-                      );
-                    }}
-                  />
-                </div>
+                      )}
+                    />
+                  </div>
 
-                <FormField
-                  control={form.control}
-                  name="shortDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 font-medium">Short Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="A brief summary of the position (max 200 characters)..."
-                          className="min-h-[80px] bg-gray-50 border-gray-200"
-                          maxLength={200}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription className="text-xs">
-                        {field.value?.length || 0}/200 characters
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
+                  {/* Row 3: Sub-Speciality, Work Location */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="subSpeciality"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel className="text-gray-700 font-medium">
+                            Sub-Speciality
+                          </FormLabel>
+                          <Popover open={openSubSpeciality} onOpenChange={setOpenSubSpeciality}>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button
+                                  variant="outline"
+                                  role="combobox"
+                                  className={cn(
+                                    "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
+                                    !field.value && "text-muted-foreground"
+                                  )}
+                                  disabled={!selectedSpeciality || isLoading}
+                                >
+                                  {field.value
+                                    ? field.value
+                                    : "Select sub-speciality"}
+                                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[400px] p-0" align="start">
+                              <Command>
+                                <CommandInput placeholder="Search sub-speciality..." />
+                                <CommandList>
+                                  <CommandGroup>
+                                    {subSpecialityOptions.map((option) => (
+                                      <div
+                                        key={option}
+                                        className={cn(
+                                          "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                                          "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                        )}
+                                        onClick={() => {
+                                          field.onChange(option);
+                                          setOpenSubSpeciality(false);
+                                        }}
+                                        onMouseDown={(e) => e.preventDefault()}
+                                      >
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === option ? "opacity-100" : "opacity-0"
+                                          )}
+                                        />
+                                        {option}
+                                      </div>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-            {/* Step 2: Job Description */}
-            {currentStep === 2 && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <FormField
-                  control={form.control}
-                  name="fullDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 font-medium">
-                        Full Description <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Describe the role, responsibilities, and what makes this position unique..."
-                          className="min-h-[200px] bg-gray-50 border-gray-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Specify role, responsibilities, team structure, and growth opportunities.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="requirements"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 font-medium">
-                        Requirements <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="List required qualifications, certifications, skills, and experience..."
-                          className="min-h-[150px] bg-gray-50 border-gray-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Required experience and qualifications for the position.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="additionalInfo"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700 font-medium">Additional Information</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Any other relevant details about the position..."
-                          className="min-h-[100px] bg-gray-50 border-gray-200"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
-
-            {/* Step 3: Perks & Benefits */}
-            {currentStep === 3 && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="salaryCurrency"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">Currency</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                              <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {currencies.map((currency) => (
-                              <SelectItem key={currency.value} value={currency.value}>
-                                {currency.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="salaryMin"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Minimum Salary <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="e.g., 500000"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="salaryMax"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium">
-                          Maximum Salary <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            placeholder="e.g., 1000000"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="applicationDeadline"
-                    render={({ field }) => {
-                      // Determine if the selected role is Doctor (case-insensitive)
-                      const role = form.watch("role");
-                      const isDoctor = role?.toUpperCase() === "DOCTOR";
-
-                      // Identify current selection duration (approximate)
-                      // If date matches today+30 -> 30, today+45 -> 45
-                      // This is a UI helper, the source of truth is the date string in the form
-                      const today = new Date();
-                      const scheduledDate = field.value ? new Date(field.value) : null;
-
-                      // Calculate difference in days to determine current "mode"
-                      // Default to 30 if no match or not set
-                      let currentDuration = 30;
-                      if (scheduledDate) {
-                        const diffTime = Math.abs(scheduledDate.getTime() - today.getTime());
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        // Allow some looseness (e.g. 29/30/31 due to time) or strict mode?
-                        // Strict logic: if it's > 40 it's likely 45.
-                        if (diffDays > 40) currentDuration = 45;
-                      }
-
-                      const handleDurationChange = (days: number) => {
-                        const targetDate = new Date();
-                        targetDate.setDate(targetDate.getDate() + days);
-                        field.onChange(targetDate.toISOString().split('T')[0]);
-                      };
-
-                      // Reactively ensure non-doctors are locked to 30 days
-                      // This useEffect-like logic inside render is generally bad practice,
-                      // but we are adhering to "Modify only JobPostingFormStepWise.tsx" and "Derive logic".
-                      // Better to put this in a useEffect in the main component body, but let's see if we can do it here?
-                      // No, render side-effects are dangerous. We will move the logic to a useEffect in the component body.
-                      // For now, this render block just handles the UI.
-
-                      return (
+                    <FormField
+                      control={form.control}
+                      name="workLocation"
+                      render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
-                            <Calendar className="h-4 w-4" />
-                            Application Deadline
+                          <FormLabel className="text-gray-700 font-medium">
+                            Work Location <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                <SelectValue placeholder="Select work location" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {workLocations.map((location) => (
+                                <SelectItem key={location.value} value={location.value}>
+                                  {location.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  {/* Conditional Country/City fields */}
+                  {(form.watch("workLocation") === "On-site" || form.watch("workLocation") === "Hybrid") && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <FormField
+                        control={form.control}
+                        name="country"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">
+                              Country <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <Select
+                              onValueChange={(value) => {
+                                handleCountryChange(value);
+                                // Manually invoke form onChange as well if needed by controller, but we set it manually in handleCountryChange
+                                // Actually better to refrain from manual setValue in handleCountryChange for the field itself if we use field.onChange
+                                // Let's adjust: call field.onChange(value) then fetch cities.
+                                field.onChange(value);
+                              }}
+                              value={field.value}
+                              disabled={isLoadingCountries}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                  <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select country"} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country.value} value={country.value}>
+                                    {country.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="city"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">
+                              City <span className="text-red-500">*</span>
+                            </FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              disabled={!form.watch("country") || isLoadingCities}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                  <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select city"} />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {cities.map((city) => (
+                                  <SelectItem key={city.value} value={city.value}>
+                                    {city.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  )}
+
+                  {/* Row 4: Experience Level, Skills */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="experienceLevel"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium">
+                            Experience Level <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                <SelectValue placeholder="Select experience level" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {experienceLevels.map((level) => (
+                                <SelectItem key={level.value} value={level.value}>
+                                  {level.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="skills"
+                      render={({ field }) => {
+                        const selectedSkills: string[] = field.value ?? [];
+
+                        const toggleSkill = (skill: string) => {
+                          if (selectedSkills.includes(skill)) {
+                            field.onChange(selectedSkills.filter((s) => s !== skill));
+                          } else {
+                            field.onChange([...selectedSkills, skill]);
+                          }
+                        };
+
+                        return (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium">
+                              Skills <span className="text-red-500">*</span>
+                            </FormLabel>
+
+                            <FormControl>
+                              <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-full justify-between min-h-[44px] bg-gray-50 border-gray-200 px-3 py-2"
+                                  >
+                                    <div className="flex flex-wrap gap-1 items-center text-left">
+                                      {selectedSkills.length > 0 ? (
+                                        selectedSkills.map((skill) => (
+                                          <Badge
+                                            key={skill}
+                                            variant="secondary"
+                                            className="flex items-center gap-1"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              toggleSkill(skill);
+                                            }}
+                                          >
+                                            {skill}
+                                            <X className="h-3 w-3 cursor-pointer hover:text-red-500" />
+                                          </Badge>
+                                        ))
+                                      ) : (
+                                        <span className="text-muted-foreground">
+                                          Select skills...
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="w-[400px] p-0" align="start">
+                                  <Command>
+                                    <CommandInput placeholder="Search skills..." />
+                                    <CommandList>
+                                      {/* <CommandEmpty>No skill found.</CommandEmpty> */}
+
+                                      <CommandGroup>
+                                        {skillOptions.map((option) => {
+                                          const isSelected = selectedSkills.includes(option.value);
+
+                                          return (
+                                            <div
+                                              key={option.value}
+                                              className={cn(
+                                                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                                                "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                              )}
+                                              onClick={() => toggleSkill(option.value)}
+                                              onMouseDown={(e) => e.preventDefault()}
+                                            >
+                                              <div className="flex items-center w-full">
+                                                <Check
+                                                  className={cn(
+                                                    "mr-2 h-4 w-4 flex-shrink-0",
+                                                    isSelected ? "opacity-100" : "opacity-0"
+                                                  )}
+                                                />
+                                                <span className="flex-grow">{option.label}</span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormControl>
+
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="shortDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">Short Description</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="A brief summary of the position (max 200 characters)..."
+                            className="min-h-[80px] bg-gray-50 border-gray-200"
+                            maxLength={200}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                          {field.value?.length || 0}/200 characters
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+
+              {/* Step 2: Job Description */}
+              {currentStep === 2 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <FormField
+                    control={form.control}
+                    name="fullDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">
+                          Full Description <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Describe the role, responsibilities, and what makes this position unique..."
+                            className="min-h-[200px] bg-gray-50 border-gray-200"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Specify role, responsibilities, team structure, and growth opportunities.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="requirements"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">
+                          Requirements <span className="text-red-500">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="List required qualifications, certifications, skills, and experience..."
+                            className="min-h-[150px] bg-gray-50 border-gray-200"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Required experience and qualifications for the position.
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="additionalInfo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-gray-700 font-medium">Additional Information</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Any other relevant details about the position..."
+                            className="min-h-[100px] bg-gray-50 border-gray-200"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              )}
+
+              {/* Step 3: Perks & Benefits */}
+              {currentStep === 3 && (
+                <div className="space-y-6 animate-in fade-in duration-300">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name="salaryCurrency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium">Currency</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                <SelectValue placeholder="Select currency" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {currencies.map((currency) => (
+                                <SelectItem key={currency.value} value={currency.value}>
+                                  {currency.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="salaryMin"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium">
+                            Minimum Salary <span className="text-red-500">*</span>
                           </FormLabel>
                           <FormControl>
-                            {isDoctor ? (
-                              <Select
-                                value={currentDuration.toString()}
-                                onValueChange={(val) => handleDurationChange(parseInt(val))}
-                              >
-                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                  <SelectValue placeholder="Select duration" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="30">30 Days ({(() => {
-                                    const d = new Date(); d.setDate(d.getDate() + 30); return d.toLocaleDateString();
-                                  })()})</SelectItem>
-                                  <SelectItem value="45">45 Days ({(() => {
-                                    const d = new Date(); d.setDate(d.getDate() + 45); return d.toLocaleDateString();
-                                  })()})</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <div className="relative">
-                                <Input
-                                  value={`30 Days (${(() => {
-                                    const d = new Date(); d.setDate(d.getDate() + 30); return d.toLocaleDateString();
-                                  })()})`}
-                                  disabled
-                                  className="h-11 bg-gray-100 border-gray-200 text-gray-500"
-                                />
-                                {/* Hidden actual input to ensure form registration if needed, though react-hook-form handles it via 'field' */}
-                                <input type="hidden" {...field} />
-                              </div>
-                            )}
+                            <Input
+                              type="number"
+                              placeholder="e.g., 500000"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
-                      );
-                    }}
-                  />
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="contactPerson"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
-                          <User className="h-4 w-4" />
-                          Contact Person
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., Dr. John Smith"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <FormField
+                      control={form.control}
+                      name="salaryMax"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium">
+                            Maximum Salary <span className="text-red-500">*</span>
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              placeholder="e.g., 1000000"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="applicationDeadline"
+                      render={({ field }) => {
+                        // Determine if the selected role is Doctor (case-insensitive)
+                        const role = form.watch("role");
+                        const isDoctor = role?.toUpperCase() === "DOCTOR";
+
+                        // Identify current selection duration (approximate)
+                        // If date matches today+30 -> 30, today+45 -> 45
+                        // This is a UI helper, the source of truth is the date string in the form
+                        const today = new Date();
+                        const scheduledDate = field.value ? new Date(field.value) : null;
+
+                        // Calculate difference in days to determine current "mode"
+                        // Default to 30 if no match or not set
+                        let currentDuration = 30;
+                        if (scheduledDate) {
+                          const diffTime = Math.abs(scheduledDate.getTime() - today.getTime());
+                          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                          // Allow some looseness (e.g. 29/30/31 due to time) or strict mode?
+                          // Strict logic: if it's > 40 it's likely 45.
+                          if (diffDays > 40) currentDuration = 45;
+                        }
+
+                        const handleDurationChange = (days: number) => {
+                          const targetDate = new Date();
+                          targetDate.setDate(targetDate.getDate() + days);
+                          field.onChange(targetDate.toISOString().split('T')[0]);
+                        };
+
+                        // Reactively ensure non-doctors are locked to 30 days
+                        // This useEffect-like logic inside render is generally bad practice,
+                        // but we are adhering to "Modify only JobPostingFormStepWise.tsx" and "Derive logic".
+                        // Better to put this in a useEffect in the main component body, but let's see if we can do it here?
+                        // No, render side-effects are dangerous. We will move the logic to a useEffect in the component body.
+                        // For now, this render block just handles the UI.
+
+                        return (
+                          <FormItem>
+                            <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              Application Deadline
+                            </FormLabel>
+                            <FormControl>
+                              {isDoctor ? (
+                                <Select
+                                  value={currentDuration.toString()}
+                                  onValueChange={(val) => handleDurationChange(parseInt(val))}
+                                >
+                                  <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
+                                    <SelectValue placeholder="Select duration" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="30">30 Days ({(() => {
+                                      const d = new Date(); d.setDate(d.getDate() + 30); return d.toLocaleDateString();
+                                    })()})</SelectItem>
+                                    <SelectItem value="45">45 Days ({(() => {
+                                      const d = new Date(); d.setDate(d.getDate() + 45); return d.toLocaleDateString();
+                                    })()})</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <div className="relative">
+                                  <Input
+                                    value={`30 Days (${(() => {
+                                      const d = new Date(); d.setDate(d.getDate() + 30); return d.toLocaleDateString();
+                                    })()})`}
+                                    disabled
+                                    className="h-11 bg-gray-100 border-gray-200 text-gray-500"
+                                  />
+                                  {/* Hidden actual input to ensure form registration if needed, though react-hook-form handles it via 'field' */}
+                                  <input type="hidden" {...field} />
+                                </div>
+                              )}
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        );
+                      }}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="contactPerson"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                            <User className="h-4 w-4" />
+                            Contact Person
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., Dr. John Smith"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="contactEmail"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Contact Email
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="email"
+                              placeholder="hr@hospital.com"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="contactPhone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            Contact Phone
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              type="tel"
+                              placeholder="+91 98765 43210"
+                              className="h-11 bg-gray-50 border-gray-200"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="contactEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          Contact Email
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="hr@hospital.com"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="contactPhone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-gray-700 font-medium flex items-center gap-2">
-                          <Phone className="h-4 w-4" />
-                          Contact Phone
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="tel"
-                            placeholder="+91 98765 43210"
-                            className="h-11 bg-gray-50 border-gray-200"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-            )}
+              )}
+            </fieldset>
 
             {/* Navigation Buttons */}
             <div className="flex justify-between gap-4 pt-6 border-t border-gray-200">
@@ -1636,7 +1635,7 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                 type="button"
                 variant="outline"
                 onClick={handleDiscard}
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isVerified}
                 className="px-6"
               >
                 Discard
@@ -1647,7 +1646,7 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                   type="button"
                   variant="secondary"
                   onClick={handleSaveDraft}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !isVerified}
                   className="px-6"
                 >
                   {isLoading ? "Saving..." : "Save as Draft"}
@@ -1658,7 +1657,7 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                     type="button"
                     variant="outline"
                     onClick={handlePrevious}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isVerified}
                     className="px-6"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
@@ -1670,7 +1669,7 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isVerified}
                     className="px-8 bg-blue-600 hover:bg-blue-700"
                   >
                     Next
@@ -1683,7 +1682,7 @@ const JobPostingForm = ({ jobId }: JobPostingFormProps) => {
                     type="button"
                     onClick={handleSubmit}
                     className="px-8 bg-green-600 hover:bg-green-700"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isVerified}
                   >
                     {isSubmitting ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update Job" : "Create Job")}
                     <Check className="h-4 w-4 ml-2" />

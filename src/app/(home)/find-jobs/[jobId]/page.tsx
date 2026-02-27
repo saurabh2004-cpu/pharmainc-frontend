@@ -14,7 +14,7 @@ import JobShareModal from '../_components/JobShareModal';
 import InstituteProfileModal from './_components/InstituteProfileModal';
 import ProfileIncompleteModal from './_components/ProfileIncompleteModal';
 import { useEntity } from '@/hooks/useEntity';
-import { checkProfileCompletion } from '@/lib/api/services/user';
+import { checkProfileCompletion, getUserById } from '@/lib/api/services/user';
 import { toast } from 'sonner';
 import { buildImageUrl } from '@/utils/buildImageUrl';
 
@@ -84,6 +84,8 @@ const JobDetailPage = () => {
   const [showInstituteModal, setShowInstituteModal] = useState(false);
   const [showProfileIncompleteModal, setShowProfileIncompleteModal] = useState(false);
   const [profileErrorMessage, setProfileErrorMessage] = useState('');
+  const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
+  const [isNotVerified, setIsNotVerified] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
   const isBookmarked = isJobSaved(jobId);
 
@@ -167,16 +169,44 @@ const JobDetailPage = () => {
       const result = await checkProfileCompletion();
 
       if (result.isComplete) {
-        // Profile is complete - proceed with application
+        // Profile is complete and verified - proceed with application
         setShowApplicationModal(true);
+      } else {
+        // Backend returned 205 Not Verified
+        // We need to check if profile is also incomplete
+        let incomplete = false;
+        if (currentUser?.id) {
+          try {
+            const fullUser: any = await getUserById(currentUser.id);
+            const hasEdu = Array.isArray(fullUser.userEducations) && fullUser.userEducations.length > 0;
+            const hasExp = Array.isArray(fullUser.userExperiences) && fullUser.userExperiences.length > 0;
+            const hasSkills = Array.isArray(fullUser.skills) && fullUser.skills.length > 0;
+            const hasSpec = Array.isArray(fullUser.userSpecialities) && fullUser.userSpecialities.length > 0;
+
+            if (fullUser.role === 'STUDENT') {
+              incomplete = !hasEdu || !hasSkills || !hasSpec;
+            } else {
+              incomplete = !hasEdu || !hasExp || !hasSkills || !hasSpec;
+            }
+          } catch (e) {
+            console.error("Error fetching full user profile for completeness check", e);
+          }
+        }
+
+        setProfileErrorMessage(result.error || "Your profile is incomplete. Please verify your profile before applying.");
+        setIsProfileIncomplete(incomplete);
+        setIsNotVerified(true);
+        setShowProfileIncompleteModal(true);
       }
     } catch (error: any) {
       // Handle different error scenarios
       if (error.response?.status === 400) {
-        // Profile incomplete - show modal with backend error message
+        // Profile incomplete BUT verified - show modal with backend error message
         const errorMsg = error.response?.data?.error ||
           'Profile incomplete. Please complete your education, skills, and speciality before applying.';
         setProfileErrorMessage(errorMsg);
+        setIsProfileIncomplete(true);
+        setIsNotVerified(false);
         setShowProfileIncompleteModal(true);
       } else if (error.response?.status === 401) {
         // Unauthorized - redirect to login
@@ -780,6 +810,8 @@ const JobDetailPage = () => {
               onClose={() => setShowProfileIncompleteModal(false)}
               errorMessage={profileErrorMessage}
               userId={currentUser?.id}
+              isProfileIncomplete={isProfileIncomplete}
+              isNotVerified={isNotVerified}
             />
           )}
         </>

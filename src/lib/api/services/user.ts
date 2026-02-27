@@ -57,10 +57,12 @@ export const downloadResume = async (userId: string): Promise<Blob> => {
   const response = await baseApi.get(`/user/resume/download/${userId}`, {
     responseType: 'blob',
   });
+
+  console.log("download resume response", response);
   return response.data;
 };
 
-export const checkProfileCompletion = async (): Promise<{ isComplete: boolean }> => {
+export const checkProfileCompletion = async (): Promise<{ isComplete: boolean; error?: string }> => {
   const response = await baseApi.get('/user/check-profile-completion');
   return response.data;
 };

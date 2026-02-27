@@ -8,9 +8,11 @@ interface ProfileIncompleteModalProps {
     onClose: () => void;
     errorMessage: string;
     userId?: string;
+    isProfileIncomplete?: boolean;
+    isNotVerified?: boolean;
 }
 
-const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId }: ProfileIncompleteModalProps) => {
+const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId, isProfileIncomplete = true, isNotVerified = false }: ProfileIncompleteModalProps) => {
     const router = useRouter();
 
     if (!isOpen || !userId) return null;
@@ -42,10 +44,10 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId }: Profi
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 mb-1">
-                                    Profile Incomplete
+                                    {isNotVerified && isProfileIncomplete ? 'Profile Incomplete & Unverified' : isNotVerified ? 'Profile Unverified' : 'Profile Incomplete'}
                                 </h2>
                                 <p className="text-sm text-gray-500">
-                                    Complete your profile to continue
+                                    {isNotVerified && isProfileIncomplete ? 'Complete and verify your profile to continue' : isNotVerified ? 'Verify your profile to continue' : 'Complete your profile to continue'}
                                 </p>
                             </div>
                             <button
@@ -60,32 +62,44 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId }: Profi
 
                     {/* Body */}
                     <div className="p-6">
-                        <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6">
-                            <p className="text-sm text-gray-700 leading-relaxed">
-                                {errorMessage}
-                            </p>
-                        </div>
+                        {isNotVerified && (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                                <p className="text-sm text-red-700 leading-relaxed font-medium">
+                                    Your profile is incomplete. Please verify your profile before applying.
+                                </p>
+                            </div>
+                        )}
 
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-3 text-sm text-gray-600">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-xs font-bold text-blue-600">1</span>
+                        {isProfileIncomplete && (
+                            <>
+                                <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6">
+                                    <p className="text-sm text-gray-700 leading-relaxed">
+                                        {isNotVerified ? "Please add your experience, education, skills, and speciality details before applying." : errorMessage || "Please add your experience, education, skills, and speciality details before applying."}
+                                    </p>
                                 </div>
-                                <p>Add your education details</p>
-                            </div>
-                            <div className="flex items-start gap-3 text-sm text-gray-600">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-xs font-bold text-blue-600">2</span>
+
+                                <div className="space-y-4">
+                                    <div className="flex items-start gap-3 text-sm text-gray-600">
+                                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <span className="text-xs font-bold text-blue-600">1</span>
+                                        </div>
+                                        <p>Add your education details</p>
+                                    </div>
+                                    <div className="flex items-start gap-3 text-sm text-gray-600">
+                                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <span className="text-xs font-bold text-blue-600">2</span>
+                                        </div>
+                                        <p>Add your skills and experience</p>
+                                    </div>
+                                    <div className="flex items-start gap-3 text-sm text-gray-600">
+                                        <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                            <span className="text-xs font-bold text-blue-600">3</span>
+                                        </div>
+                                        <p>Select your speciality</p>
+                                    </div>
                                 </div>
-                                <p>Add your skills and experience</p>
-                            </div>
-                            <div className="flex items-start gap-3 text-sm text-gray-600">
-                                <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <span className="text-xs font-bold text-blue-600">3</span>
-                                </div>
-                                <p>Select your speciality</p>
-                            </div>
-                        </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Footer */}
@@ -102,7 +116,7 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId }: Profi
                                 onClick={handleCompleteProfile}
                                 className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
                             >
-                                Complete Profile →
+                                {isNotVerified && !isProfileIncomplete ? 'Verify Profile →' : 'Complete Profile →'}
                             </Button>
                         </div>
                     </div>
