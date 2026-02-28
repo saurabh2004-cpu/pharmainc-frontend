@@ -1,4 +1,4 @@
-import { baseApi, } from "@/lib/api/axios/api";
+import { baseApi, baseApiServer, } from "@/lib/api/axios/api";
 import {
   Institution,
   InstitutionCreateParams,
@@ -26,6 +26,11 @@ export const getInstitution = async (): Promise<Institution> => {
 
 export const getInstitutionById = async (id: string): Promise<Institution> => {
   const response = await baseApi.get(`/institute/get-institute/${id}`);
+  return response.data;
+};
+
+export const getInstitutionByIdServer = async (id: string): Promise<Institution> => {
+  const response = await baseApiServer.get(`/institute/get-institute/${id}`);
   return response.data;
 };
 

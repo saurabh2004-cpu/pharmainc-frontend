@@ -1,6 +1,8 @@
-import { getUserById, getUser, User, Institution } from "@/lib/api";
+const { getInstitutionById } = await import("@/lib/api/services/institute");
+import { getUserById, getUser, User, Institution, getUserByIdServer, getInstitutionByIdServer } from "@/lib/api";
 import { ProfilePageClient } from "./ProfilePageClient";
 import { cookies } from "next/headers";
+import axios from "axios";
 
 export default async function ProfilePage({
   params,
@@ -14,11 +16,10 @@ export default async function ProfilePage({
     let instituteData: Institution | null = null;
 
     try {
-      profileData = await getUserById(userId);
+      profileData = await getUserByIdServer(userId);
     } catch (userError) {
       try {
-        const { getInstitutionById } = await import("@/lib/api/services/institute");
-        instituteData = await getInstitutionById(userId);
+        instituteData = await getInstitutionByIdServer(userId);
       } catch (instituteError) {
         console.warn("Failed to fetch profile as user or institution");
         throw instituteError;
@@ -56,6 +57,11 @@ export default async function ProfilePage({
     } catch (error) {
       console.error("Error getting current user ID:", error);
     }
+
+    console.log("Profile Data:", profileData);
+    console.log("Institute Data:", instituteData);
+    console.log("Current User ID:", currentUserId);
+    console.log("User ID:", userId);
 
     return <ProfilePageClient profileData={profileData} instituteData={instituteData} currentUserId={currentUserId} userId={userId} />;
   } catch (error) {

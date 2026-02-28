@@ -440,7 +440,7 @@ export const ProfileHeader = ({
 
     return (
         <div className="bg-white rounded-xl overflow-hidden">
-            <div className="relative h-32 sm:h-36">
+            <div className="relative h-32 sm:h-36 md:h-66">
                 <Image
                     src={getDisplayBannerPicture()}
                     alt="Cover photo"

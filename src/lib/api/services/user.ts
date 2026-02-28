@@ -1,5 +1,5 @@
 
-import { baseApi } from "@/lib/api/axios/api";
+import { baseApi, baseApiServer } from "@/lib/api/axios/api";
 import {
   User,
   UserCreateParams,
@@ -22,6 +22,11 @@ export const getUser = async (): Promise<User> => {
 
 export const getUserById = async (id: string): Promise<User> => {
   const response = await baseApi.get(`/user/get-user/${id}`);
+  return response.data;
+};
+
+export const getUserByIdServer = async (id: string): Promise<User> => {
+  const response = await baseApiServer.get(`/user/get-user/${id}`);
   return response.data;
 };
 
