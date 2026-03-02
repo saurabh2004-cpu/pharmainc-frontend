@@ -39,6 +39,6 @@ export const baseApi = applyInterceptors(axios.create({
 
 
 export const baseApiServer = applyInterceptors(axios.create({
-  baseURL: `${process.env.SOCKET_URL_SERVER}/api/v1`,
+  baseURL: `${process.env.NEXT_PUBLIC_SOCKET_URL_SERVER}/api/v1`,
   withCredentials: true,
 }));
