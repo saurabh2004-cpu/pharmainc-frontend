@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { toast } from "sonner";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useJobPostingStore } from '@/store/jobPostingStore';
 import { getJob, updateJob, createJob } from '@/lib/api/services/job';
@@ -214,7 +214,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   const [open, setOpen] = useState(false);
   const [openSpeciality, setOpenSpeciality] = useState(false);
   const [openSubSpeciality, setOpenSubSpeciality] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isRestoring, setIsRestoring] = useState(false); // Guard for draft restoration
   // State for dynamic location fields
   const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
@@ -350,7 +350,12 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
             if (parsed && parsed.formData) {
               setIsRestoring(true);
               // Restore form data
-              form.reset(parsed.formData);
+              form.reset({
+                ...parsed.formData,
+                role: parsed.formData.role?.toUpperCase() || "",
+                speciality: parsed.formData.speciality || (parsed.formData as any).specialty || "",
+                subSpeciality: parsed.formData.subSpeciality || (parsed.formData as any).subspeciality || ""
+              });
 
               // Restore step if available
               if (parsed.currentStep) {
@@ -360,14 +365,21 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
               toast.info("Restored saved draft");
 
               // Allow effects to run after a short delay
-              setTimeout(() => setIsRestoring(false), 500);
+              setTimeout(() => {
+                setIsRestoring(false);
+                setIsLoading(false);
+              }, 1000);
+            } else {
+              setIsLoading(false);
             }
           } catch (e) {
             console.error("Failed to parse draft", e);
+            setIsLoading(false);
           }
         }
-        // Fallback to store draft if needed (optional, keeping existing logic for safety if desired, but localStorage is primary now)
+        // Fallback to store draft if needed
         else if (currentDraft && !currentDraft.id) {
+          setIsRestoring(true);
           form.reset({
             title: currentDraft.title || "",
             fullDescription: currentDraft.fullDescription || "",
@@ -384,7 +396,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
             contactPhone: currentDraft.contactPhone || "",
             contactPerson: currentDraft.contactPerson || "",
             additionalInfo: currentDraft.additionalInfo || "",
-            role: currentDraft.role || "",
+            role: currentDraft.role?.toUpperCase() || "",
             skills: (currentDraft.skills || []) as string[],
             speciality: currentDraft.speciality || "",
             subSpeciality: currentDraft.subSpeciality || "",
@@ -392,6 +404,13 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
             city: currentDraft.city || "",
             country: currentDraft.country || "",
           });
+          // Allow effects to run after a short delay
+          setTimeout(() => {
+            setIsRestoring(false);
+            setIsLoading(false);
+          }, 1000);
+        } else {
+          setIsLoading(false);
         }
         return;
       }
@@ -444,7 +463,12 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
           if (parsed && parsed.lastSaved && new Date(parsed.lastSaved) > new Date(job.updated_at)) {
             setIsRestoring(true);
             // Local draft is newer than server data
-            form.reset(parsed.formData);
+            form.reset({
+              ...parsed.formData,
+              role: parsed.formData.role?.toUpperCase() || "",
+              speciality: parsed.formData.speciality || (parsed.formData as any).specialty || "",
+              subSpeciality: parsed.formData.subSpeciality || (parsed.formData as any).subspeciality || ""
+            });
             if (parsed.currentStep) setCurrentStep(parsed.currentStep);
             toast.info("Restored unsaved changes from draft");
             setIsLoading(false);
@@ -475,13 +499,14 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   // Watch for changes and update draft only if NOT loading initial data
   useEffect(() => {
     // We only want to sync to draft if we're not currently loading data
-    if (isLoading) return;
+    if (isLoading || isRestoring) return;
 
     const subscription = form.watch((value) => {
       // Logic to prevent overwriting if form hasn't initialized could be added here
       // But standard setDraft merge is usually safe.
       setDraft({
         ...value,
+        role: value.role?.toUpperCase() || undefined,
         skills: value.skills ? (value.skills.filter(Boolean) as string[]) : undefined,
       });
     });
@@ -492,10 +517,15 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   const selectedRole = form.watch("role");
   const selectedSpeciality = form.watch("speciality");
 
-  const specialityOptions = selectedRole ? Object.keys(rolesData[selectedRole] || {}) : [];
-  const subSpecialityOptions = (selectedRole && selectedSpeciality)
-    ? (rolesData[selectedRole]?.[selectedSpeciality] || [])
-    : [];
+  const specialityOptions = useMemo(() =>
+    selectedRole ? Object.keys(rolesData[selectedRole] || {}) : []
+    , [selectedRole]);
+
+  const subSpecialityOptions = useMemo(() =>
+    (selectedRole && selectedSpeciality)
+      ? (rolesData[selectedRole]?.[selectedSpeciality] || [])
+      : []
+    , [selectedRole, selectedSpeciality]);
 
   // Reset child fields when parent changes
   useEffect(() => {
@@ -512,7 +542,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
     if (isLoading || isRestoring) return; // Don't reset during loading or restoring
 
     const currentSpeciality = form.getValues("speciality");
-    if (currentSpeciality && !specialityOptions.includes(currentSpeciality)) {
+    if (currentSpeciality && specialityOptions.length > 0 && !specialityOptions.includes(currentSpeciality)) {
       form.setValue("speciality", "");
       form.clearErrors("speciality");
       form.setValue("subSpeciality", "");
@@ -524,7 +554,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
     if (isLoading || isRestoring) return;
 
     const currentSubSpeciality = form.getValues("subSpeciality");
-    if (currentSubSpeciality && !subSpecialityOptions.includes(currentSubSpeciality)) {
+    if (currentSubSpeciality && subSpecialityOptions.length > 0 && !subSpecialityOptions.includes(currentSubSpeciality)) {
       form.setValue("subSpeciality", "");
       form.clearErrors("subSpeciality");
     }
@@ -661,7 +691,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
         // Update store with final form data
         setDraft({
           ...data,
-          role: data.role ? (data.role.charAt(0).toUpperCase() + data.role.slice(1).toLowerCase()) : "Other",
+          role: data.role?.toUpperCase() || "OTHER",
           jobType: data.jobType,
         });
 

@@ -168,35 +168,27 @@ const JobDetailPage = () => {
     try {
       const result = await checkProfileCompletion();
 
-      if (result.isComplete) {
-        // Profile is complete and verified - proceed with application
+      if (result.isVerified) {
         setShowApplicationModal(true);
-      } else {
-        // Backend returned 205 Not Verified
-        // We need to check if profile is also incomplete
-        let incomplete = false;
-        if (currentUser?.id) {
-          try {
-            const fullUser: any = await getUserById(currentUser.id);
-            const hasEdu = Array.isArray(fullUser.userEducations) && fullUser.userEducations.length > 0;
-            const hasExp = Array.isArray(fullUser.userExperiences) && fullUser.userExperiences.length > 0;
-            const hasSkills = Array.isArray(fullUser.skills) && fullUser.skills.length > 0;
-            const hasSpec = Array.isArray(fullUser.userSpecialities) && fullUser.userSpecialities.length > 0;
-
-            if (fullUser.role === 'STUDENT') {
-              incomplete = !hasEdu || !hasSkills || !hasSpec;
-            } else {
-              incomplete = !hasEdu || !hasExp || !hasSkills || !hasSpec;
-            }
-          } catch (e) {
-            console.error("Error fetching full user profile for completeness check", e);
-          }
-        }
-
-        setProfileErrorMessage(result.error || "Your profile is incomplete. Please verify your profile before applying.");
-        setIsProfileIncomplete(incomplete);
+      } else if (!result.isVerified && !result.isComplete) {
         setIsNotVerified(true);
         setShowProfileIncompleteModal(true);
+        setIsProfileIncomplete(false);
+        setShowApplicationModal(false);
+      } else {
+
+        let incomplete = result.isComplete;
+        console.log("isComplete : ", incomplete);
+
+        if (incomplete !== undefined && !incomplete) {
+          setProfileErrorMessage(result.error || "Your profile is incomplete. Please verify your profile before applying.");
+          setIsProfileIncomplete(incomplete);
+          setShowProfileIncompleteModal(true);
+          setShowApplicationModal(false);
+        }
+        else {
+          setShowApplicationModal(true);
+        }
       }
     } catch (error: any) {
       // Handle different error scenarios

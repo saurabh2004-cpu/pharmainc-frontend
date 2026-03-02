@@ -103,6 +103,7 @@ const DashboardContent = () => {
 
   const handleStartFresh = () => {
     clearDraft()
+    localStorage.removeItem('job-draft-new')
     setShowDraftModal(false)
     router.push('/dashboard/post-job')
   }

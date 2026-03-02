@@ -18,7 +18,12 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId, isProfi
     if (!isOpen || !userId) return null;
 
     const handleCompleteProfile = () => {
-        router.push(`/profile/${userId}`);
+
+        if (isNotVerified) {
+            router.push(`/verification`);
+        } else {
+            router.push(`/profile/${userId}`);
+        }
         onClose();
     };
 
@@ -65,7 +70,7 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId, isProfi
                         {isNotVerified && (
                             <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
                                 <p className="text-sm text-red-700 leading-relaxed font-medium">
-                                    Your profile is incomplete. Please verify your profile before applying.
+                                    Your profile is not verified. Please verify your profile before applying.
                                 </p>
                             </div>
                         )}
