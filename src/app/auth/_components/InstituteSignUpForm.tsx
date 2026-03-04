@@ -15,14 +15,8 @@ import { Eye, EyeOff } from "lucide-react";
 export const INSTITUTE_TYPES = [
     "Hospital",
     "Clinic",
-    "Medical College",
-    "Diagnostic Center",
-    "Pharmacy",
-    "Research Center",
-    "Nursing Home",
-    "Laboratory",
-    "Rehabilitation Center",
-    "Other",
+    "LAB",
+    "PHARMACY"
 ];
 
 export const INSTITUTE_SERVICES = [

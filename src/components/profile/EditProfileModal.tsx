@@ -34,6 +34,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
     role: "",
     country: "",
     city: "",
+    gender: "",
   });
 
   // State for dynamic location fields
@@ -119,6 +120,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
         role: user.role || "",
         country: user.country || "",
         city: user.city || "",
+        gender: user.gender || "",
       });
 
       if (user.country && isOpen) {
@@ -151,6 +153,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
         role: formData.role,
         country: formData.country,
         city: formData.city,
+        gender: formData.gender,
       };
 
       const updatedUser = await updateUser(user.id, updateData);
@@ -258,6 +261,25 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                       {option.label}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="gender">Gender</Label>
+              <Select
+                value={formData.gender}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
+              >
+                <SelectTrigger id="gender" className="bg-white">
+                  <SelectValue placeholder="Select Gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">Male</SelectItem>
+                  <SelectItem value="FEMALE">Female</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
