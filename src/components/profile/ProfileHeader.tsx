@@ -348,7 +348,14 @@ export const ProfileHeader = ({
     };
 
     const handleUserUpdate = (updatedUser: User) => {
-        setCurrentUserProfile(updatedUser);
+        setCurrentUserProfile(prev => {
+            if (!prev) return updatedUser;
+            const merged = { ...prev, ...updatedUser };
+            // Defensive: preserve images if updatedUser has them as null/undefined
+            if (!updatedUser.profile_picture && prev.profile_picture) merged.profile_picture = prev.profile_picture;
+            if (!updatedUser.banner_picture && prev.banner_picture) merged.banner_picture = prev.banner_picture;
+            return merged;
+        });
         setFollowersCount(updatedUser.followers || 0);
         setConnectionsCount(updatedUser.connections || 0);
         if (onUserUpdate) {
@@ -357,7 +364,14 @@ export const ProfileHeader = ({
     };
 
     const handleInstituteUpdate = (updatedInstitution: Institution) => {
-        setCurrentInstituteProfile(updatedInstitution);
+        setCurrentInstituteProfile(prev => {
+            if (!prev) return updatedInstitution;
+            const merged = { ...prev, ...updatedInstitution };
+            // Defensive: preserve images if updatedInstitution has them as null/undefined
+            if (!updatedInstitution.profile_picture && prev.profile_picture) merged.profile_picture = prev.profile_picture;
+            if (!updatedInstitution.banner_picture && prev.banner_picture) merged.banner_picture = prev.banner_picture;
+            return merged;
+        });
         setFollowersCount(updatedInstitution.followers || 0);
         if (onInstituteUpdate) {
             onInstituteUpdate(updatedInstitution);

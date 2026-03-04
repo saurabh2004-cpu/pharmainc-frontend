@@ -121,18 +121,27 @@ export const useInstitutionStore = create<InstitutionState>()(
           set({ loading: true, error: null })
           try {
             const currentInst = get().currentInstitution;
-            console.log("current institute in store",currentInst)
+            console.log("current institute in store", currentInst)
             if (!currentInst?.id) throw new Error("No active institution found");
 
             const updatedInstitution = await updateInstitution(currentInst.id, institutionData)
 
-            set({
-              currentInstitution: updatedInstitution,
-              institutionCache: {
-                ...get().institutionCache,
-                [updatedInstitution.id || '']: updatedInstitution
-              },
-              loading: false
+            set((state) => {
+              const prev = state.currentInstitution;
+              const merged = { ...prev, ...updatedInstitution };
+
+              // Defensive: preserve images if updatedInstitution has them as null/undefined
+              if (prev && !updatedInstitution.profile_picture && prev.profile_picture) merged.profile_picture = prev.profile_picture;
+              if (prev && !updatedInstitution.banner_picture && prev.banner_picture) merged.banner_picture = prev.banner_picture;
+
+              return {
+                currentInstitution: merged,
+                institutionCache: {
+                  ...state.institutionCache,
+                  [updatedInstitution.id || '']: merged
+                },
+                loading: false
+              };
             })
 
             return updatedInstitution
