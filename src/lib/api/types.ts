@@ -108,6 +108,8 @@ export interface UserCreateParams {
 export interface UserUpdateParams {
   firstName?: string;
   lastName?: string;
+  city?: string;
+  country?: string;
   location?: string;
   role?: string;
   email?: string;

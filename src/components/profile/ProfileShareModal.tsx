@@ -20,8 +20,14 @@ interface ProfileShareModalProps {
 
 export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShareModalProps) {
   const [copied, setCopied] = useState(false);
-  
-  const profileUrl = `${window.location.origin}/profile/${user.id}`;
+  const [profileUrl, setProfileUrl] = useState("");
+
+  useState(() => {
+    if (typeof window !== "undefined") {
+      setProfileUrl(`${window.location.origin}/profile/${user.id}`);
+    }
+  });
+
   const shareText = `Check out ${user.name}'s professional profile on PharmInc`;
 
   const handleCopyLink = async () => {
@@ -76,7 +82,7 @@ export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShar
             Share Profile
           </DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4">
           <div className="bg-gray-50 p-3 rounded-lg">
             <div className="flex items-center justify-between gap-2 mb-2">

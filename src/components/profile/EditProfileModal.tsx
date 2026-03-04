@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { updateUser } from "@/lib/api";
 import { User, UserUpdateParams } from "@/lib/api/types";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -18,25 +25,115 @@ interface EditProfileModalProps {
 }
 
 export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfileModalProps) {
-  const [formData, setFormData] = useState<UserUpdateParams>({
-    firstName: user.firstName || "",
-    lastName: user.lastName || "",
-    location: user.location || "",
-    role: user.role || "",
-    email: user.email || "",
-    headline: user.headline || "",
-    about: user.about || "",
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    headline: "",
+    about: "",
+    role: "",
+    country: "",
+    city: "",
   });
 
+  // State for dynamic location fields
+  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
+  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
   const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch countries on mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      setIsLoadingCountries(true);
+      try {
+        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
+        const data = await response.json();
+        if (!data.error) {
+          const countryOptions = data.data.map((c: any) => ({
+            label: c.name,
+            value: c.name,
+          }));
+          setCountries(countryOptions);
+        }
+      } catch (error) {
+        toast.error("Failed to load countries");
+      } finally {
+        setIsLoadingCountries(false);
+      }
+    };
+    fetchCountries();
+  }, []);
+
+  const fetchCities = async (countryName: string) => {
+    if (!countryName) {
+      setCities([]);
+      return;
+    }
+    setIsLoadingCities(true);
+    try {
+      const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ country: countryName }),
+      });
+      const data = await response.json();
+      if (!data.error) {
+        const cityOptions = data.data.map((c: string) => ({
+          label: c,
+          value: c,
+        }));
+        setCities(cityOptions);
+      } else {
+        setCities([]);
+      }
+    } catch (error) {
+      toast.error("Failed to load cities");
+    } finally {
+      setIsLoadingCities(false);
+    }
+  };
+
+  const handleCountryChange = (countryName: string) => {
+    setFormData(prev => ({ ...prev, country: countryName, city: "" })); // Reset city
+    fetchCities(countryName);
+  };
+
+  const handleCityChange = (cityName: string) => {
+    setFormData(prev => ({ ...prev, city: cityName }));
+  };
+
+  // Populate form when modal opens or user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        headline: user.headline || "",
+        about: user.about || "",
+        role: user.role || "",
+        country: user.country || "",
+        city: user.city || "",
+      });
+
+      if (user.country && isOpen) {
+        fetchCities(user.country);
+      }
+    }
+  }, [user, isOpen]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === "number" ? parseInt(value) || 0 : value,
+      [name]: value,
     }));
   };
 
@@ -45,12 +142,16 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
     setIsLoading(true);
 
     try {
-      const updateData: UserUpdateParams = {};
-      Object.entries(formData).forEach(([key, value]) => {
-        if (value !== "" && value !== undefined && value !== null) {
-          updateData[key as keyof UserUpdateParams] = value;
-        }
-      });
+      const updateData: UserUpdateParams = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        headline: formData.headline,
+        about: formData.about,
+        role: formData.role,
+        country: formData.country,
+        city: formData.city,
+      };
 
       const updatedUser = await updateUser(user.id, updateData);
       onUpdate(updatedUser);
@@ -80,7 +181,8 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                 name="firstName"
                 value={formData.firstName}
                 onChange={handleInputChange}
-                placeholder="Enter your name"
+                placeholder="Enter your first name"
+                required
               />
             </div>
 
@@ -91,7 +193,8 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                 name="lastName"
                 value={formData.lastName}
                 onChange={handleInputChange}
-                placeholder="Enter your name"
+                placeholder="Enter your last name"
+                required
               />
             </div>
 
@@ -104,17 +207,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                placeholder="Enter your location"
+                required
               />
             </div>
 
@@ -127,6 +220,46 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                 onChange={handleInputChange}
                 placeholder="Enter your role"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Select
+                value={formData.country}
+                onValueChange={handleCountryChange}
+                disabled={isLoadingCountries}
+              >
+                <SelectTrigger id="country" className="bg-white">
+                  <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select Country"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {countries.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Select
+                value={formData.city}
+                onValueChange={handleCityChange}
+                disabled={!formData.country || isLoadingCities}
+              >
+                <SelectTrigger id="city" className="bg-white">
+                  <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select City"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {cities.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -154,7 +287,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
             />
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end space-x-3 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
