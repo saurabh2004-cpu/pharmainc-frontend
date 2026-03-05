@@ -106,6 +106,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
     const router = useRouter();
     const { entity, entityType } = useEntityStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [rejectionDetails, setRejectionDetails] = useState<any>(null);
 
     // Location states
     const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
@@ -219,6 +220,23 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
         }
     }, [entity, entityType, form]);
 
+    // Fetch rejection details if status is REJECTED
+    useEffect(() => {
+        const fetchRejectionDetails = async () => {
+            if (verificationStatus === "REJECTED" && entity?.id && !rejectionDetails) {
+                try {
+                    const data = await getVerificationByUserId(entity.id);
+                    if (data && data.status === "REJECTED" && data.rejection) {
+                        setRejectionDetails(data.rejection);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch rejection details:", error);
+                }
+            }
+        };
+        fetchRejectionDetails();
+    }, [verificationStatus, entity?.id, rejectionDetails]);
+
     const onSubmit: SubmitHandler<VerificationFormValues> = async (values) => {
         if (!values.declaration) {
             toast.warning("Please declare that the provided information is accurate to proceed.");
@@ -272,7 +290,15 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
             // Refresh status after submission
             if (entity?.id) {
                 const data = await getVerificationByUserId(entity.id);
-                if (data) setVerificationStatus(data.status || data);
+                if (data) {
+                    const status = typeof data === 'string' ? data : data.status;
+                    setVerificationStatus(status);
+                    if (status === "REJECTED" && data.rejection) {
+                        setRejectionDetails(data.rejection);
+                    } else {
+                        setRejectionDetails(null);
+                    }
+                }
             }
 
             // Redirect after a delay
@@ -292,14 +318,49 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                 <p className="text-gray-500">Complete this form to verify your medical identity and professional status.</p>
 
                 {verificationStatus === "REJECTED" && (
-                    <div className="mt-6 p-4 border border-red-100 bg-red-50 rounded-xl flex gap-3 items-start animate-in slide-in-from-top-2">
-                        <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="font-bold text-red-900">Verification Rejected</h3>
-                            <p className="text-sm text-red-700">
-                                Your previous verification request was rejected. Please review your details carefully and submit again.
-                            </p>
+                    <div className="mt-6 p-6 border border-red-200 bg-red-50/50 rounded-2xl flex flex-col gap-4 animate-in slide-in-from-top-2 duration-500">
+                        <div className="flex gap-3 items-start">
+                            <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+                            <div>
+                                <h3 className="font-bold text-red-900 text-lg">Verification Rejected</h3>
+                                <p className="text-sm text-red-700 mt-1">
+                                    Your previous verification request was rejected. Please review the details below, correct your information, and submit again.
+                                </p>
+                            </div>
                         </div>
+
+                        {rejectionDetails && (
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-red-100 pt-4">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Rejected Field</p>
+                                    <p className="text-sm font-semibold text-red-900 capitalize">
+                                        {rejectionDetails.documentField?.replace(/([A-Z])/g, ' $1').trim() || "N/A"}
+                                    </p>
+                                </div>
+                                {/* <div className="space-y-1">
+                                    <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Reason</p>
+                                    <p className="text-sm font-semibold text-red-900">
+                                        {rejectionDetails.reason?.reasonText || "No specific reason provided"}
+                                    </p>
+                                </div> */}
+                                {rejectionDetails.reason?.applicableToDoc && (
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Applicable Document</p>
+                                        <p className="text-sm font-semibold text-red-900 uppercase">
+                                            {rejectionDetails.reason.applicableToDoc}
+                                        </p>
+                                    </div>
+                                )}
+                                {rejectionDetails.customNote && (
+                                    <div className="md:col-span-2 space-y-1 bg-white/50 p-3 rounded-xl border border-red-100/50">
+                                        <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Custom Note from Reviewer</p>
+                                        <p className="text-sm italic text-red-800">
+                                            "{rejectionDetails.customNote}"
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
