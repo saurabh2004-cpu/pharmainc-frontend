@@ -8,7 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Area, 
 import { Users, FileText, Clock, CheckCircle, MoreHorizontal, TrendingUp, Briefcase } from 'lucide-react'
 import { MetricCard } from './MetricCard'
 import { ChartCard } from './ChartCard'
-import { candidateEngagementData, weeklyComparisonData, engagementMetricsData } from './data'
+import { candidateTrendsData, candidateEngagementData, weeklyComparisonData, engagementMetricsData, responseDistributionData } from './data'
 import { useInstitutionStore } from '@/store'
 
 // Helper function to format response time in human-readable format
@@ -46,7 +46,7 @@ export const CandidateEngagementTab = () => {
       views: trend.views,
       applications: trend.applications,
     }))
-    : candidateEngagementData
+    : candidateTrendsData
 
   const transformedWeekly = hasStats && instituteStats.weeklyComparison && instituteStats.weeklyComparison.length > 0
     ? instituteStats.weeklyComparison.map(week => ({
@@ -61,14 +61,14 @@ export const CandidateEngagementTab = () => {
     { metric: 'Total Applications', current: instituteStats.totals.totalApplications, previous: 0 }
   ] : engagementMetricsData
 
-  const responseDistributionData = hasStats && instituteStats.responseDistribution && Object.keys(instituteStats.responseDistribution).length > 0
+  const transformedResponseDistribution = hasStats && instituteStats.responseDistribution && Object.keys(instituteStats.responseDistribution).length > 0
     ? Object.entries(instituteStats.responseDistribution).map(([key, value]) => ({
       name: key,
       pending: key.toLowerCase().includes('pending') ? value : 0,
       accepted: key.toLowerCase().includes('accept') || key.toLowerCase().includes('hired') ? value : 0,
       rejected: key.toLowerCase().includes('reject') ? value : 0
     }))
-    : candidateEngagementData
+    : responseDistributionData
 
   // Skeleton component for loading state
   const MetricCardSkeleton = () => (
@@ -213,9 +213,9 @@ export const CandidateEngagementTab = () => {
             <div className="flex items-center justify-center h-[300px]">
               <Skeleton className="h-[280px] w-full" />
             </div>
-          ) : hasStats && responseDistributionData.length > 0 && Object.keys(instituteStats.responseDistribution || {}).length > 0 ? (
+          ) : hasStats && transformedResponseDistribution.length > 0 && Object.keys(instituteStats.responseDistribution || {}).length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={responseDistributionData}>
+              <BarChart data={transformedResponseDistribution}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                 <XAxis dataKey="name" fontSize={12} />
                 <YAxis fontSize={12} />
