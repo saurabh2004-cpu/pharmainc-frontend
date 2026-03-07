@@ -38,7 +38,15 @@ import {
 } from "@/components/ui/alert-dialog"
 import { updateJob, renewJob, toggleJobStatus } from '@/lib/api/services/job'
 import { toast } from 'sonner'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Info } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { JobInactiveReason } from '@/lib/api/types'
 
 export const PostedJobsTab = () => {
   const router = useRouter()
@@ -53,6 +61,7 @@ export const PostedJobsTab = () => {
   const [jobToRenew, setJobToRenew] = useState<Job | null>(null)
   const [renewing, setRenewing] = useState(false)
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const [selectedReasons, setSelectedReasons] = useState<JobInactiveReason[] | null>(null)
   const pageSize = 10
 
   // Fetch current institution on mount to ensure store is hydrated
@@ -290,7 +299,7 @@ export const PostedJobsTab = () => {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow> 
+                    <TableRow>
                       <TableHead className="w-[300px]">Job Title</TableHead>
                       <TableHead className="w-[110px]">Job Position</TableHead>
                       <TableHead className="w-[240px]">Speciality</TableHead>
@@ -299,7 +308,7 @@ export const PostedJobsTab = () => {
                       {/* <TableHead className="w-32 min-w-[120px]">Location</TableHead> */}
                       <TableHead className="w-[40px]">Status</TableHead>
                       <TableHead className="w-[120px] text-center">Actions</TableHead>
-                    </TableRow> 
+                    </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredJobs.map((job) => (
@@ -344,7 +353,22 @@ export const PostedJobsTab = () => {
                         <TableCell>
                           <div className="flex items-center text-sm text-gray-600">
                             <div className="flex items-center gap-2">
-                              {['active', 'inactive'].includes(job.status) ? (
+                              {job.jobInactiveReasons && job.jobInactiveReasons.length > 0 ? (
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs bg-red-50 text-red-600 border-red-200">
+                                    Disabled by Admin
+                                  </Badge>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="p-1 h-auto hover:bg-red-50 text-red-600 rounded-full"
+                                    title="View Reason"
+                                    onClick={() => setSelectedReasons(job.jobInactiveReasons || null)}
+                                  >
+                                    <Info className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              ) : ['active', 'inactive'].includes(job.status) ? (
                                 <div className="flex items-center gap-2" title="Toggle Status">
                                   <Switch
                                     checked={job.status === 'active'}
@@ -489,6 +513,37 @@ export const PostedJobsTab = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={!!selectedReasons} onOpenChange={(open) => !open && setSelectedReasons(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <Info className="w-5 h-5" />
+              Job Deactivation Reason
+            </DialogTitle>
+            <DialogDescription>
+              This job has been disabled by the admin for the following reason(s):
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {selectedReasons?.map((reason, index) => (
+              <div key={reason.id} className="p-4 bg-red-50 border border-red-100 rounded-lg">
+                <p className="text-sm text-red-800 font-medium whitespace-pre-wrap">
+                  {reason.reason}
+                </p>
+                <p className="text-xs text-red-500 mt-2">
+                  Deactivated on: {formatDate(reason.created_at)}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="flex justify-end">
+            <Button onClick={() => setSelectedReasons(null)} variant="outline">
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div >
   )
 }

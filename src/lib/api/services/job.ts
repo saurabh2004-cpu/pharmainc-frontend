@@ -35,7 +35,10 @@ export const renewJob = async (id: string): Promise<any> => {
 };
 
 export const toggleJobStatus = async (id: string): Promise<any> => {
-  const response = await baseApi.patch(`/job/toggle-job-status/${id}`);
+  const response = await baseApi.patch(`/job/toggle-job-status/${id}`, {
+    reason: null,
+    isAdmin: false
+  });
   return response.data;
 };
 

@@ -361,6 +361,14 @@ export interface InstitutionSearchParams {
   sortOrder?: "asc" | "desc";
 }
 
+export interface JobInactiveReason {
+  id: string;
+  created_at: string;
+  updated_at: string;
+  jobId: string;
+  reason: string;
+}
+
 // Job types
 export interface Job {
   id: string;
@@ -422,6 +430,7 @@ export interface Job {
   institute_id?: string;
   active?: boolean;
   applicationsCount?: number;
+  jobInactiveReasons?: JobInactiveReason[];
 }
 
 export interface JobCreateParams {
