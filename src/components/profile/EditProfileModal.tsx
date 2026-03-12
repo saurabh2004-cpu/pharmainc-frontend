@@ -10,21 +10,36 @@ import { updateUser } from "@/lib/api";
 import { User, UserUpdateParams } from "@/lib/api/types";
 import { toast } from "sonner";
 import {
+  SocialMediaLink,
+  getUserSocialMediaLinks,
+  createUserSocialMediaLink,
+  deleteUserSocialMediaLink,
+  fetchCountries as fetchCountriesService,
+  fetchCitiesByCountry,
+  LocationOption
+} from "@/lib/api";
+import { Trash2, Plus } from "lucide-react";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User;
   onUpdate: (updatedUser: User) => void;
+  onLinksChange?: () => void;
 }
 
-export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfileModalProps) {
+export function EditProfileModal({ isOpen, onClose, user, onUpdate, onLinksChange }: EditProfileModalProps) {
+
+  console.log("user in profile page", user);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -38,34 +53,28 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
   });
 
   // State for dynamic location fields
-  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // Social Links state
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
+  const [newPlatform, setNewPlatform] = useState<string>("");
+  const [newSocialLinkUrl, setNewSocialLinkUrl] = useState<string>("");
+  const [isManagingLinks, setIsManagingLinks] = useState(false);
+
   // Fetch countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       setIsLoadingCountries(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-        const data = await response.json();
-        if (!data.error) {
-          const countryOptions = data.data.map((c: any) => ({
-            label: c.name,
-            value: c.name,
-          }));
-          setCountries(countryOptions);
-        }
-      } catch (error) {
-        toast.error("Failed to load countries");
-      } finally {
-        setIsLoadingCountries(false);
-      }
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
     };
-    fetchCountries();
+    loadCountries();
   }, []);
 
   const fetchCities = async (countryName: string) => {
@@ -74,29 +83,9 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
       return;
     }
     setIsLoadingCities(true);
-    try {
-      const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ country: countryName }),
-      });
-      const data = await response.json();
-      if (!data.error) {
-        const cityOptions = data.data.map((c: string) => ({
-          label: c,
-          value: c,
-        }));
-        setCities(cityOptions);
-      } else {
-        setCities([]);
-      }
-    } catch (error) {
-      toast.error("Failed to load cities");
-    } finally {
-      setIsLoadingCities(false);
-    }
+    const data = await fetchCitiesByCountry(countryName);
+    setCities(data);
+    setIsLoadingCities(false);
   };
 
   const handleCountryChange = (countryName: string) => {
@@ -111,6 +100,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
   // Populate form when modal opens or user changes
   useEffect(() => {
     if (user) {
+      const initialCountry = user.country || "India";
       setFormData({
         firstName: user.firstName || "",
         lastName: user.lastName || "",
@@ -118,16 +108,31 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
         headline: user.headline || "",
         about: user.about || "",
         role: user.role || "",
-        country: user.country || "",
+        country: initialCountry,
         city: user.city || "",
         gender: user.gender || "",
       });
 
-      if (user.country && isOpen) {
-        fetchCities(user.country);
+      if (initialCountry && isOpen) {
+        fetchCities(initialCountry);
       }
     }
   }, [user, isOpen]);
+
+  // Fetch Social Links when modal opens
+  useEffect(() => {
+    if (isOpen && user?.id) {
+      const fetchLinks = async () => {
+        try {
+          const links = await getUserSocialMediaLinks(user.id);
+          setSocialLinks(links);
+        } catch (error) {
+          console.error("Error fetching social links:", error);
+        }
+      };
+      fetchLinks();
+    }
+  }, [isOpen, user?.id]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -165,6 +170,45 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
       toast.error("Failed to update profile. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleAddSocialLink = async () => {
+    if (!newPlatform || !newSocialLinkUrl.trim()) {
+      toast.error("Platform and Link are required");
+      return;
+    }
+    setIsManagingLinks(true);
+    try {
+      const newLinkResp = await createUserSocialMediaLink({
+        platform: newPlatform,
+        link: newSocialLinkUrl.trim()
+      });
+      setSocialLinks(prev => [...prev, newLinkResp]);
+      setNewPlatform("");
+      setNewSocialLinkUrl("");
+      onLinksChange?.();
+      toast.success("Social media link added!");
+    } catch (error) {
+      console.error("Error adding social link:", error);
+      toast.error("Failed to add social media link.");
+    } finally {
+      setIsManagingLinks(false);
+    }
+  };
+
+  const handleDeleteSocialLink = async (linkId: string) => {
+    setIsManagingLinks(true);
+    try {
+      await deleteUserSocialMediaLink(linkId);
+      setSocialLinks(prev => prev.filter(l => l.id !== linkId));
+      onLinksChange?.();
+      toast.success("Social media link deleted!");
+    } catch (error) {
+      console.error("Error deleting social link:", error);
+      toast.error("Failed to delete social media link.");
+    } finally {
+      setIsManagingLinks(false);
     }
   };
 
@@ -227,42 +271,28 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
 
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
-              <Select
-                value={formData.country}
+              <SearchableSelect
+                options={countries}
+                value={formData.country || ""}
                 onValueChange={handleCountryChange}
+                placeholder={isLoadingCountries ? "Loading..." : "Select Country"}
+                searchPlaceholder="Search country..."
+                emptyMessage="No country found."
                 disabled={isLoadingCountries}
-              >
-                <SelectTrigger id="country" className="bg-white">
-                  <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select Country"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="city">City</Label>
-              <Select
-                value={formData.city}
+              <SearchableSelect
+                options={cities}
+                value={formData.city || ""}
                 onValueChange={handleCityChange}
+                placeholder={isLoadingCities ? "Loading..." : "Select City"}
+                searchPlaceholder="Search city..."
+                emptyMessage="No city found."
                 disabled={!formData.country || isLoadingCities}
-              >
-                <SelectTrigger id="city" className="bg-white">
-                  <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select City"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
           </div>
 
@@ -277,9 +307,9 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
                   <SelectValue placeholder="Select Gender" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="MALE">Male</SelectItem>
-                  <SelectItem value="FEMALE">Female</SelectItem>
-                  <SelectItem value="OTHER">Other</SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -307,6 +337,78 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate }: EditProfil
               placeholder="Tell us more about yourself"
               rows={4}
             />
+          </div>
+
+          <div className="space-y-4 pt-4 border-t">
+            <Label className="text-lg font-semibold block">Social Media Links</Label>
+
+            {/* Existing Links */}
+            {socialLinks.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {socialLinks.map(link => (
+                  <div key={link.id} className="flex items-center justify-between bg-gray-50 p-2 rounded-md border border-gray-100">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <span className="font-medium text-sm text-gray-700 w-24 shrink-0">
+                        {link.platform.charAt(0) + link.platform.slice(1).toLowerCase()}
+                      </span>
+                      <span className="text-sm text-gray-500 truncate" title={link.link}>
+                        {link.link}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteSocialLink(link.id)}
+                      disabled={isManagingLinks}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add New Link */}
+            <div className=" gap-3 items-end">
+              <div className="  space-y-2">
+                <Label>Platform</Label>
+                <Select
+                  value={newPlatform}
+                  onValueChange={setNewPlatform}
+                  disabled={isManagingLinks}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Select Platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
+                    <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                    <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                    <SelectItem value="TWITTER">Twitter</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Link</Label>
+                <Input
+                  value={newSocialLinkUrl}
+                  onChange={(e) => setNewSocialLinkUrl(e.target.value)}
+                  placeholder="https://..."
+                  disabled={isManagingLinks}
+                />
+              </div>
+              <Button
+                type="button"
+                onClick={handleAddSocialLink}
+                disabled={isManagingLinks || !newPlatform || !newSocialLinkUrl}
+                className="w-full md:w-auto mt-4"
+              >
+                <Plus className="h-4 w-4 mr-1 " />
+                Add
+              </Button>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4 border-t">

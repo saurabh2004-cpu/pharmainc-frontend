@@ -79,6 +79,11 @@ export const checkInstituteVerificationStatus = async (): Promise<{ verified: bo
   return response.data;
 };
 
+export const getCreditsHistoryByInstituteId = async (instituteId: string): Promise<any> => {
+  const response = await baseApi.get(`/credits-history/credits-history/institute/${instituteId}`);
+  return response.data;
+};
+
 
 // export const createInstitution = async (
 //   institutionData: InstitutionCreateParams

@@ -9,6 +9,8 @@ import { AuthFormHeader } from "./_components";
 function AuthContent() {
   const searchParams = useSearchParams();
   const type = searchParams?.get("type") ?? "signin";
+  const redirectTo = searchParams?.get("redirectTo");
+  const redirectQuery = redirectTo ? `&redirectTo=${encodeURIComponent(redirectTo)}` : "";
   return (
     <div className="w-full max-w-md">
       <AuthFormHeader
@@ -20,7 +22,7 @@ function AuthContent() {
 
       <div className="space-y-4 mb-8">
         <div className="flex flex-col gap-4">
-          <Link href={`/auth/doctor?type=${type}`}>
+          <Link href={`/auth/doctor?type=${type}${redirectQuery}`}>
             <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
@@ -44,7 +46,7 @@ function AuthContent() {
             </div>
           </Link>
 
-          <Link href={`/auth/institute?type=${type}`}>
+          <Link href={`/auth/institute?type=${type}${redirectQuery}`}>
             <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
@@ -71,7 +73,7 @@ function AuthContent() {
           </Link>
 
 
-          <Link href={`/auth/student?type=${type}`}>
+          <Link href={`/auth/student?type=${type}${redirectQuery}`}>
             <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">

@@ -62,16 +62,27 @@ export default function JobApplicationModal({
         setIsLoadingOrgData(true);
         try {
           const orgData = await getCurrentOrganization();
-          if (orgData.organizationName || orgData.role) {
-            setFormData(prev => ({
-              ...prev,
-              currentPosition: orgData.role || '',
-              currentInstitute: orgData.organizationName || ''
-            }));
-          }
+          
+          // Map numeric experience to range value
+          const mapExperienceToRange = (years: number | undefined) => {
+            if (years === undefined || years === null) return '';
+            if (years >= 11) return '11';
+            if (years >= 7) return '7';
+            if (years >= 4) return '4';
+            if (years >= 2) return '2';
+            return '0';
+          };
+
+          const experienceValue = mapExperienceToRange(currentUser.experience);
+
+          setFormData(prev => ({
+            ...prev,
+            currentPosition: orgData.role || '',
+            currentInstitute: orgData.organizationName || '',
+            experienceYears: experienceValue || prev.experienceYears
+          }));
         } catch (error) {
           console.error('Failed to fetch current organization:', error);
-          // Silently fail - user can still fill manually
         } finally {
           setIsLoadingOrgData(false);
         }
@@ -297,7 +308,10 @@ export default function JobApplicationModal({
                 <Label htmlFor="experienceYears" className="text-sm font-medium">
                   Years of Experience *
                 </Label>
-                <Select onValueChange={(value) => handleInputChange('experienceYears', value)}>
+                <Select 
+                  value={formData.experienceYears} 
+                  onValueChange={(value) => handleInputChange('experienceYears', value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select your experience level" />
                   </SelectTrigger>

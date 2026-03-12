@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { login, createUser, setAuthToken, register } from "@/lib/api";
+import { login, createUser, setAuthToken, register, fetchCountries as fetchCountriesService, fetchCitiesByCountry, LocationOption } from "@/lib/api";
 import { RoleEnum } from "@/lib/api/types";
 import { useUserStore } from "@/store/userStore";
 import { AuthFormHeader, AuthFormTabs, SignInForm, SignUpForm } from "../_components";
@@ -20,6 +20,42 @@ function HealthcareAuthContent() {
   const [profession, setProfession] = useState("");
   const [experience, setExperience] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Location fields
+  const [country, setCountry] = useState("India");
+  const [city, setCity] = useState("");
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(false);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+
+  // Fetch countries on mount
+  useEffect(() => {
+    const loadCountries = async () => {
+      setIsLoadingCountries(true);
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
+    };
+    loadCountries();
+  }, []);
+
+  // Fetch cities when country changes
+  useEffect(() => {
+    if (!country) {
+      setCities([]);
+      return;
+    }
+
+    const loadCities = async () => {
+      setIsLoadingCities(true);
+      const data = await fetchCitiesByCountry(country);
+      setCities(data);
+      setIsLoadingCities(false);
+    };
+
+    loadCities();
+  }, [country]);
 
   const router = useRouter();
   const { fetchCurrentUser } = useUserStore();
@@ -60,8 +96,8 @@ function HealthcareAuthContent() {
         firstName: firstName,
         lastName: lastName,
         name: `${firstName} ${lastName}`,
-        country: "India", // Defaulting to India as per current form limitation
-        city: location,
+        country: country, // Was hardcoded to "India"
+        city: city, // Was `location`
         role: profession.toUpperCase() === "NURSE" ? RoleEnum.NURSE : RoleEnum.OTHER,
         type: "user",
       });
@@ -77,7 +113,7 @@ function HealthcareAuthContent() {
 
         const { id } = await createUser({
           name: `${firstName} ${lastName}`,
-          location: location,
+          location: city, // Use city for legacy location format
           role: "healthcare_professional",
         });
 
@@ -166,14 +202,17 @@ function HealthcareAuthContent() {
             onSubmit={handleSignUp}
             loading={loading}
             roleSpecificFields={healthcareSpecificFields}
-            country={'country'}
-            city={'city'}
-            onCountryChange={() => { }}
-            onCityChange={() => { }}
-            countryOptions={[]}
-            cityOptions={[]}
-            loadingCountries={false}
-            loadingCities={false}
+            country={country}
+            city={city}
+            onCountryChange={(val) => {
+              setCountry(val);
+              setCity("");
+            }}
+            onCityChange={setCity}
+            countryOptions={countries}
+            cityOptions={cities}
+            loadingCountries={isLoadingCountries}
+            loadingCities={isLoadingCities}
           />
         }
         defaultTab={type === "signup" ? "signup" : "signin"}

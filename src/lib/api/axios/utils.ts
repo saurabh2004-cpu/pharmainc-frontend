@@ -29,8 +29,13 @@ export function applyInterceptors(instance: ReturnType<typeof axios.create>) {
                     deleteCookie('accessToken');
                     deleteCookie('userType');
 
-                    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/auth')) {
-                        window.location.href = '/auth';
+                    if (typeof window !== 'undefined') {
+                        const path = window.location.pathname;
+                        const isPublicRoute = path === '/' || path.startsWith('/auth') || path.startsWith('/profile') || path.startsWith('/institute');
+
+                        if (!isPublicRoute) {
+                            window.location.href = '/auth';
+                        }
                     }
                 }
             }

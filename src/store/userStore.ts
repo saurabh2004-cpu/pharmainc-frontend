@@ -79,6 +79,7 @@ export const useUserStore = create<UserState>()(
               profilePicture: userData.profile_picture,
               location: userData.location,
               verified: userData.verified,
+              experience: userData.experience,
             }
 
             set({
@@ -130,6 +131,7 @@ export const useUserStore = create<UserState>()(
               profilePicture: userData.profile_picture,
               location: userData.location,
               verified: userData.verified,
+              experience: userData.experience,
             }
 
             set({

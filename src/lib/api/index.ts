@@ -11,3 +11,5 @@ export * from "@/lib/api/services/notification";
 export * from "@/lib/api/services/verification";
 export * from "@/lib/api/types";
 export * from "@/lib/api/utils";
+export * from "@/lib/api/services/socialMedia";
+export * from "@/lib/api/services/location";

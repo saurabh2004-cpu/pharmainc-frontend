@@ -120,9 +120,12 @@ const DashboardContent = () => {
           </div>
           <div className="flex items-center gap-4">
             {(getUserType() === 'INSTITUTE' || getUserType() === 'INSTITUTE') && (
-              <div className="px-4 py-2 rounded-md bg-muted text-sm font-semibold border border-gray-200">
+              <Link 
+                href="/credit-history"
+                className="px-4 py-2 rounded-md bg-muted text-sm font-semibold border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
+              >
                 Credits: {loadingCredits ? "--" : credits}
-              </div>
+              </Link>
             )}
             <Button
               onClick={handlePostJobClick}
@@ -164,7 +167,7 @@ const DashboardContent = () => {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6 w-full px-2">
-            <CandidateEngagementTab />
+            <CandidateEngagementTab credits={credits} loadingCredits={loadingCredits} />
           </TabsContent>
 
           <TabsContent value="posted-jobs" className="space-y-6 w-full px-2">

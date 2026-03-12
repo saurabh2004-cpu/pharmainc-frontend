@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,10 +9,11 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { useEntityStore } from "@/store/entityStore";
-import { submitInstituteVerification, getInstituteVerificationByInstituteId } from "@/lib/api";
+import { submitInstituteVerification, getInstituteVerificationByInstituteId, countryCodes } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Institution } from "@/lib/api/types";
 
 // Schema for Institute Verification
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -36,6 +37,24 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
     const router = useRouter();
     const { entity } = useEntityStore();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [rejectionDetails, setRejectionDetails] = useState<any>(null);
+
+    // Fetch rejection details if status is REJECTED
+    useEffect(() => {
+        const fetchRejectionDetails = async () => {
+            if (verificationStatus === "REJECTED" && entity?.id && !rejectionDetails) {
+                try {
+                    const data = await getInstituteVerificationByInstituteId(entity.id);
+                    if (data && data.status === "REJECTED" && data.rejection) {
+                        setRejectionDetails(data.rejection);
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch rejection details:", error);
+                }
+            }
+        };
+        fetchRejectionDetails();
+    }, [verificationStatus, entity?.id, rejectionDetails]);
 
     const form = useForm<InstituteVerificationFormValues>({
         resolver: zodResolver(instituteVerificationSchema),
@@ -47,6 +66,24 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
             registrationCertificate: undefined,
         },
     });
+
+    // Set initial phone codes based on institution country
+    useEffect(() => {
+        if (entity) {
+            const inst = entity as Institution;
+            const country = inst.country || "India";
+            const dialCode = countryCodes[country] || "";
+            
+            if (dialCode) {
+                form.reset({
+                    ...form.getValues(),
+                    telephone: dialCode,
+                    adminPhone: dialCode,
+                    email: inst.email || "",
+                });
+            }
+        }
+    }, [entity, form]);
 
     const onSubmit: SubmitHandler<InstituteVerificationFormValues> = async (values) => {
         setIsSubmitting(true);
@@ -68,8 +105,18 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
             // Refresh status after submission
             if (entity?.id) {
                 const data = await getInstituteVerificationByInstituteId(entity.id);
-                if (data) setVerificationStatus(data.status || data);
+                if (data) {
+                    const status = typeof data === 'string' ? data : data.status;
+                    setVerificationStatus(status);
+                    if (status === "REJECTED" && data.rejection) {
+                        setRejectionDetails(data.rejection);
+                    } else {
+                        setRejectionDetails(null);
+                    }
+                }
             }
+
+            setTimeout(() => router.push("/dashboard"), 3000);
 
         } catch (error: any) {
             console.error("Submission failed:", error);
@@ -86,14 +133,43 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
                 <p className="text-gray-500">Provide official details to verify your institute's identity.</p>
 
                 {verificationStatus === "REJECTED" && (
-                    <div className="mt-6 p-4 border border-red-100 bg-red-50 rounded-xl flex gap-3 items-start animate-in slide-in-from-top-2">
-                        <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-                        <div>
-                            <h3 className="font-bold text-red-900">Verification Rejected</h3>
-                            <p className="text-sm text-red-700">
-                                Your previous verification request was rejected. Please review your details carefully and submit again.
-                            </p>
+                    <div className="mt-6 p-6 border border-red-200 bg-red-50/50 rounded-2xl flex flex-col gap-4 animate-in slide-in-from-top-2 duration-500">
+                        <div className="flex gap-3 items-start">
+                            <XCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+                            <div>
+                                <h3 className="font-bold text-red-900 text-lg">Verification Rejected</h3>
+                                <p className="text-sm text-red-700 mt-1">
+                                    Your previous verification request was rejected. Please review the details below, correct your information, and submit again.
+                                </p>
+                            </div>
                         </div>
+
+                        {rejectionDetails && (
+                            <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-red-100 pt-4">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Rejected Field</p>
+                                    <p className="text-sm font-semibold text-red-900 capitalize">
+                                        {rejectionDetails.documentField?.replace(/([A-Z])/g, ' $1').trim() || "N/A"}
+                                    </p>
+                                </div>
+                                {rejectionDetails.reason?.applicableToDoc && (
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Applicable Document</p>
+                                        <p className="text-sm font-semibold text-red-900 uppercase">
+                                            {rejectionDetails.reason.applicableToDoc}
+                                        </p>
+                                    </div>
+                                )}
+                                {rejectionDetails.customNote && (
+                                    <div className="md:col-span-2 space-y-1 bg-white/50 p-3 rounded-xl border border-red-100/50">
+                                        <p className="text-[10px] uppercase font-bold text-red-400 tracking-wider">Custom Note from Reviewer</p>
+                                        <p className="text-sm italic text-red-800">
+                                            "{rejectionDetails.customNote}"
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -184,7 +260,7 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
                         </div>
                     </Section>
 
-                    <div className="flex items-center justify-end pt-8">
+                    <div className="flex items-center justify-center pt-8">
                         <Button
                             type="submit"
                             size="lg"

@@ -17,6 +17,8 @@ import {
   Settings,
   BarChart3,
   CheckCircle,
+  Plus,
+  PlusCircle,
 } from "lucide-react";
 import { User, InstitutionEntity } from "../app/(home)/home/_components/types";
 import Logo from "@/components/logo";
@@ -38,7 +40,8 @@ const navigations = [
   { href: '/home', icon: Home, label: 'Home', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
   { href: '/notifications', icon: Bell, label: 'Notifications' },
   { href: '/messages', icon: MessageCircle, label: 'Messages' },
-  { href: '/dashboard/post-job', icon: FileText, label: 'Post Job', userTypes: ['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'] },
+  { href: '/dashboard/posted-jobs', icon: FileText, label: 'Posted Jobs', userTypes: ['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'] },
+  // { href: '/dashboard/post-job', icon: FileText, label: 'Post Job', userTypes: ['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'] },
   { href: '/my-networks', icon: Users, label: 'My Networks', userTypes: [''] },
   { href: '/find-jobs/bookmarks', icon: Bookmark, label: 'Bookmarks', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
   {
@@ -221,6 +224,22 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
           })}
       </nav>
 
+      <div className="px-3 mb-2">
+        {['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'].includes(userType || '') && (
+          <Link
+            href="/dashboard/post-job"
+            className={`group xl:flex xl:items-center xl:gap-4 xl:px-4 xl:py-3 xl:rounded-full xl:hover:bg-gray-100 xl:w-full flex items-center justify-center w-12 h-12 rounded-full hover:bg-gray-100 transition-colors relative ${isActive('/dashboard/posted-jobs') ? 'bg-gray-50' : ''}`}
+          >
+            <div className="relative">
+              <PlusCircle className={`h-6 w-6 text-gray-700 group-hover:text-gray-900 ${isActive('/dashboard/posted-jobs') ? 'text-gray-900 font-bold stroke-2' : ''}`} />
+            </div>
+            <span className={`xl:block hidden text-xl text-gray-900 ${isActive('/dashboard/posted-jobs') ? 'font-semibold' : 'font-normal'}`}>
+              Post A New Job
+            </span>
+          </Link>
+        )}
+      </div>
+
       <div className="p-4 pt-0 border-t border-gray-100 flex-shrink-0">
         {displayUser ? (
           <div className="relative" ref={profileMenuRef}>
@@ -238,7 +257,8 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                   {("firstName" in displayUser && displayUser.firstName) || displayUser.name || "User"}
                 </h3>
                 <p className="text-sm text-gray-500 truncate capitalize">
-                  {getDisplayHandle(displayUser)}
+                  {/* {getDisplayHandle(displayUser)} */}
+                  {"role" in displayUser ? displayUser.role : "type" in displayUser ? displayUser.type : ""}
                 </p>
               </div>
             </button>

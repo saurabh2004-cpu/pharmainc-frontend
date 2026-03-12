@@ -125,6 +125,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
           const onNotification = async (data: any, statusPayload?: any) => {
             const currentStatus = statusPayload || data.status || data.type;
+
+            console.log("notification data in provider", data)
+
             const notification: Notification = {
               id: data.id || Math.random().toString(36).substr(2, 9),
               createdAt: data.timestamp || new Date().toISOString(),
@@ -136,7 +139,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
               relatedJobId: data.jobId || data.relatedJobId || null,
               relatedApplicationId: data.applicationId || data.relatedApplicationId || null,
               type: data.type,
-              status: currentStatus
+              status: currentStatus,
+              interviewType: data.interviewType,
+              interviewTime: data.interviewTime,
+              interviewLink: data.interviewLink
             };
 
             if (isInstitute && !data.applicantName && (data.applicantId || data.userId)) {
@@ -179,6 +185,9 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                     status: notification.status,
                     receiverRole: notification.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
                     applicationId: notification.relatedApplicationId,
+                    interviewType: notification.interviewType,
+                    interviewTime: notification.interviewTime,
+                    interviewLink: notification.interviewLink,
                     onClose: removePopup
                   }, ...prev]);
                 }

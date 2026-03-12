@@ -8,7 +8,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useJobPostingStore } from '@/store/jobPostingStore';
 import { getJob, updateJob, createJob } from '@/lib/api/services/job';
-import { JobUpdateParams } from '@/lib/api/types';
+import { JobUpdateParams, LocationOption, fetchCountries as fetchCountriesService, fetchCitiesByCountry } from '@/lib/api';
+import dynamic from 'next/dynamic';
+const ReactQuill = dynamic(() => import('react-quill-new'), { ssr: false });
+import 'react-quill-new/dist/quill.snow.css';
 
 import { Button } from "@/components/ui/button";
 import healthcareRoles from "@/lib/constants/healthcareRoles.json";
@@ -61,6 +64,7 @@ import {
   Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 const STEPS = [
   { id: 1, name: 'Job Information', description: 'Basic details about the position', icon: Briefcase },
@@ -101,6 +105,20 @@ const roleOptions = [
   // { value: "NURSE", label: "Nurse" },
   { value: "STUDENT", label: "Student" },
   { value: "OTHER", label: "Other" },
+];
+
+const quillModules = {
+  toolbar: [
+    ['bold', 'italic', 'underline'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    ['link'],
+    ['clean']
+  ],
+};
+
+const quillFormats = [
+  'bold', 'italic', 'underline',
+  'list', 'bullet', 'link'
 ];
 
 const rolesData = healthcareRoles as Record<string, Record<string, string[]>>;
@@ -217,32 +235,20 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isRestoring, setIsRestoring] = useState(false); // Guard for draft restoration
   // State for dynamic location fields
-  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   // Fetch countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       setIsLoadingCountries(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-        const data = await response.json();
-        if (!data.error) {
-          const countryOptions = data.data.map((c: any) => ({
-            label: c.name,
-            value: c.name,
-          }));
-          setCountries(countryOptions);
-        }
-      } catch (error) {
-        toast.error("Failed to load countries");
-      } finally {
-        setIsLoadingCountries(false);
-      }
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
     };
-    fetchCountries();
+    loadCountries();
   }, []);
 
   // Fetch cities when country changes
@@ -281,8 +287,8 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
       skills: [],
       speciality: "",
       subSpeciality: "",
+      country: "India",
       city: "",
-      country: "",
     },
   });
 
@@ -293,29 +299,9 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
     }
 
     setIsLoadingCities(true);
-    try {
-      const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ country: countryName }),
-      });
-      const data = await response.json();
-      if (!data.error) {
-        const cityOptions = data.data.map((c: string) => ({
-          label: c,
-          value: c,
-        }));
-        setCities(cityOptions);
-      } else {
-        setCities([]);
-      }
-    } catch (error) {
-      toast.error("Failed to load cities");
-    } finally {
-      setIsLoadingCities(false);
-    }
+    const data = await fetchCitiesByCountry(countryName);
+    setCities(data);
+    setIsLoadingCities(false);
   };
 
   const handleCountryChange = async (countryName: string) => {
@@ -402,7 +388,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
             subSpeciality: currentDraft.subSpeciality || "",
 
             city: currentDraft.city || "",
-            country: currentDraft.country || "",
+            country: currentDraft.country || "India",
           });
           // Allow effects to run after a short delay
           setTimeout(() => {
@@ -448,7 +434,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
           subSpeciality: job.subSpeciality || "",
 
           city: job.city || "",
-          country: job.country || "",
+          country: job.country || "India",
         };
 
         // Check if there's a newer local draft for this specific job ID
@@ -799,7 +785,44 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   }
 
   return (
-    <Card className="bg-white border border-gray-200 shadow-sm">
+    <>
+      <style>{`
+        .rich-text-editor .ql-toolbar.ql-snow {
+          border: none !important;
+          border-bottom: 1px solid #e5e7eb !important;
+          background-color: #f9fafb !important;
+          padding: 8px 12px !important;
+          border-radius: 6px 6px 0 0 !important;
+        }
+        .rich-text-editor .ql-container.ql-snow {
+          border: none !important;
+          font-family: inherit !important;
+        }
+        .rich-text-editor .ql-editor {
+          font-size: 0.95rem !important;
+          color: #374151 !important;
+          line-height: 1.6 !important;
+          padding: 12px 16px !important;
+        }
+        .rich-text-editor .ql-editor.ql-blank::before {
+          color: #9ca3af !important;
+          font-style: normal !important;
+          left: 16px !important;
+        }
+        .rich-text-editor .ql-editor:focus {
+          background-color: #ffffff !important;
+        }
+        .rich-text-editor.description-editor .ql-editor {
+          min-height: 250px !important;
+        }
+        .rich-text-editor.requirements-editor .ql-editor {
+          min-height: 180px !important;
+        }
+        .rich-text-editor.additional-editor .ql-editor {
+          min-height: 120px !important;
+        }
+      `}</style>
+      <Card className="bg-white border border-gray-200 shadow-sm">
       <CardHeader className="border-b border-gray-100">
         <CardTitle className="text-2xl font-bold text-gray-900">
           {isEditMode ? "Edit Job Posting" : "Create New Job Posting"}
@@ -1147,30 +1170,19 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                             <FormLabel className="text-gray-700 font-medium">
                               Country <span className="text-red-500">*</span>
                             </FormLabel>
-                            <Select
+                            <SearchableSelect
+                              options={countries}
+                              value={field.value || ""}
                               onValueChange={(value) => {
                                 handleCountryChange(value);
-                                // Manually invoke form onChange as well if needed by controller, but we set it manually in handleCountryChange
-                                // Actually better to refrain from manual setValue in handleCountryChange for the field itself if we use field.onChange
-                                // Let's adjust: call field.onChange(value) then fetch cities.
                                 field.onChange(value);
                               }}
-                              value={field.value}
+                              placeholder={isLoadingCountries ? "Loading..." : "Select country"}
+                              searchPlaceholder="Search country..."
+                              emptyMessage="No country found."
                               disabled={isLoadingCountries}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                  <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select country"} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {countries.map((country) => (
-                                  <SelectItem key={country.value} value={country.value}>
-                                    {country.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              className="h-11 bg-gray-50 border-gray-200"
+                            />
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1184,24 +1196,16 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                             <FormLabel className="text-gray-700 font-medium">
                               City <span className="text-red-500">*</span>
                             </FormLabel>
-                            <Select
+                            <SearchableSelect
+                              options={cities}
+                              value={field.value || ""}
                               onValueChange={field.onChange}
-                              value={field.value}
+                              placeholder={isLoadingCities ? "Loading..." : "Select city"}
+                              searchPlaceholder="Search city..."
+                              emptyMessage="No city found."
                               disabled={!form.watch("country") || isLoadingCities}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="h-11 bg-gray-50 border-gray-200">
-                                  <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select city"} />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {cities.map((city) => (
-                                  <SelectItem key={city.value} value={city.value}>
-                                    {city.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                              className="h-11 bg-gray-50 border-gray-200"
+                            />
                             <FormMessage />
                           </FormItem>
                         )}
@@ -1376,11 +1380,16 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                           Full Description <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Describe the role, responsibilities, and what makes this position unique..."
-                            className="min-h-[200px] bg-gray-50 border-gray-200"
-                            {...field}
-                          />
+                          <div className="bg-gray-50 border border-gray-200 rounded-md overflow-hidden rich-text-editor description-editor">
+                            <ReactQuill
+                              theme="snow"
+                              value={field.value}
+                              onChange={field.onChange}
+                              modules={quillModules}
+                              formats={quillFormats}
+                              placeholder="Describe the role, responsibilities, and what makes this position unique..."
+                            />
+                          </div>
                         </FormControl>
                         <FormDescription>
                           Specify role, responsibilities, team structure, and growth opportunities.
@@ -1399,11 +1408,16 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                           Requirements <span className="text-red-500">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="List required qualifications, certifications, skills, and experience..."
-                            className="min-h-[150px] bg-gray-50 border-gray-200"
-                            {...field}
-                          />
+                          <div className="bg-gray-50 border border-gray-200 rounded-md overflow-hidden rich-text-editor requirements-editor">
+                            <ReactQuill
+                              theme="snow"
+                              value={field.value}
+                              onChange={field.onChange}
+                              modules={quillModules}
+                              formats={quillFormats}
+                              placeholder="List required qualifications, certifications, skills, and experience..."
+                            />
+                          </div>
                         </FormControl>
                         <FormDescription>
                           Required experience and qualifications for the position.
@@ -1420,11 +1434,16 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                       <FormItem>
                         <FormLabel className="text-gray-700 font-medium">Additional Information</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Any other relevant details about the position..."
-                            className="min-h-[100px] bg-gray-50 border-gray-200"
-                            {...field}
-                          />
+                          <div className="bg-gray-50 border border-gray-200 rounded-md overflow-hidden rich-text-editor additional-editor">
+                            <ReactQuill
+                              theme="snow"
+                              value={field.value}
+                              onChange={field.onChange}
+                              modules={quillModules}
+                              formats={quillFormats}
+                              placeholder="Any other relevant details about the position..."
+                            />
+                          </div>
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -1724,6 +1743,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
         </Form>
       </CardContent >
     </Card >
+    </>
   );
 };
 

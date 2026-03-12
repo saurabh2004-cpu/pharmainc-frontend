@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 interface SignUpFormProps {
   firstName: string;
@@ -122,42 +123,30 @@ export function SignUpForm({
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="country" className="text-gray-600">Country</Label>
-          <Select
-            value={country}
+          <SearchableSelect
+            options={countryOptions}
+            value={country || ""}
             onValueChange={onCountryChange}
+            placeholder={loadingCountries ? "Loading..." : "Select Country"}
+            searchPlaceholder="Search country..."
+            emptyMessage="No country found."
             disabled={loading || loadingCountries}
-          >
-            <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}>
-              <SelectValue placeholder={loadingCountries ? "Loading..." : "Select Country"} />
-            </SelectTrigger>
-            <SelectContent>
-              {countryOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}
+          />
           {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
         </div>
         <div className="space-y-2">
           <Label htmlFor="city" className="text-gray-600">City</Label>
-          <Select
-            value={city}
+          <SearchableSelect
+            options={cityOptions}
+            value={city || ""}
             onValueChange={onCityChange}
+            placeholder={loadingCities ? "Loading..." : "Select City"}
+            searchPlaceholder="Search city..."
+            emptyMessage="No city found."
             disabled={loading || !country || loadingCities}
-          >
-            <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}>
-              <SelectValue placeholder={loadingCities ? "Loading..." : "Select City"} />
-            </SelectTrigger>
-            <SelectContent>
-              {cityOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}
+          />
           {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
         </div>
       </div>

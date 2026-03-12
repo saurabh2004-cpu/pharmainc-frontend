@@ -8,8 +8,8 @@ import { ProfileEducationTab } from "@/components/profile/internals/ProfileEduca
 import { ProfilePostsTab } from "@/components/profile/internals/ProfilePostsTab";
 import { ProfileActivityTab } from "@/components/profile/internals/ProfileActivityTab";
 import { Card } from "@/components/ui/card";
-import { useState } from "react";
-import { Institution } from "@/lib/api";
+import { useState, useEffect } from "react";
+import { Institution, getInstitution, getInstitutionById } from "@/lib/api";
 import { useInstitutionStore } from "@/store";
 
 interface InstitutionProfileClientProps {
@@ -21,7 +21,28 @@ export function InstitutionProfileClient({ institutionData, instituteId }: Insti
   const [activeTab, setActiveTab] = useState("Posts");
 
   const [institutionProfile, setInstitutionProfile] = useState(institutionData);
-  const { setInstitution } = useInstitutionStore();
+  const { currentInstitution, setInstitution } = useInstitutionStore();
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        if (currentInstitution?.id === instituteId) {
+          const data = await getInstitution();
+          setInstitutionProfile(data);
+          setInstitution(data);
+        } else {
+          const data = await getInstitutionById(instituteId);
+          setInstitutionProfile(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch institution profile:", error);
+      }
+    };
+
+    if (instituteId) {
+      fetchProfile();
+    }
+  }, [instituteId, currentInstitution?.id, setInstitution]);
 
   const handleInstituteUpdate = (updatedInstitution: Institution) => {
     setInstitutionProfile(updatedInstitution);

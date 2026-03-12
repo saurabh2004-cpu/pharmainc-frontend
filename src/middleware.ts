@@ -6,6 +6,8 @@ const publicRoutes = [
   '/auth',
   '/about-us',
   '/',
+  '/profile',
+  '/institute'
   // Add any other public routes here
 ];
 
@@ -43,6 +45,7 @@ export function middleware(request: NextRequest) {
   if (!token && !isPublicRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/auth';
+    url.searchParams.set('redirectTo', pathname);
     return NextResponse.redirect(url);
   }
 

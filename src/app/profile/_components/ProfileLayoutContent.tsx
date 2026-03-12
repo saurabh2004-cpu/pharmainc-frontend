@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import LeftSidebar from '../../../components/LeftSidebar'
 import { RightSidebar } from '../../(home)/home/_components/RightSidebar'
 import { useUserStore, useInstitutionStore } from '@/store'
-import { getUserType } from '@/lib/api/utils'
+import { getUserType, getAuthToken } from '@/lib/api/utils'
 
 interface ProfileLayoutContentProps {
   children: React.ReactNode
@@ -16,6 +16,9 @@ export default function ProfileLayoutContent({ children }: ProfileLayoutContentP
   const userType = getUserType()
 
   useEffect(() => {
+    const token = getAuthToken()
+    if (!token) return
+
     const userType = getUserType()
 
     if (userType === 'institution') {

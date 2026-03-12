@@ -6,7 +6,7 @@ import { Stethoscope } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { login, register, RoleEnum } from "@/lib/api";
+import { login, register, RoleEnum, fetchCountries as fetchCountriesService, fetchCitiesByCountry, LocationOption } from "@/lib/api";
 import { useEntityStore } from "@/store/entityStore";
 import { EntityType } from "@/lib/api/types";
 import { AuthFormHeader, AuthFormTabs, SignInForm, SignUpForm } from "../_components";
@@ -31,8 +31,8 @@ function DoctorAuthContent() {
   // Country & City State
   const [country, setCountry] = useState("India"); // Default to India
   const [city, setCity] = useState("");
-  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
@@ -63,26 +63,13 @@ function DoctorAuthContent() {
 
   // Fetch countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       setIsLoadingCountries(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-        const data = await response.json();
-        if (!data.error) {
-          const countryOptions = data.data.map((c: any) => ({
-            label: c.name,
-            value: c.name,
-          }));
-          setCountries(countryOptions);
-          // Ensure "India" is in the list or just defer to default state
-        }
-      } catch (error) {
-        toast.error("Failed to load countries");
-      } finally {
-        setIsLoadingCountries(false);
-      }
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
     };
-    fetchCountries();
+    loadCountries();
   }, []);
 
   // Fetch cities when country changes (or on mount if default is set)
@@ -92,34 +79,14 @@ function DoctorAuthContent() {
       return;
     }
 
-    const fetchCities = async () => {
+    const loadCities = async () => {
       setIsLoadingCities(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ country: country }),
-        });
-        const data = await response.json();
-        if (!data.error) {
-          const cityOptions = data.data.map((c: string) => ({
-            label: c,
-            value: c,
-          }));
-          setCities(cityOptions);
-        } else {
-          setCities([]);
-        }
-      } catch (error) {
-        toast.error("Failed to load cities");
-      } finally {
-        setIsLoadingCities(false);
-      }
+      const data = await fetchCitiesByCountry(country);
+      setCities(data);
+      setIsLoadingCities(false);
     };
 
-    fetchCities();
+    loadCities();
   }, [country]);
 
 
@@ -133,6 +100,7 @@ function DoctorAuthContent() {
   const { login: loginEntity } = useEntityStore();
   const searchParams = useSearchParams();
   const type = searchParams?.get("type") ?? "";
+  const redirectTo = searchParams?.get("redirectTo");
 
   const handleSignIn = async () => {
     const newErrors: Record<string, string> = {};
@@ -154,8 +122,7 @@ function DoctorAuthContent() {
       });
 
       await loginEntity(token, EntityType.USER);
-
-      router.push("/find-jobs");
+      router.push(redirectTo || "/find-jobs");
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Sign in failed. Please check your credentials.");
@@ -210,7 +177,7 @@ function DoctorAuthContent() {
 
         await loginEntity(token, EntityType.USER);
 
-        router.push("/find-jobs");
+        router.push(redirectTo || "/find-jobs");
       } else {
         alert("Sign up failed. Please try again.");
       }

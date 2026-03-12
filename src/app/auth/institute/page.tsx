@@ -6,9 +6,7 @@ import { Building } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { login, createInstitution, register, loginInstitute, registerInstitute } from "@/lib/api";
+import { login, createInstitution, register, loginInstitute, registerInstitute, fetchCountries as fetchCountriesService, fetchCitiesByCountry, LocationOption } from "@/lib/api";
 import { useEntityStore } from "@/store/entityStore";
 import { EntityType } from "@/lib/api/types";
 import { AuthFormHeader, AuthFormTabs, SignInForm, SignUpForm, InstituteSignUpForm } from "../_components";
@@ -18,7 +16,7 @@ function InstitutionAuthContent() {
   const [password, setPassword] = useState("");
   // Institute Signup State
   const [name, setName] = useState("");
-  const [country, setCountry] = useState("");
+  const [country, setCountry] = useState("India"); // Default to India
   const [city, setCity] = useState("");
   // const [location, setLocation] = useState(""); // removed
   const [contactNumber, setContactNumber] = useState("");
@@ -28,8 +26,8 @@ function InstitutionAuthContent() {
   const [services, setServices] = useState<string[]>([]);
 
   // Location Fetching State
-  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
@@ -39,25 +37,13 @@ function InstitutionAuthContent() {
 
   // Fetch countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       setIsLoadingCountries(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-        const data = await response.json();
-        if (!data.error) {
-          const countryOptions = data.data.map((c: any) => ({
-            label: c.name,
-            value: c.name,
-          }));
-          setCountries(countryOptions);
-        }
-      } catch (error) {
-        toast.error("Failed to load countries");
-      } finally {
-        setIsLoadingCountries(false);
-      }
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
     };
-    fetchCountries();
+    loadCountries();
   }, []);
 
   const handleCountryChange = async (countryName: string) => {
@@ -68,35 +54,31 @@ function InstitutionAuthContent() {
     if (!countryName) return;
 
     setIsLoadingCities(true);
-    try {
-      const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ country: countryName }),
-      });
-      const data = await response.json();
-      if (!data.error) {
-        const cityOptions = data.data.map((c: string) => ({
-          label: c,
-          value: c,
-        }));
-        setCities(cityOptions);
-      } else {
-        setCities([]);
-      }
-    } catch (error) {
-      toast.error("Failed to load cities");
-    } finally {
-      setIsLoadingCities(false);
-    }
+    const data = await fetchCitiesByCountry(countryName);
+    setCities(data);
+    setIsLoadingCities(false);
   };
+
+  // Also load cities immediately if there is a default country on mount
+  useEffect(() => {
+    if (country) {
+      const loadCities = async () => {
+        setIsLoadingCities(true);
+        const data = await fetchCitiesByCountry(country);
+        setCities(data);
+        setIsLoadingCities(false);
+      };
+      loadCities();
+    }
+    // intentionally run once to fetch init
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const router = useRouter();
   const { login: loginEntity } = useEntityStore();
   const searchParams = useSearchParams();
   const type = searchParams?.get("type") ?? "";
+  const redirectTo = searchParams?.get("redirectTo");
 
   const handleSignIn = async () => {
     if (loading) return;
@@ -109,7 +91,7 @@ function InstitutionAuthContent() {
       });
 
       await loginEntity(token, EntityType.INSTITUTE);
-      router.push("/dashboard");
+      router.push(redirectTo || "/dashboard");
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Sign in failed. Please check your credentials.");
@@ -172,7 +154,7 @@ function InstitutionAuthContent() {
         });
 
         await loginEntity(token, EntityType.INSTITUTE);
-        router.push("/dashboard");
+        router.push(redirectTo || "/dashboard");
       } else {
         alert("Institution registration failed. Please try again.");
       }

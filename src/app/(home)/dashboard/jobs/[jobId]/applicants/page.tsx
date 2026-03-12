@@ -12,7 +12,7 @@ import {
     rejectApplication
 } from '@/lib/api/services/application';
 import { downloadResume } from '@/lib/api/services/user';
-// import { deleteJob } from '@/lib/api/services/job'; // Unused based on previous code
+import { initiateConversation } from '@/lib/api/services/messages';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +42,7 @@ import { Application, Job } from '@/lib/api/types';
 import {
     Search, Filter, Download, Eye, FileText, ChevronUp, ChevronDown,
     ArrowLeft, Trash2, Mail, Phone, Clock, Briefcase,
-    CheckCircle, XCircle, Calendar, UserCheck, X, MoreVertical
+    CheckCircle, XCircle, Calendar, UserCheck, X, MoreVertical, MessageCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import ScheduleInterviewModal from './_components/ScheduleInterviewModal';
@@ -320,6 +320,27 @@ const JobApplicationsPage = () => {
         window.open(resumeUrl, '_blank');
     }
 
+    const [initiatingChat, setInitiatingChat] = useState<string | null>(null);
+
+    const handleMessageCandidate = async (app: ApplicationWithUserAndJob) => {
+        if (!app.id || !app.userId) {
+            toast.error('Missing application or user information');
+            return;
+        }
+
+        setInitiatingChat(app.id);
+        try {
+            await initiateConversation(app.id);
+            toast.success('Conversation started');
+            router.push(`/messages?user=${app.userId}`); // Redirect to messages page
+        } catch (error: any) {
+            console.error('Error initiating conversation:', error);
+            toast.error(error.response?.data?.error || 'Failed to start conversation');
+        } finally {
+            setInitiatingChat(null);
+        }
+    };
+
     // Sorting
     const sortApplications = (apps: ApplicationWithUserAndJob[]) => {
         return [...apps].sort((a, b) => {
@@ -486,7 +507,7 @@ const JobApplicationsPage = () => {
     }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-6">
+        <div className="py-6 max-w-7xl mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
@@ -606,12 +627,31 @@ const JobApplicationsPage = () => {
                                             <td className=" py-4 relative">
                                                 <div className="flex items-center justify-end min-h-[2rem]">
                                                     {/* Dynamic Actions */}
-                                                    <div className="mr-24 flex items-center gap-2">
+                                                    <div className="mr-40 flex items-center gap-2">
                                                         {renderActionButtons(app)}
                                                     </div>
 
                                                     {/* Fixed Icons - Absolutely positioned */}
-                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-1 bg-white pl-2">
+                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white pl-2">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                            onClick={() => handleViewApplication(app)}
+                                                            title="View Details"
+                                                        >
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                                            onClick={() => handleMessageCandidate(app)}
+                                                            disabled={initiatingChat === app.id}
+                                                            title="Message Candidate"
+                                                        >
+                                                            <MessageCircle className="h-4 w-4" />
+                                                        </Button>
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
                                                                 <Button variant="ghost" className="h-8 w-8 p-0">
@@ -623,6 +663,13 @@ const JobApplicationsPage = () => {
                                                                 <DropdownMenuItem onClick={() => handleViewApplication(app)}>
                                                                     <Eye className="mr-2 h-4 w-4" />
                                                                     View Details
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleMessageCandidate(app)}
+                                                                    disabled={initiatingChat === app.id}
+                                                                >
+                                                                    <MessageCircle className="mr-2 h-4 w-4" />
+                                                                    Message Candidate
                                                                 </DropdownMenuItem>
                                                                 {app.userId && (
                                                                     <DropdownMenuItem

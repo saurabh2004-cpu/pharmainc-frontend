@@ -26,7 +26,8 @@ import {
     Edit,
     Share2,
     Plus,
-    ExternalLink
+    ExternalLink,
+    Copy
 } from "lucide-react";
 import Image from "next/image";
 import { EditProfileModal } from "./EditProfileModal";
@@ -35,8 +36,13 @@ import { EditImageModal } from "./EditImageModal";
 import ProfileShareModal from "./ProfileShareModal";
 import InstitutionShareModal from "./InstitutionShareModal";
 import { useUserStore, useConnectionsStore, useInstitutionStore } from "@/store";
-import { getUserType } from "@/lib/api/utils";
+import { getUserType, getAuthToken } from "@/lib/api/utils";
 import { getProfilePictureUrl, isProfilePictureUrl } from "@/lib/utils";
+import {
+    getUserSocialMediaLinks,
+    getInstituteSocialMediaLinks,
+    SocialMediaLink
+} from "@/lib/api";
 import {
     followUser,
     unfollowUser,
@@ -89,7 +95,6 @@ export const ProfileHeader = ({
     const [isEditImageModalOpen, setIsEditImageModalOpen] = useState(false);
     const [imageModalType, setImageModalType] = useState<'profileImage' | 'coverImage'>('profileImage');
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-    const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
     const [currentUserProfile, setCurrentUserProfile] = useState(user);
     const [currentInstituteProfile, setCurrentInstituteProfile] = useState(institution);
     const [isLoading, setIsLoading] = useState({
@@ -99,11 +104,15 @@ export const ProfileHeader = ({
         reject: false,
     });
 
-    // Links management state
+    // Existing Links management state
     const [links, setLinks] = useState<string[]>([]);
     const [newLink, setNewLink] = useState("");
     const [isSavingLink, setIsSavingLink] = useState(false);
     const [isLoadingLinks, setIsLoadingLinks] = useState(false);
+
+    // New Social Media Links state
+    const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
+    const [isLoadingSocialLinks, setIsLoadingSocialLinks] = useState(false);
 
     const isOwnProfile = currentUser?.id === user?.id;
     const isOwnInstitute = userType === 'INSTITUTE';
@@ -146,7 +155,8 @@ export const ProfileHeader = ({
 
     // Fetch current user on mount
     useEffect(() => {
-        if (!currentUser) {
+        const token = getAuthToken();
+        if (token && !currentUser) {
             fetchCurrentUser();
         }
     }, [currentUser, fetchCurrentUser]);
@@ -182,9 +192,34 @@ export const ProfileHeader = ({
         fetchLinks();
     }, [isOwnProfile, currentUser?.id]);
 
+    // Fetch Social Media Links
+    const fetchSocialLinks = useCallback(async () => {
+        const targetId = institution ? institution.id : user?.id;
+        if (!targetId) return;
+
+        setIsLoadingSocialLinks(true);
+        try {
+            if (institution) {
+                const data = await getInstituteSocialMediaLinks(targetId);
+                setSocialLinks(data);
+            } else {
+                const data = await getUserSocialMediaLinks(targetId);
+                setSocialLinks(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch social media links:", error);
+        } finally {
+            setIsLoadingSocialLinks(false);
+        }
+    }, [institution, user?.id]);
+
+    useEffect(() => {
+        fetchSocialLinks();
+    }, [fetchSocialLinks]);
+
     const handleFollow = async () => {
         if (!currentUser?.id) {
-            setIsLoginPromptOpen(true);
+            router.push('/auth');
             return;
         }
 
@@ -210,7 +245,7 @@ export const ProfileHeader = ({
 
     const handleConnect = async () => {
         if (!currentUser?.id) {
-            setIsLoginPromptOpen(true);
+            router.push('/auth');
             return;
         }
 
@@ -337,7 +372,7 @@ export const ProfileHeader = ({
 
     const handleMessage = () => {
         if (!currentUser?.id) {
-            setIsLoginPromptOpen(true);
+            router.push('/auth');
             return;
         }
 
@@ -450,6 +485,21 @@ export const ProfileHeader = ({
             return parts.length > 0 ? parts.join(", ") : null;
         }
         return displayUser?.location;
+    };
+
+    const getProfileUrl = () => {
+        if (typeof window === "undefined") return "";
+        const id = institution ? displayInstitution?.id : displayUser?.id;
+        if (!id) return "";
+        return `${window.location.origin}/profile/${id}`;
+    };
+
+    const handleCopyLink = () => {
+        const url = getProfileUrl();
+        if (url) {
+            navigator.clipboard.writeText(url);
+            toast.success("Profile link copied!");
+        }
     };
 
     return (
@@ -607,70 +657,50 @@ export const ProfileHeader = ({
 
                     <div className="flex items-center gap-1">
                         <Link2 className="h-4 w-4" />
-                        <a href="#" className="text-blue-500 hover:underline">
-                            pharminc.com/profile
+                        <a href={getProfileUrl() || "#"} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline truncate max-w-[200px] sm:max-w-xs">
+                            {getProfileUrl() ? getProfileUrl().replace(/^https?:\/\//, '') : 'Loading link...'}
                         </a>
+                        <button
+                            onClick={handleCopyLink}
+                            className="ml-1 text-gray-400 hover:text-gray-600 transition-colors"
+                            title="Copy profile link"
+                        >
+                            <Copy className="h-3.5 w-3.5" />
+                        </button>
                     </div>
 
-                    {/* Links Management Section - Only for own profile */}
-                    {isOwnProfile && !institution && (
-                        <div className="mt-4 space-y-3">
-                            {/* Display Links */}
-                            {isLoadingLinks ? (
-                                <p className="text-xs text-gray-500">Loading links...</p>
-                            ) : links.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                    {links.map((link, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm group transition-colors"
-                                        >
-                                            <ExternalLink className="h-3.5 w-3.5 text-gray-600" />
-                                            <a
-                                                href={link.startsWith('http') ? link : `https://${link}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 hover:underline max-w-[200px] truncate"
-                                                title={link}
-                                            >
-                                                {link}
-                                            </a>
-                                            <button
-                                                onClick={() => handleDeleteLink(link)}
-                                                className="text-gray-400 hover:text-red-600 focus:outline-none transition-colors"
-                                                disabled={isSavingLink}
-                                                aria-label={`Remove ${link}`}
-                                            >
-                                                <X className="h-3.5 w-3.5" />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            <div className="flex gap-2">
-                                <Input
-                                    type="text"
-                                    placeholder="Add a link (e.g., portfolio, LinkedIn, website)"
-                                    value={newLink}
-                                    onChange={(e) => setNewLink(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    disabled={isSavingLink}
-                                    className="flex-1 text-sm"
-                                />
-                                <Button
-                                    onClick={handleAddLink}
-                                    disabled={!newLink.trim() || isSavingLink}
-                                    size="sm"
-                                    className="gap-1"
-                                >
-                                    <Plus className="h-4 w-4" />
-                                    Add
-                                </Button>
-                            </div>
-
-
+                    {/* New Social Media Links Icons */}
+                    {socialLinks.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-3 mt-4">
+                            {socialLinks.map((link) => {
+                                let IconPath = "/icons/link.svg"; // Fallback icon path or just use Link2
+                                switch (link.platform) {
+                                    case 'LINKEDIN': IconPath = "/icons/linkedin.svg"; break;
+                                    case 'FACEBOOK': IconPath = "/icons/facebook.svg"; break;
+                                    case 'INSTAGRAM': IconPath = "/icons/instagram.svg"; break;
+                                    case 'TWITTER': IconPath = "/icons/twitter.svg"; break;
+                                }
+                                return (
+                                    <a
+                                        key={link.id}
+                                        href={link.link.startsWith('http') ? link.link : `https://${link.link}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-gray-600 hover:text-blue-500 transition-colors"
+                                        title={link.platform}
+                                    >
+                                        <Badge variant="outline" className="flex gap-2 items-center px-3 py-1 cursor-pointer hover:bg-gray-50">
+                                            <span>{link.platform.charAt(0) + link.platform.slice(1).toLowerCase()}</span>
+                                            <ExternalLink className="h-3 w-3" />
+                                        </Badge>
+                                    </a>
+                                );
+                            })}
                         </div>
                     )}
+
+                    {/* Links Management Section - Only for own profile */}
+
                 </div>
             </div>
 
@@ -692,6 +722,7 @@ export const ProfileHeader = ({
                     onClose={() => setIsEditModalOpen(false)}
                     user={displayUser as any} // Type cast to handle different User types
                     onUpdate={handleUserUpdate}
+                    onLinksChange={fetchSocialLinks}
                 />
             )}
 
@@ -702,38 +733,9 @@ export const ProfileHeader = ({
                     onClose={() => setIsEditInstituteModalOpen(false)}
                     institution={currentInstituteProfile}
                     onUpdate={handleInstituteUpdate}
+                    onLinksChange={fetchSocialLinks}
                 />
             )}
-
-            {/* Login Prompt Dialog */}
-            <Dialog open={isLoginPromptOpen} onOpenChange={setIsLoginPromptOpen}>
-                <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Login Required</DialogTitle>
-                        <DialogDescription>
-                            You need to log in to connect with other professionals and follow their updates.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter className="flex gap-2 sm:gap-0">
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsLoginPromptOpen(false)}
-                            className="flex-1 sm:flex-none"
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={() => {
-                                setIsLoginPromptOpen(false);
-                                router.push('/auth');
-                            }}
-                            className="flex-1 sm:flex-none"
-                        >
-                            Login
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
 
             {/* Share Modal - conditionally render for user or institution */}
             {institution ? (

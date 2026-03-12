@@ -31,6 +31,8 @@ const MessagesContent = () => {
 
   // Socket Handler: New Message
   const handleNewMessage = useCallback((message: Message) => {
+    console.log('Real-time message received:', message);
+    
     setConversations(prev => {
       const exists = prev.find(c => c.id === message.conversationId);
       if (exists) {
@@ -40,28 +42,24 @@ const MessagesContent = () => {
             : c
         ).sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
       } else {
-        // If it's a new conversation we don't know about, refetch all
         getConversations().then(data => setConversations(data));
         return prev;
       }
     });
 
-    setSelectedConversationId(currentId => {
-      if (currentId === message.conversationId) {
-        setMessages(prev => {
-          if (prev.some(m => m.id === message.id)) return prev;
-          return [...prev, message];
-        });
-        markAsRead(message.conversationId).then(() => {
-          fetchUnreadCount();
-        });
-        setConversations(prev => prev.map(c =>
-          c.id === message.conversationId ? { ...c, unreadCount: 0 } : c
-        ));
-      }
-      return currentId;
-    });
-  }, [fetchUnreadCount]);
+    if (selectedConversationId === message.conversationId) {
+      setMessages(prev => {
+        if (prev.some(m => m.id === message.id)) return prev;
+        return [...prev, message];
+      });
+      markAsRead(message.conversationId).then(() => {
+        fetchUnreadCount();
+      });
+      setConversations(prev => prev.map(c =>
+        c.id === message.conversationId ? { ...c, unreadCount: 0 } : c
+      ));
+    }
+  }, [selectedConversationId, fetchUnreadCount]);
 
   // Socket Handler: New Conversation
   const handleNewConversation = useCallback((conversation: Conversation) => {
@@ -173,12 +171,24 @@ const MessagesContent = () => {
     fetchInitialMessages();
 
     const socket = getSocket();
-    if (socket && socket.connected) {
-      socket.emit('join_conversation', selectedConversationId);
-    }
+    if (!socket) return;
+
+    const joinRoom = () => {
+      if (socket.connected) {
+        socket.emit('join_conversation', selectedConversationId);
+        console.log('Joined room:', selectedConversationId);
+      }
+    };
+
+    // Join now if connected
+    joinRoom();
+
+    // Also join on connection/reconnection
+    socket.on('connect', joinRoom);
 
     return () => {
-      if (socket && socket.connected) {
+      socket.off('connect', joinRoom);
+      if (socket.connected) {
         socket.emit('leave_conversation', selectedConversationId);
       }
     };
@@ -262,7 +272,7 @@ const MessagesContent = () => {
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
 
   return (
-    <div className="container mx-auto max-w-6xl h-[calc(100vh-80px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+    <div className="container mx-auto max-w-7xl h-[calc(100vh-35px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 h-full">
         <div className="md:col-span-1 h-full overflow-hidden">
           <ConversationList

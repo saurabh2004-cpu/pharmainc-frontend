@@ -7,6 +7,7 @@ import { MapPin, Building2, Clock, Bookmark, MoreHorizontal, Flag, EyeOff, Ban, 
 import { Job, Institution } from '@/lib/api/types';
 import { useUserStore } from '@/store/userStore';
 import { cn } from '@/lib/utils';
+import { generateSlug } from '@/lib/utils/slug';
 
 interface JobWithInstitution extends Job {
   institution?: Institution;
@@ -54,7 +55,8 @@ const JobCard = ({ job }: JobCardProps) => {
   };
 
   const handleCardClick = () => {
-    router.push(`/find-jobs/${job.id}`);
+    const slug = generateSlug(job);
+    router.push(`/find-jobs/${slug}?id=${job.id}`);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {

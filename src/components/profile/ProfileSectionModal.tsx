@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -10,11 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { fetchCountries, fetchCitiesByCountry, LocationOption } from "@/lib/api";
 
 export interface FieldConfig {
     name: string;
     label: string;
-    type: 'text' | 'date' | 'textarea' | 'checkbox' | 'select';
+    type: 'text' | 'date' | 'textarea' | 'checkbox' | 'select' | 'country' | 'city';
     placeholder?: string;
     required?: boolean;
     options?: { label: string; value: string }[]; // For select or autocomplete
@@ -41,10 +43,43 @@ export const ProfileSectionModal: React.FC<ProfileSectionModalProps> = ({
     isLoading = false,
 }) => {
     const [formData, setFormData] = React.useState<any>(initialData || {});
+    const [countries, setCountries] = useState<LocationOption[]>([]);
+    const [cities, setCities] = useState<LocationOption[]>([]);
+    const [loadingCountries, setLoadingCountries] = useState(false);
+    const [loadingCities, setLoadingCities] = useState(false);
 
     React.useEffect(() => {
         setFormData(initialData || {});
     }, [initialData, isOpen]);
+
+    // Load countries on mount
+    useEffect(() => {
+        if (isOpen) {
+            const loadCountries = async () => {
+                setLoadingCountries(true);
+                const data = await fetchCountries();
+                setCountries(data);
+                setLoadingCountries(false);
+            };
+            loadCountries();
+        }
+    }, [isOpen]);
+
+    // Load cities when country changes
+    useEffect(() => {
+        const country = formData.country;
+        if (isOpen && country) {
+            const loadCities = async () => {
+                setLoadingCities(true);
+                const data = await fetchCitiesByCountry(country);
+                setCities(data);
+                setLoadingCities(false);
+            };
+            loadCities();
+        } else {
+            setCities([]);
+        }
+    }, [formData.country, isOpen]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
@@ -59,6 +94,15 @@ export const ProfileSectionModal: React.FC<ProfileSectionModalProps> = ({
 
     const handleCheckboxChange = (name: string, checked: boolean) => {
         setFormData((prev: any) => ({ ...prev, [name]: checked }));
+    }
+
+    const handleValueChange = (name: string, value: string) => {
+        setFormData((prev: any) => ({ ...prev, [name]: value }));
+        
+        // If country changes, clear the city
+        if (name === 'country') {
+            setFormData((prev: any) => ({ ...prev, city: '' }));
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -102,6 +146,22 @@ export const ProfileSectionModal: React.FC<ProfileSectionModalProps> = ({
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </select>
+                            ) : field.type === 'country' ? (
+                                <SearchableSelect
+                                    options={countries}
+                                    value={formData[field.name] || ""}
+                                    onValueChange={(val) => handleValueChange(field.name, val)}
+                                    placeholder={loadingCountries ? "Loading countries..." : `Select ${field.label}`}
+                                    disabled={loadingCountries || (typeof field.disabled === 'function' ? field.disabled(formData) : field.disabled)}
+                                />
+                            ) : field.type === 'city' ? (
+                                <SearchableSelect
+                                    options={cities}
+                                    value={formData[field.name] || ""}
+                                    onValueChange={(val) => handleValueChange(field.name, val)}
+                                    placeholder={loadingCities ? "Loading cities..." : !formData.country ? "Select country first" : `Select ${field.label}`}
+                                    disabled={loadingCities || !formData.country || (typeof field.disabled === 'function' ? field.disabled(formData) : field.disabled)}
+                                />
                             ) : field.type === 'checkbox' ? (
                                 <>
                                     <input

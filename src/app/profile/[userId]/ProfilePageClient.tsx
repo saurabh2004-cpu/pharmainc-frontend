@@ -38,14 +38,15 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
   const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [editData, setEditData] = useState<any>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Field Configurations
   const experienceFields: FieldConfig[] = [
     { name: 'organizationName', label: 'Organization Name', type: 'text', placeholder: 'Ex: Mayo Clinic', required: true },
     { name: 'role', label: 'Role / Title', type: 'text', placeholder: 'Ex: Senior Nurse', required: true },
     { name: 'locationType', label: 'Location Type', type: 'select', options: [{ label: 'On-site', value: 'On-site' }, { label: 'Remote', value: 'Remote' }, { label: 'Hybrid', value: 'Hybrid' }] },
-    { name: 'city', label: 'City', type: 'text', required: true },
-    { name: 'country', label: 'Country', type: 'text', required: true },
+    { name: 'country', label: 'Country', type: 'country', required: true },
+    { name: 'city', label: 'City', type: 'city', required: true },
     { name: 'startDate', label: 'Start Date', type: 'date', required: true },
     { name: 'endDate', label: 'End Date', type: 'date', disabled: (data) => data.isCurrentJob },
     { name: 'isCurrentJob', label: 'I currently work here', type: 'checkbox' },
@@ -55,8 +56,8 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
   const educationFields: FieldConfig[] = [
     { name: 'instituteName', label: 'Institute Name', type: 'text', placeholder: 'Ex: Harvard University', required: true },
     { name: 'degree', label: 'Degree', type: 'text', placeholder: 'Ex: Bachelor of Science', required: true },
-    { name: 'city', label: 'City', type: 'text', required: true },
-    { name: 'country', label: 'Country', type: 'text', required: true },
+    { name: 'country', label: 'Country', type: 'country', required: true },
+    { name: 'city', label: 'City', type: 'city', required: true },
     { name: 'startDate', label: 'Start Date', type: 'date', required: true },
     { name: 'endDate', label: 'End Date', type: 'date', disabled: (data) => data.isCurrentJob },
     { name: 'isCurrentJob', label: 'I am currently studying here', type: 'checkbox' },
@@ -80,6 +81,7 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
   };
 
   const handleSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
       if (modalType === 'experience') {
         const payload = {
@@ -128,6 +130,8 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
     } catch (e) {
       console.error(e);
       toast.error(`Failed to save ${modalType}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleUserUpdate = (updatedUser: User) => {
@@ -386,6 +390,7 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
           fields={modalType === 'experience' ? experienceFields : educationFields}
           initialData={editData}
           onSubmit={handleSubmit}
+          isLoading={isSubmitting}
         />
       </div>
     </div>

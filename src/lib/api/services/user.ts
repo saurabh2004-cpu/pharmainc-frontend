@@ -67,7 +67,7 @@ export const downloadResume = async (userId: string): Promise<Blob> => {
   return response.data;
 };
 
-export const checkProfileCompletion = async (): Promise<{ isVerified: boolean; isComplete: boolean; error?: string }> => {
+export const checkProfileCompletion = async (): Promise<{ isVerified: boolean; isComplete: boolean; isLincenceExpired?: boolean; error?: string }> => {
   const response = await baseApi.get('/user/check-profile-completion');
   return response.data;
 };

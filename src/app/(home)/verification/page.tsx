@@ -102,7 +102,7 @@ export default function VerificationPage() {
             </div>
           </div>
           <div className="hidden md:block">
-            <p className="text-sm text-gray-500">Authenticated as <span className="font-semibold text-gray-900">{entity?.email}</span></p>
+            <p className="text-sm text-gray-500">Authenticated as <span className="font-semibold text-gray-900">{(entity as any)?.email || (entity as any)?.contactEmail}</span></p>
           </div>
         </div>
       </div>

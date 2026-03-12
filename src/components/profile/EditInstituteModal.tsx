@@ -10,7 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Institution, InstitutionUpdateParams } from "@/lib/api/types";
 import { useInstitutionStore } from "@/store";
 import { toast } from "sonner";
-import { X, Plus } from "lucide-react";
+import { Trash2, Plus, X } from "lucide-react";
+import {
+  SocialMediaLink,
+  getInstituteSocialMediaLinks,
+  createInstituteSocialMediaLink,
+  deleteInstituteSocialMediaLink,
+  fetchCountries as fetchCountriesService,
+  fetchCitiesByCountry,
+  LocationOption
+} from "@/lib/api";
 import {
   Select,
   SelectContent,
@@ -18,15 +27,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 
 interface EditInstituteModalProps {
   isOpen: boolean;
   onClose: () => void;
   institution: Institution;
   onUpdate: (updatedInstitution: Institution) => void;
+  onLinksChange?: () => void;
 }
 
-export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: EditInstituteModalProps) {
+export function EditInstituteModal({ isOpen, onClose, institution, onUpdate, onLinksChange }: EditInstituteModalProps) {
   // Initialize form data with controlled components.
   // Using explicit fields as requested.
   const [formData, setFormData] = useState({
@@ -44,35 +55,29 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
 
   const [serviceInput, setServiceInput] = useState("");
   // State for dynamic location fields
-  const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-  const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
+  const [countries, setCountries] = useState<LocationOption[]>([]);
+  const [cities, setCities] = useState<LocationOption[]>([]);
   const [isLoadingCountries, setIsLoadingCountries] = useState(false);
   const [isLoadingCities, setIsLoadingCities] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const { updateCurrentInstitution, currentInstitution, setInstitution } = useInstitutionStore();
 
+  // Social Links state
+  const [socialLinks, setSocialLinks] = useState<SocialMediaLink[]>([]);
+  const [newPlatform, setNewPlatform] = useState<string>("");
+  const [newSocialLinkUrl, setNewSocialLinkUrl] = useState<string>("");
+  const [isManagingLinks, setIsManagingLinks] = useState(false);
+
   // Fetch countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
+    const loadCountries = async () => {
       setIsLoadingCountries(true);
-      try {
-        const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-        const data = await response.json();
-        if (!data.error) {
-          const countryOptions = data.data.map((c: any) => ({
-            label: c.name,
-            value: c.name,
-          }));
-          setCountries(countryOptions);
-        }
-      } catch (error) {
-        toast.error("Failed to load countries");
-      } finally {
-        setIsLoadingCountries(false);
-      }
+      const data = await fetchCountriesService();
+      setCountries(data);
+      setIsLoadingCountries(false);
     };
-    fetchCountries();
+    loadCountries();
   }, []);
 
   const fetchCities = async (countryName: string) => {
@@ -81,29 +86,9 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
       return;
     }
     setIsLoadingCities(true);
-    try {
-      const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ country: countryName }),
-      });
-      const data = await response.json();
-      if (!data.error) {
-        const cityOptions = data.data.map((c: string) => ({
-          label: c,
-          value: c,
-        }));
-        setCities(cityOptions);
-      } else {
-        setCities([]);
-      }
-    } catch (error) {
-      toast.error("Failed to load cities");
-    } finally {
-      setIsLoadingCities(false);
-    }
+    const data = await fetchCitiesByCountry(countryName);
+    setCities(data);
+    setIsLoadingCities(false);
   };
 
   const handleCountryChange = (countryName: string) => {
@@ -118,6 +103,7 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
   // Populate form when modal opens or institution changes
   useEffect(() => {
     if (institution) {
+      const initialCountry = institution.country || "India";
       setFormData({
         name: institution.name || "",
         contactNumber: institution.contactNumber || institution.contact_number || "",
@@ -127,15 +113,30 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
         services: institution.services || [],
         headline: institution.headline || "",
         about: institution.about || "",
-        country: institution.country || "",
+        country: initialCountry,
         city: institution.city || "",
       });
 
-      if (institution.country && isOpen) {
-        fetchCities(institution.country);
+      if (initialCountry && isOpen) {
+        fetchCities(initialCountry);
       }
     }
   }, [institution, isOpen]);
+
+  // Fetch Social Links when modal opens
+  useEffect(() => {
+    if (isOpen && institution?.id) {
+      const fetchLinks = async () => {
+        try {
+          const links = await getInstituteSocialMediaLinks(institution.id);
+          setSocialLinks(links);
+        } catch (error) {
+          console.error("Error fetching social links:", error);
+        }
+      };
+      fetchLinks();
+    }
+  }, [isOpen, institution?.id]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -217,6 +218,45 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
     }
   };
 
+  const handleAddSocialLink = async () => {
+    if (!newPlatform || !newSocialLinkUrl.trim()) {
+      toast.error("Platform and Link are required");
+      return;
+    }
+    setIsManagingLinks(true);
+    try {
+      const newLinkResp = await createInstituteSocialMediaLink({
+        platform: newPlatform,
+        link: newSocialLinkUrl.trim()
+      });
+      setSocialLinks(prev => [...prev, newLinkResp]);
+      setNewPlatform("");
+      setNewSocialLinkUrl("");
+      onLinksChange?.();
+      toast.success("Social media link added!");
+    } catch (error) {
+      console.error("Error adding social link:", error);
+      toast.error("Failed to add social media link.");
+    } finally {
+      setIsManagingLinks(false);
+    }
+  };
+
+  const handleDeleteSocialLink = async (linkId: string) => {
+    setIsManagingLinks(true);
+    try {
+      await deleteInstituteSocialMediaLink(linkId);
+      setSocialLinks(prev => prev.filter(l => l.id !== linkId));
+      onLinksChange?.();
+      toast.success("Social media link deleted!");
+    } catch (error) {
+      console.error("Error deleting social link:", error);
+      toast.error("Failed to delete social media link.");
+    } finally {
+      setIsManagingLinks(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -240,42 +280,28 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="country">Country</Label>
-              <Select
-                value={formData.country}
+              <SearchableSelect
+                options={countries}
+                value={formData.country || ""}
                 onValueChange={handleCountryChange}
+                placeholder={isLoadingCountries ? "Loading..." : "Select Country"}
+                searchPlaceholder="Search country..."
+                emptyMessage="No country found."
                 disabled={isLoadingCountries}
-              >
-                <SelectTrigger id="country" className="bg-white">
-                  <SelectValue placeholder={isLoadingCountries ? "Loading..." : "Select Country"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="city">City</Label>
-              <Select
-                value={formData.city}
+              <SearchableSelect
+                options={cities}
+                value={formData.city || ""}
                 onValueChange={handleCityChange}
+                placeholder={isLoadingCities ? "Loading..." : "Select City"}
+                searchPlaceholder="Search city..."
+                emptyMessage="No city found."
                 disabled={!formData.country || isLoadingCities}
-              >
-                <SelectTrigger id="city" className="bg-white">
-                  <SelectValue placeholder={isLoadingCities ? "Loading..." : "Select City"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
           </div>
 
@@ -377,7 +403,79 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate }: E
             </div>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className="space-y-4 pt-4 border-t">
+            <Label className="text-lg font-semibold block">Social Media Links</Label>
+
+            {/* Existing Links */}
+            {socialLinks.length > 0 && (
+              <div className="space-y-2 mb-4">
+                {socialLinks.map(link => (
+                  <div key={link.id} className="flex items-center justify-between bg-gray-50 p-2 rounded-md border border-gray-100">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <span className="font-medium text-sm text-gray-700 w-24 shrink-0">
+                        {link.platform.charAt(0) + link.platform.slice(1).toLowerCase()}
+                      </span>
+                      <span className="text-sm text-gray-500 truncate" title={link.link}>
+                        {link.link}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteSocialLink(link.id)}
+                      disabled={isManagingLinks}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add New Link */}
+            <div className=" gap-3 items-end">
+              <div className="space-y-2">
+                <Label>Platform</Label>
+                <Select
+                  value={newPlatform}
+                  onValueChange={setNewPlatform}
+                  disabled={isManagingLinks}
+                >
+                  <SelectTrigger className="bg-white">
+                    <SelectValue placeholder="Select Platform" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="LINKEDIN">LinkedIn</SelectItem>
+                    <SelectItem value="FACEBOOK">Facebook</SelectItem>
+                    <SelectItem value="INSTAGRAM">Instagram</SelectItem>
+                    <SelectItem value="TWITTER">Twitter</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Link</Label>
+                <Input
+                  value={newSocialLinkUrl}
+                  onChange={(e) => setNewSocialLinkUrl(e.target.value)}
+                  placeholder="https://..."
+                  disabled={isManagingLinks}
+                />
+              </div>
+              <Button
+                type="button"
+                onClick={handleAddSocialLink}
+                disabled={isManagingLinks || !newPlatform || !newSocialLinkUrl}
+                className="w-full md:w-auto mt-4"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-end space-x-3 pt-4 border-t ">
             <Button
               type="button"
               variant="outline"

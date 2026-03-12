@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft, MapPin, Building2, Clock, DollarSign, Users, Briefcase, Calendar, Globe, CheckCircle, Share, Bookmark, TrendingUp, Target, Award, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,6 @@ import { useEntity } from '@/hooks/useEntity';
 import { checkProfileCompletion, getUserById } from '@/lib/api/services/user';
 import { toast } from 'sonner';
 import { buildImageUrl } from '@/utils/buildImageUrl';
-
-
-
 
 
 // Generate job stats
@@ -72,7 +69,12 @@ const maskEmail = (email: string) => {
 const JobDetailPage = () => {
   const router = useRouter();
   const params = useParams();
-  const jobId = params.jobId as string;
+  const jobSlug = params.slug as string;
+  // const jobId = jobSlug; // use slug directly as the job ID
+
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("id");
+
 
   const { fetchSingleJob } = useJobStore();
   const { hasAppliedToJob, currentUser, isJobSaved, toggleSavedJob, fetchUserApplications } = useUserStore();
@@ -87,21 +89,24 @@ const JobDetailPage = () => {
   const [isProfileIncomplete, setIsProfileIncomplete] = useState(false);
   const [isNotVerified, setIsNotVerified] = useState(false);
   const [isApplying, setIsApplying] = useState(false);
-  const isBookmarked = isJobSaved(jobId);
+  const isBookmarked = jobId ? isJobSaved(jobId) : false;
 
   const [matchingScore, setMatchingScore] = useState<number | null>(null);
   const [jobStats, setJobStats] = useState<any>(null);
   const [jobSkills, setJobSkills] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
-  const hasAlreadyApplied = hasAppliedToJob(jobId);
+  const hasAlreadyApplied = jobId ? hasAppliedToJob(jobId) : false;
 
   const handleBookmark = async () => {
     if (!currentUser) {
-      router.push('/login'); // Or show toast
+      router.push(`/auth?type=signin&redirectTo=/find-jobs/${jobSlug}`); // Or show toast
       return;
     }
-    await toggleSavedJob(jobId);
+
+    if (jobId) {
+      await toggleSavedJob(jobId);
+    }
   };
 
   useEffect(() => {
@@ -126,6 +131,8 @@ const JobDetailPage = () => {
             setJob(result.job);
             setMatchingScore(result.matchingScore);
             setJobSkills(extractSkills(result.job.description || ''));
+
+
           } else {
             setJob(null);
           }
@@ -168,7 +175,11 @@ const JobDetailPage = () => {
     try {
       const result = await checkProfileCompletion();
 
-      if (result.isVerified) {
+      if (result.isLincenceExpired) {
+        setIsNotVerified(true);
+        toast.error("License expired. Please renew your license before applying.");
+        return;
+      } else if (result.isVerified) {
         setShowApplicationModal(true);
       } else if (!result.isVerified && !result.isComplete) {
         setIsNotVerified(true);
@@ -203,7 +214,7 @@ const JobDetailPage = () => {
       } else if (error.response?.status === 401) {
         // Unauthorized - redirect to login
         toast.error('Please login to apply for jobs');
-        router.push('/login');
+        router.push(`/auth?type=signin&redirectTo=/find-jobs/${jobSlug}`);
       } else {
         // Other errors (network, 500, etc.)
         console.error('Error checking profile completion:', error);
@@ -300,7 +311,7 @@ const JobDetailPage = () => {
 
               {!currentUser ? (
                 <Button
-                  onClick={() => router.push('/login')}
+                  onClick={() => router.push(`/auth?type=signin&redirectTo=/find-jobs/${jobSlug}`)}
                   className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6"
                 >
                   Login to Apply

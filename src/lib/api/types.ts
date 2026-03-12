@@ -95,6 +95,7 @@ export interface User {
   isConnected?: boolean;
   connectionStatus?: 'none' | 'pending_sent' | 'pending_received' | 'connected';
   gender?: string;
+  experience?: number;
 }
 
 export interface UserCreateParams {
@@ -317,6 +318,7 @@ export interface InstituteSignUpParams {
   bedsCount: number;
   staffCount: number;
   verified?: boolean;
+  experience?: number;
 }
 
 export interface InstitutionCreateParams {
@@ -330,6 +332,7 @@ export interface InstitutionUpdateParams {
   location?: string;
   type?: string;
   verified?: boolean;
+  experience?: number;
   email?: string;
   employees_count?: string;
   staffCount?: number;
@@ -772,6 +775,9 @@ export interface Notification {
   application?: Application;
   type?: string;
   status?: string;
+  interviewType?: string;
+  interviewTime?: string;
+  interviewLink?: string;
 }
 
 export interface ApplicationStats {

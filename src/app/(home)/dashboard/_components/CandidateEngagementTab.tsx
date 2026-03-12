@@ -10,6 +10,8 @@ import { MetricCard } from './MetricCard'
 import { ChartCard } from './ChartCard'
 import { candidateTrendsData, candidateEngagementData, weeklyComparisonData, engagementMetricsData, responseDistributionData } from './data'
 import { useInstitutionStore } from '@/store'
+import { CreditCard } from 'lucide-react'
+import Link from 'next/link'
 
 // Helper function to format response time in human-readable format
 const formatResponseTime = (hours: number): string => {
@@ -30,7 +32,12 @@ const formatNumber = (num: number): string => {
   return num.toLocaleString('en-US')
 }
 
-export const CandidateEngagementTab = () => {
+interface CandidateEngagementTabProps {
+  credits?: number | null;
+  loadingCredits?: boolean;
+}
+
+export const CandidateEngagementTab = ({ credits, loadingCredits }: CandidateEngagementTabProps) => {
   const { currentInstitution, instituteStats, loading, error, fetchInstituteStats } = useInstitutionStore()
 
   useEffect(() => {
@@ -162,6 +169,15 @@ export const CandidateEngagementTab = () => {
               trend="up"
               icon={TrendingUp}
             />
+            <Link href="/credit-history" className="block transition-transform hover:scale-[1.02]">
+              <MetricCard
+                title="Available Credits"
+                value={loadingCredits ? "--" : (credits != null ? formatNumber(credits) : '0')}
+                change="View transaction history"
+                trend="up"
+                icon={CreditCard}
+              />
+            </Link>
           </>
         )}
       </div>

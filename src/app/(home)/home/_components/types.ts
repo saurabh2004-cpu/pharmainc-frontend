@@ -14,6 +14,7 @@ export interface User extends BaseEntity {
   speciality?: string;
   roles?: string[];
   verified?: boolean;
+  experience?: number;
 }
 
 export interface InstitutionEntity extends BaseEntity {

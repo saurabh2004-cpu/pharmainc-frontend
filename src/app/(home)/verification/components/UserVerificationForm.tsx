@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 import { useEntityStore } from "@/store/entityStore";
-import { submitVerification, getVerificationByUserId } from "@/lib/api";
+import { submitVerification, getVerificationByUserId, fetchCountries as fetchCountriesService, fetchCitiesByCountry, LocationOption, countryCodes } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -24,7 +24,7 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { useEffect } from "react";
-
+import { SearchableSelect } from "@/components/ui/searchable-select";
 // Schema definition based on Prisma model
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
@@ -109,9 +109,9 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
     const [rejectionDetails, setRejectionDetails] = useState<any>(null);
 
     // Location states
-    const [countries, setCountries] = useState<{ label: string; value: string }[]>([]);
-    const [cities, setCities] = useState<{ label: string; value: string }[]>([]);
-    const [practiceCities, setPracticeCities] = useState<{ label: string; value: string }[]>([]);
+    const [countries, setCountries] = useState<LocationOption[]>([]);
+    const [cities, setCities] = useState<LocationOption[]>([]);
+    const [practiceCities, setPracticeCities] = useState<LocationOption[]>([]);
     const [isLoadingCountries, setIsLoadingCountries] = useState(false);
     const [isLoadingCities, setIsLoadingCities] = useState(false);
     const [isLoadingPracticeCities, setIsLoadingPracticeCities] = useState(false);
@@ -129,7 +129,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
             licenseNumber: "",
             degree: "",
             university: "",
-            country: (entity as User)?.country || "",
+            country: (entity as User)?.country || "India",
             city: (entity as User)?.city || "",
             phone: "",
             governMentId: undefined,
@@ -137,35 +137,23 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
             licenseExpiryDate: "",
             yearOfGraduation: "",
             declaration: false,
-            practiceCountry: "",
+            practiceCountry: "India",
             practiceCity: "",
         },
     });
 
     // Fetch countries on mount
     useEffect(() => {
-        const fetchCountries = async () => {
+        const loadCountries = async () => {
             setIsLoadingCountries(true);
-            try {
-                const response = await fetch('https://countriesnow.space/api/v0.1/countries/positions');
-                const data = await response.json();
-                if (!data.error) {
-                    const countryOptions = data.data.map((c: any) => ({
-                        label: c.name,
-                        value: c.name,
-                    }));
-                    setCountries(countryOptions);
-                }
-            } catch (error) {
-                console.error("Failed to load countries", error);
-            } finally {
-                setIsLoadingCountries(false);
-            }
+            const data = await fetchCountriesService();
+            setCountries(data);
+            setIsLoadingCountries(false);
         };
-        fetchCountries();
+        loadCountries();
     }, []);
 
-    const fetchCities = async (countryName: string, isPractice: boolean = false) => {
+    const fetchCities = React.useCallback(async (countryName: string, isPractice: boolean = false) => {
         if (!countryName) {
             if (isPractice) setPracticeCities([]);
             else setCities([]);
@@ -175,50 +163,48 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
         if (isPractice) setIsLoadingPracticeCities(true);
         else setIsLoadingCities(true);
 
-        try {
-            const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ country: countryName }),
-            });
-            const data = await response.json();
-            if (!data.error) {
-                const cityOptions = data.data.map((c: string) => ({
-                    label: c,
-                    value: c,
-                }));
-                if (isPractice) setPracticeCities(cityOptions);
-                else setCities(cityOptions);
-            } else {
-                if (isPractice) setPracticeCities([]);
-                else setCities([]);
-            }
-        } catch (error) {
-            console.error("Failed to load cities", error);
-        } finally {
-            if (isPractice) setIsLoadingPracticeCities(false);
-            else setIsLoadingCities(false);
+        const data = await fetchCitiesByCountry(countryName);
+        if (isPractice) setPracticeCities(data);
+        else setCities(data);
+
+        if (isPractice) setIsLoadingPracticeCities(false);
+        else setIsLoadingCities(false);
+    }, []);
+
+    // Fetch cities for default country on mount
+    useEffect(() => {
+        const defaultCountry = form.getValues('country');
+        if (defaultCountry) {
+            fetchCities(defaultCountry);
         }
-    };
+        const defaultPracticeCountry = form.getValues('practiceCountry');
+        if (defaultPracticeCountry) {
+            fetchCities(defaultPracticeCountry, true);
+        }
+    }, [fetchCities]);
 
     // Re-sync form values when entity loads
     useEffect(() => {
         if (entity && entityType === EntityType.USER) {
             const user = entity as User;
+            const initialCountry = user.country || "India";
+            const initialPhoneCode = countryCodes[initialCountry] || "";
+
             form.reset({
                 ...form.getValues(),
                 firstName: user.firstName || "",
                 lastName: user.lastName || "",
                 email: user.email || "",
-                country: user.country || "",
+                country: initialCountry,
                 city: user.city || "",
+                phone: initialPhoneCode,
             });
 
-            if (user.country) {
-                fetchCities(user.country);
+            if (initialCountry) {
+                fetchCities(initialCountry);
             }
         }
-    }, [entity, entityType, form]);
+    }, [entity, entityType, form, fetchCities]);
 
     // Fetch rejection details if status is REJECTED
     useEffect(() => {
@@ -466,28 +452,26 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Country</FormLabel>
-                                        <Select
+                                        <SearchableSelect
+                                            options={countries}
+                                            value={field.value || ""}
                                             onValueChange={(value) => {
                                                 field.onChange(value);
                                                 fetchCities(value);
                                                 form.setValue('city', '');
+
+                                                // Set phone code if phone is empty or only contains a code
+                                                const currentPhone = form.getValues('phone');
+                                                const newCode = countryCodes[value];
+                                                if (newCode && (!currentPhone || Object.values(countryCodes).some(code => currentPhone === code))) {
+                                                    form.setValue('phone', newCode);
+                                                }
                                             }}
-                                            value={field.value}
+                                            placeholder={isLoadingCountries ? "Loading countries..." : "Select Country"}
+                                            searchPlaceholder="Search country..."
+                                            emptyMessage="No country found."
                                             disabled={isLoadingCountries}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={isLoadingCountries ? "Loading countries..." : "Select Country"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {countries.map((country) => (
-                                                    <SelectItem key={country.value} value={country.value}>
-                                                        {country.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        />
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -498,24 +482,15 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>City</FormLabel>
-                                        <Select
+                                        <SearchableSelect
+                                            options={cities}
+                                            value={field.value || ""}
                                             onValueChange={field.onChange}
-                                            value={field.value}
+                                            placeholder={isLoadingCities ? "Loading cities..." : "Select City"}
+                                            searchPlaceholder="Search city..."
+                                            emptyMessage="No city found."
                                             disabled={isLoadingCities || !form.watch('country')}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={isLoadingCities ? "Loading cities..." : "Select City"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {cities.map((city) => (
-                                                    <SelectItem key={city.value} value={city.value}>
-                                                        {city.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        />
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -808,28 +783,19 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Practice Country</FormLabel>
-                                        <Select
+                                        <SearchableSelect
+                                            options={countries}
+                                            value={field.value || ""}
                                             onValueChange={(value) => {
                                                 field.onChange(value);
                                                 fetchCities(value, true);
                                                 form.setValue('practiceCity', '');
                                             }}
-                                            value={field.value}
+                                            placeholder={isLoadingCountries ? "Loading countries..." : "Select Country"}
+                                            searchPlaceholder="Search country..."
+                                            emptyMessage="No country found."
                                             disabled={isLoadingCountries}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={isLoadingCountries ? "Loading countries..." : "Select Country"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {countries.map((country) => (
-                                                    <SelectItem key={country.value} value={country.value}>
-                                                        {country.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        />
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -840,24 +806,15 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Practice City</FormLabel>
-                                        <Select
+                                        <SearchableSelect
+                                            options={practiceCities}
+                                            value={field.value || ""}
                                             onValueChange={field.onChange}
-                                            value={field.value}
+                                            placeholder={isLoadingPracticeCities ? "Loading cities..." : "Select City"}
+                                            searchPlaceholder="Search city..."
+                                            emptyMessage="No city found."
                                             disabled={isLoadingPracticeCities || !form.watch('practiceCountry')}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder={isLoadingPracticeCities ? "Loading cities..." : "Select City"} />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {practiceCities.map((city) => (
-                                                    <SelectItem key={city.value} value={city.value}>
-                                                        {city.label}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
+                                        />
                                         <FormMessage />
                                     </FormItem>
                                 )}
@@ -888,7 +845,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                         />
                     </div>
 
-                    <div className="flex items-center justify-end pt-8">
+                    <div className="flex items-center justify-center pt-8">
                         <Button
                             type="submit"
                             size="lg"
