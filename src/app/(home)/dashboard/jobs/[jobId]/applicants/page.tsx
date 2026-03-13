@@ -114,6 +114,11 @@ const JobApplicationsPage = () => {
     const [processingIds, setProcessingIds] = useState<string[]>([]); // Track processing actions
     const [showScheduleModal, setShowScheduleModal] = useState(false);
     const [selectedApplicantId, setSelectedApplicantId] = useState<string | null>(null);
+    const [confirmAction, setConfirmAction] = useState<{
+        type: 'HIRE' | 'REJECT' | null;
+        appId: string | null;
+        userName?: string;
+    }>({ type: null, appId: null });
 
     useEffect(() => {
         const userType = getUserType();
@@ -206,8 +211,11 @@ const JobApplicationsPage = () => {
         }
     };
 
-    const handleReject = async (appId: string) => {
-        if (!confirm("Are you sure you want to reject this candidate? This action is irreversible.")) return;
+    const handleReject = (appId: string, userName: string) => {
+        setConfirmAction({ type: 'REJECT', appId, userName });
+    };
+
+    const executeReject = async (appId: string) => {
         if (isProcessing(appId)) return;
         addToProcessing(appId);
         try {
@@ -253,11 +261,12 @@ const JobApplicationsPage = () => {
     // Interview Decision Logic - REPLACED with Hire/Reject buttons at specific stages
     // const handleInterviewDecision = ... (Deleted as it was mixing concerns for Institute side)
 
-    const handleHire = async (appId: string) => {
-        if (isProcessing(appId)) return;
-        // specific confirmation for hiring
-        if (!confirm("Are you sure you want to hire this candidate?")) return;
+    const handleHire = (appId: string, userName: string) => {
+        setConfirmAction({ type: 'HIRE', appId, userName });
+    };
 
+    const executeHire = async (appId: string) => {
+        if (isProcessing(appId)) return;
         addToProcessing(appId);
         try {
             await hire(appId);
@@ -268,6 +277,21 @@ const JobApplicationsPage = () => {
             toast.error('Failed to hire candidate');
         } finally {
             removeFromProcessing(appId);
+        }
+    };
+
+    const handleConfirmAction = async () => {
+        if (!confirmAction.appId || !confirmAction.type) return;
+        const { appId, type } = confirmAction;
+        
+        // Optimistically close modal, or keep it open with loading?
+        // Let's close it and let the row show loading
+        setConfirmAction({ type: null, appId: null });
+        
+        if (type === 'HIRE') {
+            await executeHire(appId);
+        } else {
+            await executeReject(appId);
         }
     };
 
@@ -418,7 +442,7 @@ const JobApplicationsPage = () => {
                         <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleReject(app.id)}
+                            onClick={() => handleReject(app.id, app.userName || 'Candidate')}
                             disabled={loading}
                         >
                             {loading ? '...' : 'Reject'}
@@ -453,7 +477,7 @@ const JobApplicationsPage = () => {
                         <Button
                             size="sm"
                             className="bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => handleHire(app.id)}
+                            onClick={() => handleHire(app.id, app.userName || 'Candidate')}
                             disabled={loading}
                         >
                             {loading ? '...' : 'Hire'}
@@ -461,7 +485,7 @@ const JobApplicationsPage = () => {
                         <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleReject(app.id)}
+                            onClick={() => handleReject(app.id, app.userName || 'Candidate')}
                             disabled={loading}
                         >
                             {loading ? '...' : 'Reject'}
@@ -474,7 +498,7 @@ const JobApplicationsPage = () => {
                         <Button
                             size="sm"
                             className="bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => handleHire(app.id)}
+                            onClick={() => handleHire(app.id, app.userName || 'Candidate')}
                             disabled={loading}
                         >
                             {loading ? '...' : 'Hire'}
@@ -482,7 +506,7 @@ const JobApplicationsPage = () => {
                         <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleReject(app.id)}
+                            onClick={() => handleReject(app.id, app.userName || 'Candidate')}
                             disabled={loading}
                         >
                             {loading ? '...' : 'Reject'}
@@ -710,6 +734,43 @@ const JobApplicationsPage = () => {
                 applicationId={selectedApplicantId}
                 onSuccess={handleInterviewScheduled}
             />
+
+            {/* Custom Confirmation Popup */}
+            <Dialog open={confirmAction.type !== null} onOpenChange={(open) => !open && setConfirmAction({ type: null, appId: null })}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            {confirmAction.type === 'HIRE' ? (
+                                <><UserCheck className="h-5 w-5 text-green-600" /> Confirm Hiring</>
+                            ) : (
+                                <><XCircle className="h-5 w-5 text-red-600" /> Confirm Rejection</>
+                            )}
+                        </DialogTitle>
+                        <DialogDescription className="pt-2">
+                            {confirmAction.type === 'HIRE' ? (
+                                <>Are you sure you want to hire <strong>{confirmAction.userName}</strong>? This will send a notification to the candidate.</>
+                            ) : (
+                                <>Are you sure you want to reject <strong>{confirmAction.userName}</strong>? This action is irreversible and the candidate will be notified.</>
+                            )}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setConfirmAction({ type: null, appId: null })}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            variant={confirmAction.type === 'HIRE' ? 'default' : 'destructive'}
+                            className={confirmAction.type === 'HIRE' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
+                            onClick={handleConfirmAction}
+                        >
+                            {confirmAction.type === 'HIRE' ? 'Confirm Hire' : 'Confirm Reject'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

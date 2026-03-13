@@ -28,6 +28,9 @@ import {
   Download,
   ChevronUp,
   ChevronDown,
+  Video,
+  Phone,
+  ExternalLink
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -626,7 +629,7 @@ const AppliedJobsPage = () => {
                               {/* Institute now directly finalizes after scheduling */}
 
                               <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${application.jobId}`)}>
+                                <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${application.jobTitle?.split(' ').join('-')}?id=${application.jobId}`)}>
                                   <Eye className="mr-1 h-4 w-4" /> View Job
                                 </Button>
                                 {(application.resume_url || application.resumeUrl) && (
@@ -637,6 +640,60 @@ const AppliedJobsPage = () => {
                               </div>
                             </div>
                           </div>
+                          {/* Interview Details Section */}
+                          {application.status === 'INTERVIEW_SCHEDULED' && (() => {
+                            const details = (application.additionalDetails as any) || {};
+                            const interview = application.interviews && application.interviews[0];
+
+                            const type = details.interviewType || interview?.interviewType || "";
+                            const date = details.interviewDate || (interview?.interviewDate ? formatDate(interview.interviewDate) : "");
+                            const time = details.interviewTime || (interview?.interviewTime ? new Date(interview.interviewTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "");
+                            const link = details.interviewLink || interview?.interviewLink;
+
+                            const isVideo = type.toLowerCase().includes('video');
+
+                            return (
+                              <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                  <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-white rounded-full shadow-sm text-green-600">
+                                      {isVideo ? <Video className="h-5 w-5" /> : <Phone className="h-5 w-5" />}
+                                    </div>
+                                    <div>
+                                      <h4 className="font-semibold text-green-900">
+                                        {isVideo ? 'Video Interview Scheduled' : 'Phone Interview Scheduled'}
+                                      </h4>
+                                      <p className="text-sm text-green-700 mt-0.5">
+                                        {isVideo
+                                          ? "Your video interview has been confirmed. Please join using the button below."
+                                          : "The interviewer will call you at the scheduled time. Please ensure you are available at this time."}
+                                      </p>
+                                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm font-medium text-green-800">
+                                        <div className="flex items-center gap-1.5">
+                                          <Calendar className="h-4 w-4" />
+                                          <span>{date}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                          <div className="rounded-full h-1 w-1 bg-green-400" />
+                                          <span>{time}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {isVideo && link && (
+                                    <Button
+                                      className="bg-green-600 hover:bg-green-700 text-white shrink-0"
+                                      onClick={() => window.open(link.startsWith('http') ? link : `https://${link}`, '_blank')}
+                                    >
+                                      <ExternalLink className="mr-2 h-4 w-4" /> Join Interview
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })()}
+
                           {(application.cover_letter || application.coverLetter) && (
                             <div className="mt-4 pt-4 border-t">
                               <p className="text-sm text-gray-700 line-clamp-2">

@@ -628,6 +628,17 @@ export interface Application {
   // Optional embedded objects from API
   user?: any;
   job?: Job;
+  interviews?: Interview[];
+}
+
+export interface Interview {
+  id: string;
+  userId: string;
+  applicationId: string;
+  interviewType: string;
+  interviewTime: string;
+  interviewDate: string;
+  interviewLink?: string | null;
 }
 
 export interface ApplicationCreateParams {
@@ -771,11 +782,16 @@ export interface Notification {
   isRead: boolean;
   relatedJobId?: string | null;
   relatedApplicationId?: string | null;
-  job?: Job;
+  relatedInstituteId?: string | null;
+  jobTitle?: string | null;
+  instituteName?: string | null;
+  applicantName?: string | null;
   application?: Application;
+  job?: Job;
   type?: string;
   status?: string;
   interviewType?: string;
+  interviewDate?: string;
   interviewTime?: string;
   interviewLink?: string;
 }

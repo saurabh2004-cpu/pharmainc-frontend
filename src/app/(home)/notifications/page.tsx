@@ -230,13 +230,18 @@ const NotificationsPage = () => {
                         timestamp={notification.createdAt}
                         time={formatTimeAgo(notification.createdAt)}
                         read={notification.isRead}
-                        relatedJobId={notification.relatedJobId}
-                        relatedApplicationId={notification.relatedApplicationId}
-                        status={notification.application?.status || (notification.message?.includes('Shortlisted') ? 'SHORTLISTED' : undefined)}
-                        jobTitle={notification.job?.title}
-                        instituteName={notification.job?.institute?.name}
+                        relatedJobId={notification.application?.job?.id || notification.relatedJobId}
+                        relatedApplicationId={notification.application?.id || notification.relatedApplicationId}
+                        relatedInstituteId={notification.application?.job?.institute?.id || notification.relatedInstituteId}
+                        status={notification.status || notification.application?.status}
+                        jobTitle={notification.application?.job?.title}
+                        instituteName={notification.application?.job?.institute?.name}
                         applicantName={notification.application?.user?.name}
-                        applicationId={notification.relatedApplicationId || undefined}
+                        applicationId={notification.application?.id || notification.relatedApplicationId || undefined}
+                        interviewType={notification.interviewType || (notification.application?.additionalDetails as any)?.interviewType}
+                        interviewDate={notification.interviewDate || (notification.application?.additionalDetails as any)?.interviewDate}
+                        interviewTime={notification.interviewTime || (notification.application?.additionalDetails as any)?.interviewTime}
+                        interviewLink={notification.interviewLink || (notification.application?.additionalDetails as any)?.interviewLink}
                       />
                     </div>
                   ))}

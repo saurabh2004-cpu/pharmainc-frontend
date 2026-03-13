@@ -487,9 +487,10 @@ const JobDetailPage = () => {
             {job.shortDescription && (
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-6">
-                  <p className="text-gray-800 leading-relaxed font-medium break-words max-w-full overflow-wrap-anywhere">
-                    {job.shortDescription}
-                  </p>
+                  <p
+                    className="text-gray-800 leading-relaxed font-medium break-words max-w-full"
+                    dangerouslySetInnerHTML={{ __html: job.shortDescription }}
+                  />
                 </CardContent>
               </Card>
             )}
@@ -497,9 +498,9 @@ const JobDetailPage = () => {
             {job.fullDescription && (
               <Card className="bg-blue-50 border-blue-200">
                 <CardContent className="pt-6">
-                  <p className="text-gray-800 leading-relaxed font-medium break-words max-w-full overflow-wrap-anywhere">
-                    {job.fullDescription}
-                  </p>
+                  <p className="text-gray-800 leading-relaxed font-medium break-words max-w-full overflow-wrap-anywhere"
+                    dangerouslySetInnerHTML={{ __html: job.fullDescription }}
+                  />
                 </CardContent>
               </Card>
             )}
@@ -513,9 +514,9 @@ const JobDetailPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 max-w-full overflow-hidden">
-                    <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words overflow-wrap-anywhere">
-                      {job.description}
-                    </p>
+                    <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words overflow-wrap-anywhere"
+                      dangerouslySetInnerHTML={{ __html: job.description }}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -530,9 +531,9 @@ const JobDetailPage = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 max-w-full overflow-hidden">
-                    <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words overflow-wrap-anywhere">
-                      {job.requirements}
-                    </p>
+                    <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words overflow-wrap-anywhere"
+                      dangerouslySetInnerHTML={{ __html: job.requirements }}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -590,9 +591,10 @@ const JobDetailPage = () => {
                   <CardTitle className="text-xl font-semibold">Additional Information</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words max-w-full overflow-wrap-anywhere">
-                    {job.additionalInfo}
-                  </p>
+                  <p className="whitespace-pre-wrap text-gray-700 leading-relaxed break-words max-w-full overflow-wrap-anywhere"
+                    dangerouslySetInnerHTML={{ __html: job.additionalInfo }}
+                  />
+
                 </CardContent>
               </Card>
             )}

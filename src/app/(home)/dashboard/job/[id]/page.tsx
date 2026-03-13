@@ -126,33 +126,33 @@ const JobDetailsPage = () => {
                             )}
                             <section>
                                 <h3 className="text-lg font-semibold mb-2">Description</h3>
-                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words">
-                                    {job.shortDescription}
-                                </div>
+                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words"
+                                    dangerouslySetInnerHTML={{ __html: job.shortDescription }}
+                                />
                             </section>
 
                             <section>
                                 <h3 className="text-lg font-semibold mb-2">Full Description </h3>
-                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words">
-                                    {job.fullDescription}
-                                </div>
+                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words"
+                                    dangerouslySetInnerHTML={{ __html: job.fullDescription }}
+                                />
                             </section>
 
 
 
                             <section>
                                 <h3 className="text-lg font-semibold mb-2">Requirements</h3>
-                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words">
-                                    {job.requirements}
-                                </div>
+                                <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words"
+                                    dangerouslySetInnerHTML={{ __html: job.requirements }}
+                                />
                             </section>
 
                             {job.additionalInfo && (
                                 <section>
                                     <h3 className="text-lg font-semibold mb-2">Additional Information</h3>
-                                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words">
-                                        {job.additionalInfo}
-                                    </div>
+                                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed break-words"
+                                        dangerouslySetInnerHTML={{ __html: job.additionalInfo }}
+                                    />
                                 </section>
                             )}
                         </CardContent>

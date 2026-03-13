@@ -149,6 +149,8 @@ export const getAllApplications = async (jobId: string): Promise<Application[]> 
 
 export const getAllUserApplications = async (userId: string): Promise<Application[]> => {
   const response = await baseApi.get(`/application/get-applications-by-user/${userId}`);
+
+  console.log("getAllUserApplications", response.data);
   return response.data;
 }
 

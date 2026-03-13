@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
-import { Heart, MessageCircle, UserPlus, Briefcase, Check, X, Calendar, UserCheck, AlertCircle } from 'lucide-react'
+import { MessageCircle, UserPlus, Briefcase, Check, X, Calendar, UserCheck } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import Link from 'next/link'
+import Image from 'next/image'
+import { buildNotificationMessage } from '@/lib/utils/notificationUtils'
 
 export interface NotificationItemProps {
   id?: string
@@ -17,6 +20,11 @@ export interface NotificationItemProps {
   read: boolean
   relatedJobId?: string | null
   relatedApplicationId?: string | null
+  relatedInstituteId?: string | null
+  interviewType?: string
+  interviewDate?: string
+  interviewTime?: string
+  interviewLink?: string
   onAccept?: (id: string, applicationId: string) => Promise<void>
   onReject?: (id: string, applicationId: string) => Promise<void>
 }
@@ -27,13 +35,20 @@ export const NotificationItem = ({
   title,
   message,
   timestamp,
-  time, // formatted time passed from parent
+  time,
   status,
   jobTitle,
   instituteName,
   applicantName,
   applicationId,
   read,
+  relatedJobId,
+  relatedApplicationId,
+  relatedInstituteId,
+  interviewType,
+  interviewDate,
+  interviewTime,
+  interviewLink,
   onAccept,
   onReject
 }: NotificationItemProps) => {
@@ -46,9 +61,9 @@ export const NotificationItem = ({
     if (status === 'INTERVIEW_SCHEDULED') return <Calendar className="w-5 h-5 text-blue-500" />;
     if (status?.includes('ACCEPTED')) return <Check className="w-5 h-5 text-green-500" />;
     if (status?.includes('REJECTED')) return <X className="w-5 h-5 text-red-500" />;
-    if (status === 'HIRED') return <UserCheck className="w-5 h-5 text-green-600" />;
+    if (status === 'HIRED') return <Image src="/firework.png" alt="Hired" width={20} height={20} />;
     if (status === 'APPLIED') return <UserPlus className="w-5 h-5 text-blue-500" />;
-    return <MessageCircle className="w-5 h-5 text-gray-500" />; // Default
+    return <MessageCircle className="w-5 h-5 text-gray-500" />;
   }
 
   const getBgColor = () => {
@@ -71,9 +86,20 @@ export const NotificationItem = ({
     }
   }
 
-  // Logic to show Accept/Reject actions
-  // Disabled for the notification list as requested
-  const showActions = false;
+  const displayContent = buildNotificationMessage({
+    status,
+    message,
+    application: {
+      job: {
+        id: (relatedJobId as string),
+        title: jobTitle,
+        institute: {
+          id: (relatedInstituteId as string) || "",
+          name: instituteName
+        }
+      }
+    }
+  } as any);
 
   return (
     <div className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-150 font-sans ${getBgColor()}`}>
@@ -84,16 +110,47 @@ export const NotificationItem = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
-            <div>
+            <div className="flex-1">
               <h4 className="text-sm font-semibold text-gray-900">
                 {title || (instituteName ? `${instituteName}` : 'Notification')}
               </h4>
-              <p className="text-sm text-gray-600 mt-0.5">
-                {message || (jobTitle ? `Update regarding ${jobTitle}` : 'You have a new notification')}
-              </p>
+              <div className="text-sm text-gray-600 mt-0.5">
+                {displayContent}
+              </div>
+
+              {/* Interview Details */}
+              {status === 'INTERVIEW_SCHEDULED' && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-blue-700 mb-2">
+                    <Calendar size={14} />
+                    <span>Interview Details ({interviewType})</span>
+                  </div>
+
+                  {interviewLink ? (
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs text-gray-600">
+                        Date: {interviewDate} | Time: {interviewTime}
+                      </p>
+                      <Link
+                        href={interviewLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors w-fit"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Join Interview
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-700">
+                      The interviewer will call you at {interviewDate} {interviewTime}.
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Context details */}
-              {(jobTitle && instituteName) && (
+              {(jobTitle && instituteName && status !== 'INTERVIEW_SCHEDULED') && (
                 <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
                   <Briefcase size={12} />
                   <span>{jobTitle}</span>
@@ -116,8 +173,8 @@ export const NotificationItem = ({
             </span>
           </div>
 
-          {/* Action Buttons */}
-          {showActions && (
+          {/* Action Buttons for Next Round (if enabled) */}
+          {/* {status === 'NEXT_ROUND_REQUESTED' && !actionTaken && (
             <div className="flex gap-3 mt-3">
               <Button
                 size="sm"
@@ -137,7 +194,7 @@ export const NotificationItem = ({
                 Reject Next Round
               </Button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

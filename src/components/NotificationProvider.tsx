@@ -58,21 +58,45 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     const syncUnreadState = async () => {
       try {
         const unreadNotifications = await fetchUnreadNotifications();
+        console.log("📊 Syncing Unread State:", { count: unreadNotifications?.length });
+
         if (unreadNotifications?.length > 0 && !currentInstitution?.id) {
-          const mappedPopups = unreadNotifications.map(n => ({
-            id: n.id,
-            type: n.type || n.status || 'info',
-            title: n.title,
-            message: n.message,
-            status: n.status,
-            receiverRole: n.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
-            applicationId: n.relatedApplicationId,
-            onClose: removePopup
-          }));
+          const relevantStatuses = [
+            'APPLIED', 'SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'INTERVIEW_SCHEDULED',
+            'INTERVIEW_ACCEPTED', 'HIRED', 'REJECTED', 'NEXT_ROUND_REJECTED', 'NEXT_ROUND_ACCEPTED'
+          ];
+
+          const mappedPopups = unreadNotifications
+            .filter(n => {
+              const status = n.status || n.type;
+              const isRelevant = relevantStatuses.includes(status || '');
+              console.log(`Checking unread notification relevance: id=${n.id}, status=${status}, isRelevant=${isRelevant}`);
+              return isRelevant;
+            })
+            .map(n => ({
+              id: n.id,
+              type: n.type || n.status || 'info',
+              title: n.title,
+              message: n.message,
+              status: n.status,
+              receiverRole: n.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
+              applicationId: n.relatedApplicationId || n.application?.id,
+              relatedJobId: n.relatedJobId || n.application?.job?.id,
+              relatedInstituteId: n.relatedInstituteId || n.application?.job?.institute?.id,
+              jobTitle: n.jobTitle || n.application?.job?.title,
+              instituteName: n.instituteName || n.application?.job?.institute?.name,
+              applicantName: n.application?.user?.firstName ? `${n.application.user.firstName} ${n.application.user.lastName || ''}` : (n.applicantName || n.application?.user?.name),
+              interviewType: n.interviewType || n.application?.additionalDetails?.interviewType,
+              interviewDate: n.interviewDate || n.application?.additionalDetails?.interviewDate,
+              interviewTime: n.interviewTime || n.application?.additionalDetails?.interviewTime,
+              interviewLink: n.interviewLink || n.application?.additionalDetails?.interviewLink,
+              onClose: removePopup
+            }));
 
           setActivePopups(prev => {
             const existingIds = new Set(prev.map(p => p.id));
             const newPopups = mappedPopups.filter(p => !existingIds.has(p.id));
+            console.log("🆕 Adding new unread popups:", newPopups.length);
             newPopups.forEach(p => processedIds.current.add(p.id));
             return [...prev, ...newPopups];
           });
@@ -125,35 +149,44 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
           const onNotification = async (data: any, statusPayload?: any) => {
             const currentStatus = statusPayload || data.status || data.type;
+            console.log("🔔 Notification Received:", { 
+              status: currentStatus, 
+              title: data.title, 
+              receiverRole: data.receiverRole,
+              applicationId: data.application?.id || data.applicationId
+            });
 
-            console.log("notification data in provider", data)
-
+            const additionalDetails = data.application?.additionalDetails as any;
+            
             const notification: Notification = {
+              ...data,
               id: data.id || Math.random().toString(36).substr(2, 9),
-              createdAt: data.timestamp || new Date().toISOString(),
+              createdAt: data.createdAt || data.timestamp || new Date().toISOString(),
               receiverId: entityId,
               receiverRole: data.receiverRole || (isInstitute ? 'INSTITUTE' : 'USER'),
               title: data.title || 'New Notification',
               message: data.message || '',
-              isRead: false,
-              relatedJobId: data.jobId || data.relatedJobId || null,
-              relatedApplicationId: data.applicationId || data.relatedApplicationId || null,
+              isRead: data.isRead || false,
+              relatedJobId: data.application?.job?.id || data.jobId || data.relatedJobId || null,
+              relatedApplicationId: data.application?.id || data.applicationId || data.relatedApplicationId || null,
+              relatedInstituteId: data.application?.job?.institute?.id || data.relatedInstituteId || data.job?.institute?.id || null,
+              jobTitle: data.application?.job?.title || data.jobTitle || data.application?.job?.title || null,
+              instituteName: data.application?.job?.institute?.name || data.instituteName || data.application?.job?.institute?.name || null,
+              applicantName: data.application?.user?.firstName ? `${data.application.user.firstName} ${data.application.user.lastName || ''}` : (data.application?.user?.name || data.applicantName || null),
               type: data.type,
               status: currentStatus,
-              interviewType: data.interviewType,
-              interviewTime: data.interviewTime,
-              interviewLink: data.interviewLink
+              interviewType: data.interviewType || additionalDetails?.interviewType,
+              interviewDate: data.interviewDate || additionalDetails?.interviewDate,
+              interviewTime: data.interviewTime || additionalDetails?.interviewTime,
+              interviewLink: data.interviewLink || additionalDetails?.interviewLink
             };
 
-            if (isInstitute && !data.applicantName && (data.applicantId || data.userId)) {
+            if (isInstitute && !notification.applicantName && (data.applicantId || data.userId)) {
               try {
                 const idToFetch = data.applicantId || data.userId;
                 const user = await getUserById(idToFetch);
                 if (user) {
-                  const applicantName = user.name;
-                  if (notification.message && notification.message.includes(idToFetch)) {
-                    notification.message = notification.message.replace(idToFetch, applicantName);
-                  }
+                  notification.applicantName = user.name;
                 }
               } catch (e) {
                 console.error("Failed to fetch applicant details:", e);
@@ -169,30 +202,40 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
             const status = statusPayload || data.status || data.type;
 
             if (notification.message) {
-              if (isInstitute) {
-                toast.info(notification.message);
-              } else {
                 const relevantStatuses = [
-                  'SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'INTERVIEW_SCHEDULED',
-                  'INTERVIEW_ACCEPTED', 'HIRED', 'REJECTED', 'NEXT_ROUND_REJECTED'
+                  'APPLIED', 'SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'INTERVIEW_SCHEDULED',
+                  'INTERVIEW_ACCEPTED', 'HIRED', 'REJECTED', 'NEXT_ROUND_REJECTED', 'NEXT_ROUND_ACCEPTED'
                 ];
-                if (relevantStatuses.includes(status)) {
+                
+                console.log(`[onNotification] Checking relevance: status=${status}, role=${notification.receiverRole}, isRelevant=${relevantStatuses.includes(status)}`);
+                
+                if (relevantStatuses.includes(status) && !isInstitute) {
+                  console.log(`[onNotification] Adding POPUP for ${status}`);
                   setActivePopups(prev => [{
                     id: notification.id,
-                    type: notification.type || notification.status || 'info',
+                    type: notification.type || status || 'info',
                     title: notification.title,
                     message: notification.message,
-                    status: notification.status,
+                    status: status,
                     receiverRole: notification.receiverRole === 'INSTITUTE' ? 'INSTITUTE' : 'USER',
                     applicationId: notification.relatedApplicationId,
+                    relatedJobId: notification.relatedJobId,
+                    relatedInstituteId: notification.relatedInstituteId,
+                    jobTitle: notification.jobTitle,
+                    instituteName: notification.instituteName,
+                    applicantName: notification.applicantName,
                     interviewType: notification.interviewType,
+                    interviewDate: notification.interviewDate,
                     interviewTime: notification.interviewTime,
                     interviewLink: notification.interviewLink,
                     onClose: removePopup
                   }, ...prev]);
                 }
-                toast.info(notification.message);
-              }
+                
+                // Also conditionally show toast based on role
+                if (!isInstitute) {
+                    toast.info(notification.message);
+                }
             }
           };
 
