@@ -16,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Application, Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
 import { buildImageUrl } from '@/utils/buildImageUrl';
+import { generateSlug } from '@/lib/utils/slug';
 import {
   ArrowLeft,
   Search,
@@ -629,7 +630,7 @@ const AppliedJobsPage = () => {
                               {/* Institute now directly finalizes after scheduling */}
 
                               <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${application.jobTitle?.split(' ').join('-')}?id=${application.jobId}`)}>
+                                <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${generateSlug(application.job as Job)}`)}>
                                   <Eye className="mr-1 h-4 w-4" /> View Job
                                 </Button>
                                 {(application.resume_url || application.resumeUrl) && (

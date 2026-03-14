@@ -24,5 +24,6 @@ export const generateSlug = (job: Job) => {
 
     ];
 
-    return parts.filter(Boolean).join("-");
+    const slug = parts.filter(Boolean).join("-");
+    return `${slug}-${job.id}`;
 };

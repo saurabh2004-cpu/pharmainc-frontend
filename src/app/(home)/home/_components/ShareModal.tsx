@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Post } from "./types";
 import { CopyIcon, Link2Icon, MessageCircle } from "lucide-react";
 import { BiLogoLinkedin, BiLogoTwitter } from "react-icons/bi";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -26,12 +27,10 @@ export default function ShareModal({ isOpen, onClose, post }: ShareModalProps) {
   const shareText = `Check out what ${post.author} is saying on Pharminc : ${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}`;
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(postUrl);
+    const success = await copyToClipboard(postUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy link:', error);
     }
   };
 

@@ -13,7 +13,7 @@ export const buildNotificationMessage = (notification: Notification) => {
   const JobLink = ({ title }: { title: string }) => (
     jobId ? (
       <Link
-        href={`/find-jobs/${title.split(' ').join('-')}?id=${jobId}`}
+        href={`/find-jobs/${title.split(' ').join('-').toLowerCase()}-${jobId}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:underline font-semibold"

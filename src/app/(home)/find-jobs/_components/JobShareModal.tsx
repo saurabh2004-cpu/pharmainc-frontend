@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CopyIcon, Link2Icon, MessageCircle } from "lucide-react";
 import { BiLogoLinkedin, BiLogoTwitter } from "react-icons/bi";
 import { Job, Institution } from "@/lib/api/types";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 interface JobShareModalProps {
   isOpen: boolean;
@@ -21,16 +22,14 @@ interface JobShareModalProps {
 export default function JobShareModal({ isOpen, onClose, job }: JobShareModalProps) {
   const [copied, setCopied] = useState(false);
 
-  const jobUrl = `${window.location.origin}/find-jobs/${job.id}`;
+  const jobUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Check out this job opportunity: ${job.title} at ${job.institute?.name || 'Healthcare Institute'} on Pharminc`;
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(jobUrl);
+    const success = await copyToClipboard(jobUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy link:', error);
     }
   };
 

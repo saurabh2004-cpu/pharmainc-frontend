@@ -10,6 +10,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent } from '@/components/ui/card';
 import { Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
+import { generateSlug } from '@/lib/utils/slug';
 import { buildImageUrl } from '@/utils/buildImageUrl';
 import {
   ArrowLeft,
@@ -348,7 +349,7 @@ const SavedJobsPage = () => {
                   <Card
                     key={job.savedJobId || job.id}
                     className="hover:shadow-md transition-shadow cursor-pointer group"
-                    onClick={() => router.push(`/find-jobs/${job.jobId || job.id}`)}
+                    onClick={() => router.push(`/find-jobs/${generateSlug(job as Job)}`)}
                   >
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">

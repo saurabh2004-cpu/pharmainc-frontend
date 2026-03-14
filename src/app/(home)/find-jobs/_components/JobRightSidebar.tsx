@@ -4,6 +4,7 @@ import { CheckCircle, FileText, Bookmark, MessageSquare, Building2, Clock, MapPi
 import { Job, Institution, ApplicationStats } from '@/lib/api/types';
 import { getRecommendedJobs } from '@/lib/api/services/job';
 import { getUserApplicationStats } from '@/lib/api/services/application';
+import { generateSlug } from '@/lib/utils/slug';
 
 interface JobWithInstitution extends Job {
   institution?: Institution;
@@ -290,7 +291,7 @@ const JobRightSidebar: React.FC<JobRightSidebarProps> = ({
                     {recommendedJobs.slice(0, 5).map((job) => (
                       <div
                         key={job.id}
-                        onClick={() => router.push(`/find-jobs/${job.id}`)}
+                        onClick={() => router.push(`/find-jobs/${generateSlug(job)}`)}
                         className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
                       >
                         <div className="text-sm font-medium text-gray-900 mb-1 line-clamp-1">{job.title}</div>

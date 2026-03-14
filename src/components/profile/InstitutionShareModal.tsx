@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CopyIcon, Link2Icon, MessageCircle, Share2Icon } from "lucide-react";
 import { BiLogoLinkedin, BiLogoTwitter } from "react-icons/bi";
 import { Institution } from "@/lib/api";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 interface InstitutionShareModalProps {
   isOpen: boolean;
@@ -21,16 +22,14 @@ interface InstitutionShareModalProps {
 export default function InstitutionShareModal({ isOpen, onClose, institution }: InstitutionShareModalProps) {
   const [copied, setCopied] = useState(false);
   
-  const institutionUrl = `${window.location.origin}/institute/${institution.id}`;
+  const institutionUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Check out ${institution.name}'s profile on PharmInc - ${institution.type} in ${institution.location}`;
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(institutionUrl);
+    const success = await copyToClipboard(institutionUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy link:', error);
     }
   };
 

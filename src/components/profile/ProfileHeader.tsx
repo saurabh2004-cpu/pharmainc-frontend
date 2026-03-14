@@ -54,6 +54,7 @@ import {
 import { getLinks, createLinks } from "@/lib/api/services/userProfile";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 interface ProfileHeaderProps {
     user: User | null;
@@ -489,16 +490,18 @@ export const ProfileHeader = ({
 
     const getProfileUrl = () => {
         if (typeof window === "undefined") return "";
-        const id = institution ? displayInstitution?.id : displayUser?.id;
-        if (!id) return "";
-        return `${window.location.origin}/profile/${id}`;
+        return window.location.href;
     };
 
-    const handleCopyLink = () => {
+    const handleCopyLink = async () => {
         const url = getProfileUrl();
         if (url) {
-            navigator.clipboard.writeText(url);
-            toast.success("Profile link copied!");
+            const success = await copyToClipboard(url);
+            if (success) {
+                toast.success("Profile link copied!");
+            } else {
+                toast.error("Failed to copy link");
+            }
         }
     };
 

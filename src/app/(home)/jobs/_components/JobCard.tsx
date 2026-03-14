@@ -56,7 +56,7 @@ const JobCard = ({ job }: JobCardProps) => {
 
   const handleCardClick = () => {
     const slug = generateSlug(job);
-    router.push(`/find-jobs/${slug}?id=${job.id}`);
+    router.push(`/find-jobs/${slug}`);
   };
 
   const handleApplyClick = (e: React.MouseEvent) => {

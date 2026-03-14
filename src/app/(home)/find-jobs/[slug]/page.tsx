@@ -70,10 +70,12 @@ const JobDetailPage = () => {
   const router = useRouter();
   const params = useParams();
   const jobSlug = params.slug as string;
-  // const jobId = jobSlug; // use slug directly as the job ID
-
-  const searchParams = useSearchParams();
-  const jobId = searchParams.get("id");
+  
+  // Extract ID from slug (UUIDs have 4 dashes, so they take up the last 5 parts of the split)
+  const slugParts = jobSlug.split("-");
+  const jobId = slugParts.length >= 5 
+    ? slugParts.slice(-5).join("-") 
+    : jobSlug;
 
 
   const { fetchSingleJob } = useJobStore();

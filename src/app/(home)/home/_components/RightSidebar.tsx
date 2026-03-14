@@ -7,6 +7,7 @@ import { MapPin, Building2, Clock } from "lucide-react";
 import { getUserType } from "@/lib/api/utils";
 import { listJobs } from "@/lib/api/services/job";
 import { Job, Institution } from "@/lib/api/types";
+import { generateSlug } from "@/lib/utils/slug";
 
 interface JobWithInstitution extends Job {
   institution?: Institution;
@@ -32,7 +33,7 @@ const JobCard: React.FC<JobCardProps> = ({ job }) => {
   };
 
   const handleCardClick = () => {
-    router.push(`/find-jobs/${job.id}`);
+    router.push(`/find-jobs/${generateSlug(job)}`);
   };
 
   return (

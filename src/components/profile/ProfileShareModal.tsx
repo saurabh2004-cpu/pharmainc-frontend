@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CopyIcon, Link2Icon, MessageCircle, Share2Icon } from "lucide-react";
 import { BiLogoLinkedin, BiLogoTwitter } from "react-icons/bi";
 import { User } from "@/lib/api";
+import { copyToClipboard } from "@/lib/utils/clipboard";
 
 interface ProfileShareModalProps {
   isOpen: boolean;
@@ -24,19 +25,17 @@ export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShar
 
   useState(() => {
     if (typeof window !== "undefined") {
-      setProfileUrl(`${window.location.origin}/profile/${user.id}`);
+      setProfileUrl(window.location.href);
     }
   });
 
   const shareText = `Check out ${user.name}'s professional profile on PharmInc`;
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(profileUrl);
+    const success = await copyToClipboard(profileUrl);
+    if (success) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy link:', error);
     }
   };
 

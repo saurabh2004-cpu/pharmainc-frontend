@@ -11,6 +11,7 @@ import { UserAvatar } from '@/components/UserAvatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Job, Institution } from '@/lib/api/types';
 import JobRightSidebar from '../_components/JobRightSidebar';
+import { generateSlug } from '@/lib/utils/slug';
 import {
     ArrowLeft,
     Search,
@@ -324,7 +325,7 @@ const SavedJobsPage = () => {
                         ) : (
                             <div className="space-y-4">
                                 {paginatedJobs.map((job) => (
-                                    <Card key={job.savedJobId || job.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/find-jobs/${job.jobId || job.id}`)}>
+                                    <Card key={job.savedJobId || job.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/find-jobs/${generateSlug(job as Job)}`)}>
                                         <CardContent className="p-6">
                                             <div className="flex items-start gap-4">
                                                 <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg" />
