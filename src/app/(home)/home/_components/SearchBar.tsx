@@ -103,7 +103,7 @@ export default function SearchBar() {
                          user.role?.toLowerCase().includes('company')
     
     if (isInstitution) {
-      router.push(`/institute/${user.id}`)
+      router.push(`/institute-details/${user.id}`)
     } else {
       router.push(`/profile/${user.id}`)
     }
@@ -112,7 +112,7 @@ export default function SearchBar() {
   }
 
   const handleInstitutionClick = (institution: Institution) => {
-    router.push(`/institute/${institution.id}`)
+    router.push(`/institute-details/${institution.id}`)
     setSearchOpen(false)
   }
 

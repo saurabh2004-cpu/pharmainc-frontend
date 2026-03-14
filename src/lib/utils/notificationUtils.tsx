@@ -27,7 +27,7 @@ export const buildNotificationMessage = (notification: Notification) => {
   const InstituteLink = ({ name }: { name: string }) => (
     instituteId ? (
       <Link
-        href={`/institute/${instituteId}`}
+        href={`/institute-details/${instituteId}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:underline font-semibold"
