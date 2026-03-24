@@ -643,7 +643,7 @@ const JobDetailPage = () => {
 
                   {matchedFields.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-gray-100">
-                      <div className="text-sm font-semibold text-gray-700 mb-3 text-left">Matching Alignments:</div>
+                      <div className="text-sm font-semibold text-gray-700 mb-3 text-center">Matching Alignments:</div>
                       <div className="flex flex-wrap gap-2 justify-center">
                         {matchedFields.map((field, idx) => (
                           <Badge key={idx} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
