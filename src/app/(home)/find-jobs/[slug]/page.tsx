@@ -70,11 +70,11 @@ const JobDetailPage = () => {
   const router = useRouter();
   const params = useParams();
   const jobSlug = params.slug as string;
-  
+
   // Extract ID from slug (UUIDs have 4 dashes, so they take up the last 5 parts of the split)
   const slugParts = jobSlug.split("-");
-  const jobId = slugParts.length >= 5 
-    ? slugParts.slice(-5).join("-") 
+  const jobId = slugParts.length >= 5
+    ? slugParts.slice(-5).join("-")
     : jobSlug;
 
 
@@ -94,6 +94,7 @@ const JobDetailPage = () => {
   const isBookmarked = jobId ? isJobSaved(jobId) : false;
 
   const [matchingScore, setMatchingScore] = useState<number | null>(null);
+  const [matchedFields, setMatchedFields] = useState<string[]>([]);
   const [jobStats, setJobStats] = useState<any>(null);
   const [jobSkills, setJobSkills] = useState<string[]>([]);
   const [isMounted, setIsMounted] = useState(false);
@@ -132,6 +133,7 @@ const JobDetailPage = () => {
           if (result) {
             setJob(result.job);
             setMatchingScore(result.matchingScore);
+            setMatchedFields(result.matchedFields || []);
             setJobSkills(extractSkills(result.job.description || ''));
 
 
@@ -297,7 +299,7 @@ const JobDetailPage = () => {
             <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
               <Briefcase className="h-4 w-4 text-white" />
             </div>
-            <span className="font-semibold">{job.title}</span>
+            <span className="font-semibold uppercase">{job.title}</span>
           </div>
         </div>
 
@@ -306,7 +308,7 @@ const JobDetailPage = () => {
             <>
               <button
                 onClick={handleBookmark}
-                className="p-2 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-full hover:bg-gray-100 "
               >
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-blue-500 text-blue-500' : 'text-gray-400'}`} />
               </button>
@@ -314,7 +316,7 @@ const JobDetailPage = () => {
               {!currentUser ? (
                 <Button
                   onClick={() => router.push(`/auth?type=signin&redirectTo=/find-jobs/${jobSlug}`)}
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6"
+                  className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6"
                 >
                   Login to Apply
                 </Button>
@@ -322,7 +324,7 @@ const JobDetailPage = () => {
                 hasAlreadyApplied ? (
                   <Button
                     disabled
-                    className="bg-green-500 text-white font-medium px-6 cursor-not-allowed opacity-80"
+                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6 cursor-not-allowed opacity-80"
                   >
                     <CheckCircle className="mr-2 h-4 w-4" />
                     APPLIED
@@ -331,7 +333,7 @@ const JobDetailPage = () => {
                   <Button
                     onClick={handleApply}
                     disabled={isApplying}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-6 disabled:opacity-60"
+                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6 disabled:opacity-60"
                   >
                     {isApplying ? 'Checking...' : 'APPLY NOW →'}
                   </Button>
@@ -393,7 +395,7 @@ const JobDetailPage = () => {
                   className={`w-20 h-20 bg-black rounded-2xl flex items-center justify-center flex-shrink-0 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-blue-200 transition-all duration-200' : ''}`}
                   title={isUser ? 'Click to view institute profile' : ''}
                 >
-                  <span className="text-white text-2xl font-bold">
+                  <span className="text-white text-2xl font-bold uppercase">
                     {job.institute?.name ? getInitials(job.institute.name) : getInitials(job.title)}
                   </span>
                 </div>
@@ -413,7 +415,7 @@ const JobDetailPage = () => {
                   <span className="text-sm text-gray-500">{formatTimeAgo(job.created_at)}</span>
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-3 leading-tight">
+                <h1 className="text-3xl font-bold text-gray-900 mb-3 leading-tight uppercase">
                   {job.title}
                 </h1>
 
@@ -638,6 +640,20 @@ const JobDetailPage = () => {
                         matchingScore >= 50 ? "FAIR MATCH" : "POOR MATCH"}
                   </div>
                   <div className="text-sm text-gray-500 font-medium">Matching Score</div>
+
+                  {matchedFields.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-100">
+                      <div className="text-sm font-semibold text-gray-700 mb-3 text-left">Matching Alignments:</div>
+                      <div className="flex flex-wrap gap-2 justify-center">
+                        {matchedFields.map((field, idx) => (
+                          <Badge key={idx} variant="secondary" className="bg-green-50 text-green-700 border-green-200">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            {field}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                 </CardContent>
               </Card>

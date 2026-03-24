@@ -234,7 +234,7 @@ export const PostedJobsTab = () => {
               placeholder="Search posted jobs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-[#169BA4]"
             />
           </div>
           <Select
@@ -267,7 +267,7 @@ export const PostedJobsTab = () => {
           {loading ? (
             <div className="flex items-center justify-center p-8">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#169BA4] mx-auto mb-2"></div>
                 <p className="text-sm text-gray-600">Loading jobs...</p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export const PostedJobsTab = () => {
 
                         <TableCell>
                           <h3
-                            className="font-bold text-base leading-tight text-gray-900 hover:text-blue-600 transition-colors cursor-pointer truncate"
+                            className="font-bold text-base leading-tight text-gray-900 hover:text-[#169BA4] transition-colors cursor-pointer truncate"
                             onClick={() => router.push(`/dashboard/job/${job.id}`)}
                             title="View Job Details"
                           >
@@ -326,7 +326,7 @@ export const PostedJobsTab = () => {
 
                         <TableCell>
                           <div
-                            className="font-medium text-base leading-tight text-gray-900 hover:text-blue-600 transition-colors cursor-pointer truncate"
+                            className="font-medium text-base leading-tight text-gray-900 hover:text-[#169BA4] transition-colors cursor-pointer truncate"
                             title="View Job Details"
                           >
                             {job.role}
@@ -402,7 +402,7 @@ export const PostedJobsTab = () => {
                               <Badge variant="secondary" className="font-semibold">
                                 {job.applicationsCount || 0}
                               </Badge>
-                              <Users className="w-4 h-4 text-gray-600 hover:text-blue-600" />
+                              <Users className="w-4 h-4 text-gray-600 hover:text-[#169BA4]" />
                             </Button>
 
                             <DropdownMenu>
@@ -410,7 +410,7 @@ export const PostedJobsTab = () => {
                                 <Button
                                   size="sm"
                                   variant="ghost"
-                                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                  className="p-2 hover:bg-[#169BA4] rounded-full transition-colors"
                                   title="Actions"
                                 >
                                   <MoreVertical className="w-4 h-4 text-gray-600" />
@@ -419,22 +419,22 @@ export const PostedJobsTab = () => {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                   onClick={() => router.push(`/dashboard/job/${job.id}`)}
-                                  className="cursor-pointer group"
+                                  className="cursor-pointer group hover:text-white hover:bg-[#169BA4]"
                                 >
-                                  <FileText className="w-4 h-4 mr-2 text-gray-600 group-hover:text-blue-600" />
+                                  <FileText className="w-4 h-4 mr-2 text-gray-600 group-hover:text-white" />
                                   View
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => router.push(`/dashboard/job/${job.id}/edit`)}
-                                  className="cursor-pointer group"
+                                  className="cursor-pointer group hover:bg-[#169BA4]"
                                 >
-                                  <FaEdit className="w-4 h-4 mr-2 text-gray-600 group-hover:text-green-600" />
+                                  <FaEdit className="w-4 h-4 mr-2 text-gray-600 group-hover:text-green-600 group-hover:text-white" />
                                   Edit
                                 </DropdownMenuItem>
                                 {job.status === 'expired' && (
                                   <DropdownMenuItem
                                     onClick={() => setJobToRenew(job)}
-                                    className="cursor-pointer group text-amber-700 focus:text-amber-800 focus:bg-amber-50"
+                                    className="cursor-pointer group text-amber-700 focus:text-amber-800 focus:bg-amber-50 bg-[#233F64] hover:bg-[#169BA4]"
                                   >
                                     <RefreshCw className="w-4 h-4 mr-2" />
                                     Renew Job
@@ -499,7 +499,7 @@ export const PostedJobsTab = () => {
                 handleRenewConfirm()
               }}
               disabled={renewing}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-[#169BA4] hover:bg-[#169BA4]/90"
             >
               {renewing ? (
                 <>

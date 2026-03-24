@@ -98,7 +98,7 @@ export const ProfileSectionModal: React.FC<ProfileSectionModalProps> = ({
 
     const handleValueChange = (name: string, value: string) => {
         setFormData((prev: any) => ({ ...prev, [name]: value }));
-        
+
         // If country changes, clear the city
         if (name === 'country') {
             setFormData((prev: any) => ({ ...prev, city: '' }));
@@ -191,10 +191,10 @@ export const ProfileSectionModal: React.FC<ProfileSectionModalProps> = ({
                     ))}
 
                     <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" type="button" onClick={onClose} disabled={isLoading}>
+                        <Button variant="outline" type="button" onClick={onClose} disabled={isLoading} className='bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white'>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={isLoading}>
+                        <Button type="submit" disabled={isLoading} className='bg-[#233F64] hover:bg-[#169BA4] hover:text-white'>
                             {isLoading ? "Saving..." : "Save"}
                         </Button>
                     </div>

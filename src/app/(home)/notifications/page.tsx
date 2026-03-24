@@ -190,21 +190,21 @@ const NotificationsPage = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="p-4 border-b border-gray-100">
-          <TabsList className="grid w-full grid-cols-2 bg-gray-50 border border-gray-200 rounded-full p-1">
+          <TabsList className="grid w-full grid-cols-1 bg-gray-50 border border-gray-200 rounded-full p-1">
             <TabsTrigger
               value="all"
-              className="flex items-center space-x-2 rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              className="flex items-center space-x-2 rounded-full data-[state=active]:bg-[#233F64]  data-[state=active]:text-white"
             >
               <Bell className="w-4 h-4" />
               <span>All</span>
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="general"
               className="flex items-center space-x-2 rounded-full data-[state=active]:bg-blue-500 data-[state=active]:text-white"
             >
               <MessageCircle className="w-4 h-4" />
               <span>General</span>
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
         </div>
 

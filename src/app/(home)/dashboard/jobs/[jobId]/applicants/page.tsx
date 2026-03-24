@@ -283,11 +283,11 @@ const JobApplicationsPage = () => {
     const handleConfirmAction = async () => {
         if (!confirmAction.appId || !confirmAction.type) return;
         const { appId, type } = confirmAction;
-        
+
         // Optimistically close modal, or keep it open with loading?
         // Let's close it and let the row show loading
         setConfirmAction({ type: null, appId: null });
-        
+
         if (type === 'HIRE') {
             await executeHire(appId);
         } else {
@@ -433,7 +433,7 @@ const JobApplicationsPage = () => {
                     <div className="flex gap-2 justify-end">
                         <Button
                             size="sm"
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            className="bg-[#169BA4] hover:bg-[#169BA4]/90 text-white"
                             onClick={() => handleShortlist(app.id)}
                             disabled={loading}
                         >
@@ -453,7 +453,7 @@ const JobApplicationsPage = () => {
                 return (
                     <Button
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-[#169BA4] hover:bg-[#169BA4]/90 text-white"
                         onClick={() => handleRequestNextRound(app.id)}
                         disabled={loading}
                     >
@@ -464,7 +464,7 @@ const JobApplicationsPage = () => {
                 return (
                     <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
+                        className="bg-[#169BA4] hover:bg-[#169BA4]/90 text-white"
                         onClick={() => handleScheduleInterviewClick(app.id)}
                         disabled={loading}
                     >
@@ -531,7 +531,7 @@ const JobApplicationsPage = () => {
     }
 
     return (
-        <div className="py-6 max-w-7xl mx-auto space-y-6">
+        <div className="py-6 px-3 mx-auto space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
@@ -563,12 +563,12 @@ const JobApplicationsPage = () => {
                             className={`
                                 flex flex-col items-center justify-center p-4 rounded-lg border transition-all duration-200
                                 ${isActive
-                                    ? 'border-green-600 bg-green-50 text-green-700 shadow-sm ring-1 ring-green-600'
-                                    : 'border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50/50'
+                                    ? 'border-[#169BA4] bg-[#169BA4]/5 text-[#169BA4] shadow-sm ring-1 ring-[#169BA4]'
+                                    : 'border-gray-200 bg-white text-gray-600 hover:border-[#169BA4] hover:bg-[#169BA4]/5'
                                 }
                             `}
                         >
-                            <span className={`text-2xl font-bold mb-1 ${isActive ? 'text-green-700' : 'text-gray-700'}`}>
+                            <span className={`text-2xl font-bold mb-1 ${isActive ? 'text-[#169BA4]' : 'text-gray-700'}`}>
                                 {count}
                             </span>
                             <span className="text-sm font-medium">
@@ -584,7 +584,7 @@ const JobApplicationsPage = () => {
                 <div className="relative w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
-                        className="w-full pl-9 pr-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-9 pr-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-[#169BA4]"
                         placeholder="Search by name, email, or position..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -660,7 +660,7 @@ const JobApplicationsPage = () => {
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                            className="h-8 w-8 p-0 text-[#169BA4] hover:text-[#169BA4]/80 hover:bg-[#169BA4]/10"
                                                             onClick={() => handleViewApplication(app)}
                                                             title="View Details"
                                                         >
@@ -755,15 +755,15 @@ const JobApplicationsPage = () => {
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">
-                        <Button 
-                            variant="outline" 
+                        <Button
+                            variant="outline"
                             onClick={() => setConfirmAction({ type: null, appId: null })}
                         >
                             Cancel
                         </Button>
-                        <Button 
+                        <Button
                             variant={confirmAction.type === 'HIRE' ? 'default' : 'destructive'}
-                            className={confirmAction.type === 'HIRE' ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}
+                            className={confirmAction.type === 'HIRE' ? 'bg-[#169BA4] hover:bg-[#169BA4]/90 text-white' : ''}
                             onClick={handleConfirmAction}
                         >
                             {confirmAction.type === 'HIRE' ? 'Confirm Hire' : 'Confirm Reject'}

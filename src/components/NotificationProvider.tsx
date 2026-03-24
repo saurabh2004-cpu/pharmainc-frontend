@@ -9,10 +9,10 @@ import { toast } from "sonner"
 import { getUserById } from '@/lib/api'
 import { Notification } from '@/lib/api/types'
 import { NotificationStack } from './notifications/NotificationStack'
+import { useCurrentEntity } from '@/lib/utils/entityUtils'
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const { currentUser } = useUserStore()
-  const { currentInstitution } = useInstitutionStore()
+  const { currentEntity } = useCurrentEntity()
   const {
     fetchNotifications,
     addOptimisticNotification,
@@ -60,7 +60,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         const unreadNotifications = await fetchUnreadNotifications();
         console.log("📊 Syncing Unread State:", { count: unreadNotifications?.length });
 
-        if (unreadNotifications?.length > 0 && !currentInstitution?.id) {
+        if (unreadNotifications?.length > 0 && currentEntity?.role !== 'HOSPITAL' && currentEntity?.role !== 'CLINIC' && currentEntity?.role !== 'LAB' && currentEntity?.role !== 'PHARMACY') {
           const relevantStatuses = [
             'APPLIED', 'SHORTLISTED', 'NEXT_ROUND_REQUESTED', 'INTERVIEW_SCHEDULED',
             'INTERVIEW_ACCEPTED', 'HIRED', 'REJECTED', 'NEXT_ROUND_REJECTED', 'NEXT_ROUND_ACCEPTED'
@@ -110,8 +110,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
     const initializeNotifications = async () => {
       const token = getAuthToken()
-      const entityId = currentInstitution?.id || currentUser?.id;
-      const isInstitute = !!currentInstitution?.id;
+      const entityId = currentEntity?.id;
+      const isInstitute = currentEntity?.role === 'HOSPITAL' || currentEntity?.role === 'CLINIC' || currentEntity?.role === 'LAB' || currentEntity?.role === 'PHARMACY';
 
       if (token && entityId) {
         await fetchNotifications();
@@ -264,7 +264,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
     return () => {
       if (cleanupFn) cleanupFn();
     }
-  }, [currentUser?.id, currentInstitution?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount, fetchUnreadNotifications, removePopup, fetchUnreadMessagesCount, incrementUnreadCount])
+  }, [currentEntity?.id, fetchNotifications, addOptimisticNotification, fetchUnreadCount, fetchUnreadNotifications, removePopup, fetchUnreadMessagesCount, incrementUnreadCount])
 
   return (
     <>

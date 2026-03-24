@@ -34,8 +34,8 @@ const InstituteVerificationModal = ({ isOpen, onClose }: InstituteVerificationMo
                     {/* Header */}
                     <div className="relative p-6 border-b border-gray-100">
                         <div className="flex items-start gap-4">
-                            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-                                <ShieldCheck className="w-6 h-6 text-blue-600" />
+                            <div className="w-12 h-12 rounded-full bg-[#169BA4]/10 flex items-center justify-center flex-shrink-0">
+                                <ShieldCheck className="w-6 h-6 text-[#169BA4]" />
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h2 className="text-xl font-bold text-gray-900 mb-1">
@@ -57,7 +57,7 @@ const InstituteVerificationModal = ({ isOpen, onClose }: InstituteVerificationMo
 
                     {/* Body */}
                     <div className="p-6">
-                        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6">
+                        <div className="bg-[#169BA4]/5 border border-[#169BA4]/20 rounded-xl p-4 mb-6">
                             <p className="text-sm text-gray-700 leading-relaxed">
                                 You must verify your institute before posting jobs. This ensures the safety and quality of job listings on our platform.
                             </p>
@@ -91,7 +91,7 @@ const InstituteVerificationModal = ({ isOpen, onClose }: InstituteVerificationMo
                             </Button>
                             <Button
                                 onClick={handleVerifyNow}
-                                className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                                className="flex-1 h-11 bg-[#169BA4] hover:bg-[#169BA4]/90 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200"
                             >
                                 Verify Now →
                             </Button>

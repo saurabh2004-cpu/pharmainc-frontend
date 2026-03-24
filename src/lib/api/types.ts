@@ -520,6 +520,7 @@ export interface JobSearchParams {
 
 export interface GetJobResponse extends Job {
   matchingScore: number | null;
+  matchedFields?: string[];
   job: Job;
 }
 

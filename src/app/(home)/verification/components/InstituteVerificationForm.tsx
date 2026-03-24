@@ -73,7 +73,7 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
             const inst = entity as Institution;
             const country = inst.country || "India";
             const dialCode = countryCodes[country] || "";
-            
+
             if (dialCode) {
                 form.reset({
                     ...form.getValues(),
@@ -265,7 +265,7 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
                             type="submit"
                             size="lg"
                             disabled={isSubmitting}
-                            className="w-full md:w-auto px-12 h-14 text-base font-bold shadow-lg shadow-blue-500/20 translate-y-0 active:translate-y-0.5 transition-all"
+                            className="w-full md:w-auto px-12 h-14 text-base font-bold shadow-lg shadow-blue-500/20 translate-y-0 active:translate-y-0.5 transition-all bg-[#233F64] hover:bg-[#169BA4]"
                         >
                             {isSubmitting ? (
                                 <>

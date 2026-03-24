@@ -29,7 +29,7 @@ interface JobState {
   filters: JobFilters
 
   fetchJobs: (page?: number, pageSize?: number, append?: boolean, filters?: JobFilters) => Promise<void>
-  fetchSingleJob: (jobId: string) => Promise<{ job: JobWithInstitution; matchingScore: number | null } | null>
+  fetchSingleJob: (jobId: string) => Promise<{ job: JobWithInstitution; matchingScore: number | null; matchedFields?: string[] } | null>
   loadMoreJobs: () => Promise<void>
   clearJobs: () => void
   setJobs: (jobs: JobWithInstitution[]) => void
@@ -161,7 +161,7 @@ export const useJobStore = create<JobState>()(
 
       fetchSingleJob: async (jobId: string) => {
         try {
-          const { job, matchingScore } = await getJob(jobId)
+          const { job, matchingScore, matchedFields } = await getJob(jobId)
 
           // Common job transformation
           let processedJob: JobWithInstitution = {
@@ -198,7 +198,7 @@ export const useJobStore = create<JobState>()(
             }
           }
 
-          return { job: processedJob, matchingScore: matchingScore ?? null };
+          return { job: processedJob, matchingScore: matchingScore ?? null, matchedFields };
         } catch (error) {
           console.error('Failed to fetch job:', error)
           return null

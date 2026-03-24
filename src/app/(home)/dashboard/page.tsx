@@ -120,7 +120,7 @@ const DashboardContent = () => {
           </div>
           <div className="flex items-center gap-4">
             {(getUserType() === 'INSTITUTE' || getUserType() === 'INSTITUTE') && (
-              <Link 
+              <Link
                 href="/credit-history"
                 className="px-4 py-2 rounded-md bg-muted text-sm font-semibold border border-gray-200 hover:bg-gray-100 transition-colors cursor-pointer"
               >
@@ -130,7 +130,7 @@ const DashboardContent = () => {
             <Button
               onClick={handlePostJobClick}
               disabled={checkingVerification}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-70"
+              className="bg-[#233F64] hover:bg-[#169BA4] text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200 disabled:opacity-70"
             >
               {checkingVerification ? "Checking..." : "Post a Job"}
             </Button>
@@ -155,13 +155,13 @@ const DashboardContent = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-6 w-full justify-start">
-            <TabsTrigger value="overview" className="px-4 py-2">
+            <TabsTrigger value="overview" className={`px-4 py-2 ${activeTab === 'overview' ? 'bg-[#169BA4] text-white' : ''}`}>
               Overview
             </TabsTrigger>
-            <TabsTrigger value="posted-jobs" className="px-4 py-2">
+            <TabsTrigger value="posted-jobs" className={`px-4 py-2 ${activeTab === 'posted-jobs' ? 'bg-[#169BA4] text-white' : ''}`}>
               Posted Jobs
             </TabsTrigger>
-            <TabsTrigger value="coming-soon" className="px-4 py-2">
+            <TabsTrigger value="coming-soon" className={`px-4 py-2 ${activeTab === 'coming-soon' ? 'bg-[#169BA4] text-white' : ''}`}>
               Coming Soon
             </TabsTrigger>
           </TabsList>

@@ -306,7 +306,7 @@ export function InstituteSignUpForm({
 
             <Button
                 onClick={onSubmit}
-                className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold h-11 rounded-lg mt-2"
+                className="w-full bg-[#233F64] hover:bg-[#169BA4] text-white font-semibold h-11 rounded-lg mt-2"
                 disabled={loading}
             >
                 {loading ? "Creating Institution Account..." : "Register Institution"}

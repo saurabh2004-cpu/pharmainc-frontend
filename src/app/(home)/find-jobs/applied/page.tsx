@@ -451,7 +451,7 @@ const AppliedJobsPage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:gap-6">
+      <div className="px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
         <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100%-22rem)]">
           <div className="p-4 sm:p-6">
             <div className="mb-6">
@@ -478,7 +478,7 @@ const AppliedJobsPage = () => {
                     className={`
                                 flex items-center justify-center py-2.5 px-6 text-sm font-medium transition-all duration-200 whitespace-nowrap rounded-md
                                 ${isActive
-                        ? 'bg-[#398865] text-white shadow-md'
+                        ? 'bg-[#169BA4] text-white shadow-md'
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                       }
                             `}
@@ -598,8 +598,8 @@ const AppliedJobsPage = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex flex-col sm:items-end gap-3">
-                              <Badge variant={getStatusBadgeVariant(application.status)}>
+                            <div className="flex flex-col sm:items-end gap-3 ">
+                              <Badge variant={getStatusBadgeVariant(application.status)} className='bg-[#169BA4]'>
                                 {application.status?.replace(/_/g, ' ') || 'PENDING'}
                               </Badge>
 
@@ -608,7 +608,7 @@ const AppliedJobsPage = () => {
                                 <div className="flex gap-2">
                                   <Button
                                     size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                    className="bg-[#233F64] hover:bg-[#169BA4] text-white"
                                     onClick={() => handleNextRoundResponse(application.id, 'accept')}
                                     disabled={actionLoading === application.id}
                                   >
@@ -630,11 +630,11 @@ const AppliedJobsPage = () => {
                               {/* Institute now directly finalizes after scheduling */}
 
                               <div className="flex gap-2">
-                                <Button variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${generateSlug(application.job as Job)}`)}>
+                                <Button className='hover:bg-[#169BA4] hover:text-white' variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${generateSlug(application.job as Job)}`)}>
                                   <Eye className="mr-1 h-4 w-4" /> View Job
                                 </Button>
                                 {(application.resume_url || application.resumeUrl) && (
-                                  <Button variant="outline" size="sm" onClick={() => handleDownloadResume(application.resume_url || application.resumeUrl)}>
+                                  <Button className='hover:bg-[#169BA4] hover:text-white' variant="outline" size="sm" onClick={() => handleDownloadResume(application.resume_url || application.resumeUrl)}>
                                     <Download className="mr-1 h-4 w-4" /> Resume
                                   </Button>
                                 )}

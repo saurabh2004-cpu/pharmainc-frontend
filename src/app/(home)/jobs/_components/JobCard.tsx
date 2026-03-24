@@ -132,133 +132,100 @@ const JobCard = ({ job }: JobCardProps) => {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+      className="bg-white rounded-[24px] p-6 mb-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 border border-gray-100/50 group"
     >
-      <div className="flex items-start gap-3">
-        {/* Company Logo */}
-        {instituteImageUrl ? (
-          <div className="w-12 h-12 rounded flex-shrink-0 overflow-hidden border border-gray-100">
-            <Image
-              src={instituteImageUrl}
-              alt={job.institution?.name || 'Institute'}
-              width={48}
-              height={48}
-              className="object-cover w-full h-full"
-            />
-          </div>
-        ) : (
-          <div className={cn(
-            "w-12 h-12 rounded flex items-center justify-center flex-shrink-0",
-            getCompanyColor(job.institution?.name || job.title)
-          )}>
-            <span className="text-white font-semibold text-lg">
-              {getCompanyInitial(job.institution?.name || job.title)}
-            </span>
-          </div>
-        )}
-
-        {/* Job Details */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-gray-900 text-lg mb-1 hover:text-blue-600 transition-colors truncate">
-                {job.title}
-              </h3>
-              <p className="text-gray-600 text-sm mb-1 truncate">
-                {job.institution?.name || "Healthcare Institute"} • Posted {formatTimeAgo(job.created_at)}
-              </p>
-              <div className="text-gray-600 text-sm mb-3 line-clamp-2">
-                {job.description && job.description.length > 150
-                  ? `${job.description.substring(0, 150)}...`
-                  : job.description
-                }
-              </div>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 mb-3 min-w-0">
-                <div className="flex items-center gap-1 truncate">
-                  <MapPin size={14} className="flex-shrink-0" />
-                  <span className="truncate">
-                    {(job.workLocation?.toLowerCase() === 'on-site' || job.workLocation?.toLowerCase() === 'onsite') && (job.city || job.country)
-                      ? `${[job.city, job.country].filter(Boolean).join(', ')}`
-                      : (job.workLocation || job.location)}
+      <div className="flex flex-col gap-5">
+        {/* Header Section */}
+        <div className="flex items-start justify-between">
+          <div className="flex gap-4">
+            {/* Company Logo */}
+            <div className="w-[56px] h-[56px] rounded-[14px] overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-white flex items-center justify-center p-1.5">
+              {instituteImageUrl ? (
+                <div className="relative w-full h-full">
+                  <Image
+                    src={instituteImageUrl}
+                    alt={job.institution?.name || 'Institute'}
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <div className={cn(
+                  "w-full h-full rounded-[10px] flex items-center justify-center",
+                  getCompanyColor(job.institution?.name || job.title)
+                )}>
+                  <span className="text-white font-bold text-xl">
+                    {getCompanyInitial(job.institution?.name || job.title)}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 truncate">
-                  <span className="truncate">{job.pay_range || (job.salaryMin && job.salaryMax ?
-                    `${job.salaryCurrency} ${job.salaryMin.toLocaleString()} - ${job.salaryMax.toLocaleString()}` :
-                    'Salary not specified')}</span>
-                </div>
-                <span className="text-gray-400">/month</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-300">
-                  {job.jobType || job.work_location}
-                </Badge>
-                <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-300">
-                  {job.role}
-                </Badge>
-                {job.status && (
-                  <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
-                    {job.status}
-                  </Badge>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-              <button
-                onClick={handleBookmarkClick}
-                className={cn(
-                  "p-2 rounded-full transition-colors hover:bg-gray-100",
-                  isSaved ? "text-blue-600" : "text-gray-400 hover:text-blue-600"
-                )}
-              >
-                <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
-              </button>
-              {/* <div className="relative" ref={dropdownRef}>
-                <button
-                  onClick={handleMoreClick}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <MoreHorizontal size={16} />
-                </button>
-
-                {/* Dropdown Menu */}
-              {showDropdown && (
-                <div className="absolute right-0 top-full mt-1 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1">
-                  <button
-                    onClick={handleNotInterested}
-                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                  >
-                    <EyeOff size={16} className="text-gray-500" />
-                    <span>Not interested</span>
-                  </button>
-                  {/* <button
-                      onClick={handleBlockCompany}
-                      className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                    >
-                      <Ban size={16} className="text-gray-500" />
-                      <span>Block {job.institution?.name || 'company'}</span>
-                    </button> */}
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <button
-                    onClick={handleMarkAsInappropriate}
-                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                  >
-                    <AlertTriangle size={16} className="text-yellow-600" />
-                    <span>Mark as inappropriate</span>
-                  </button>
-                  <button
-                    onClick={handleReportJob}
-                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
-                  >
-                    <Flag size={16} className="text-red-600" />
-                    <span>Report job</span>
-                  </button>
-                </div>
               )}
-              {/* </div> */}
             </div>
+
+            <div className="flex flex-col gap-0.5 min-w-0 pt-0.5">
+              <h3 className="text-[20px] font-bold text-[#111827] leading-tight group-hover:text-blue-600 transition-colors truncate">
+                {job.title}
+              </h3>
+              <div className="flex items-center gap-2 text-[15px] font-normal text-gray-500">
+                <span className="truncate">{job.institution?.name || "Healthcare Institute"}</span>
+                <span className="text-gray-400">·</span>
+                <span className="whitespace-nowrap">Posted {formatTimeAgo(job.created_at)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <button
+              onClick={handleBookmarkClick}
+              className={cn(
+                "p-2 rounded-xl transition-all duration-200",
+                isSaved ? "text-gray-400" : "text-gray-300 hover:text-gray-500 hover:bg-gray-50"
+              )}
+            >
+              <Bookmark className="h-[26px] w-[26px]" fill={isSaved ? "currentColor" : "none"} strokeWidth={1.5} />
+            </button>
+            <button
+              onClick={handleMoreClick}
+              className="p-2 rounded-xl text-gray-300 hover:text-gray-500 hover:bg-gray-50 transition-all duration-200"
+            >
+              {/* <MoreHorizontal className="h-[26px] w-[26px]" strokeWidth={2} /> */}
+            </button>
+          </div>
+        </div>
+
+        {/* Description */}
+        <div className="text-[15px] leading-[1.6] text-gray-500 line-clamp-2">
+          {job.shortDescription || ""}
+        </div>
+
+        {/* Footer Tags & Salary */}
+        <div className="flex flex-wrap items-center gap-3 mt-1">
+          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+            {job.experienceLevel || '3y+'}
+          </div>
+          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+            {job.jobType || 'Full time'}
+          </div>
+          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+            {(() => {
+              const workLoc = job.workLocation || "On-site";
+              const isHybridOrOnsite = ["hybrid", "onsite", "on-site"].includes(workLoc.toLowerCase());
+
+              if (isHybridOrOnsite && (job.city || job.country)) {
+                return `${workLoc} • ${[job.city, job.country].filter(Boolean).join(", ")}`;
+              }
+              return job.workLocation || (job.city && job.country ? `${job.city} / ${job.country.substring(0, 2).toUpperCase()}` : 'Onsite / LA');
+            })()}
+          </div>
+
+
+          <div className="flex items-baseline gap-1.5 ml-auto sm:ml-4">
+            <span className="text-[18px] font-bold text-[#111827]">
+              {job.salaryMin && job.salaryMax ?
+                `${job.salaryCurrency === 'INR' ? '₹' : '$'}${Math.round(job.salaryMin / 1000)}k-${Math.round(job.salaryMax / 1000)}k` :
+                '$10k-13k'
+              }
+            </span>
+            <span className="text-[14px] font-normal text-gray-400">/month</span>
           </div>
         </div>
       </div>

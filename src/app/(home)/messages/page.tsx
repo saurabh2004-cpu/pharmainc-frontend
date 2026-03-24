@@ -32,7 +32,7 @@ const MessagesContent = () => {
   // Socket Handler: New Message
   const handleNewMessage = useCallback((message: Message) => {
     console.log('Real-time message received:', message);
-    
+
     setConversations(prev => {
       const exists = prev.find(c => c.id === message.conversationId);
       if (exists) {
@@ -234,7 +234,10 @@ const MessagesContent = () => {
         mediaType: media ? (media.type.startsWith('image') ? 'IMAGE' : media.type.startsWith('video') ? 'VIDEO' : 'PDF') : undefined
       });
 
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => {
+        if (prev.some(m => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
 
       setConversations(prev => prev.map(c =>
         c.id === selectedConversationId
@@ -253,7 +256,10 @@ const MessagesContent = () => {
 
     try {
       const newMessage = await sendVoiceMessage(selectedConversationId, audioBlob);
-      setMessages(prev => [...prev, newMessage]);
+      setMessages(prev => {
+        if (prev.some(m => m.id === newMessage.id)) return prev;
+        return [...prev, newMessage];
+      });
       setConversations(prev => prev.map(c =>
         c.id === selectedConversationId
           ? { ...c, lastMessage: newMessage, updatedAt: newMessage.createdAt }
@@ -272,7 +278,7 @@ const MessagesContent = () => {
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
 
   return (
-    <div className="container mx-auto max-w-7xl h-[calc(100vh-35px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+    <div className="container mx-auto px-2 h-[calc(100vh-35px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
       <div className="grid grid-cols-1 md:grid-cols-3 h-full">
         <div className="md:col-span-1 h-full overflow-hidden">
           <ConversationList

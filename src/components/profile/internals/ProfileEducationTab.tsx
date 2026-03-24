@@ -94,7 +94,7 @@ export const ProfileEducationTab = ({ userId, currentUserId, onAdd, onEdit, refr
       <CardHeader className="flex flex-row items-center justify-between  border-b border-gray-100">
         <CardTitle className="text-xl font-bold text-gray-900">Education</CardTitle>
         {isOwnProfile && (
-          <Button onClick={onAdd} size="sm" className="gap-2">
+          <Button onClick={onAdd} size="sm" className="gap-2 bg-[#233F64] hover:bg-[#169BA4]">
             <Plus className="h-4 w-4" /> Add Education
           </Button>
         )}
@@ -119,10 +119,10 @@ export const ProfileEducationTab = ({ userId, currentUserId, onAdd, onEdit, refr
                     </div>
                     {isOwnProfile && (
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600" onClick={() => handleEditClick(edu)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:text-white hover:bg-[#169BA4]" onClick={() => handleEditClick(edu)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-red-600" onClick={() => handleDelete(edu.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white hover:bg-[#169BA4]" onClick={() => handleDelete(edu.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Send, Paperclip, Image as ImageIcon, Video, FileText, Mic } from 'lucide-react';
+import { Send, Paperclip, Image as ImageIcon, Video, FileText, Mic, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserAvatar } from '@/components/UserAvatar';
@@ -46,6 +46,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     const scrollHeightRef = useRef(0);
     const isLoadingMoreRef = useRef(false);
 
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+
+    const filteredMessages = messages.filter(msg => {
+        if (!searchQuery) return true;
+        return msg.content?.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
     // Auto-scroll to bottom or preserve scroll position
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -80,7 +88,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         }, 50);
 
         return () => clearTimeout(timer);
-    }, [messages]);
+    }, [filteredMessages]);
 
     const handleScroll = () => {
         if (!scrollRef.current) return;
@@ -132,11 +140,37 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     return (
         <div className="flex flex-col h-full bg-slate-50">
             {/* Header */}
-            <div className="p-4 bg-white border-b border-gray-200 flex items-center gap-3 shadow-sm">
-                <UserAvatar name={displayName} src={participant.profile_picture} className="h-10 w-10" />
-                <div>
-                    <h3 className="font-semibold">{displayName}</h3>
-                    <p className="text-xs text-gray-500">{participant.role || ''}</p>
+            <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shadow-sm min-h-[72px]">
+                <div className="flex items-center gap-3">
+                    <UserAvatar name={displayName} src={participant.profile_picture} className="h-10 w-10" />
+                    <div>
+                        <h3 className="font-semibold text-gray-900">{displayName}</h3>
+                        <p className="text-xs text-gray-500">{participant.role || ''}</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    {isSearching ? (
+                        <div className="flex items-center relative animate-in slide-in-from-right-4 duration-200">
+                            <Input
+                                autoFocus
+                                placeholder="Search in chat..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="h-9 w-64 text-sm pr-10 rounded-full bg-gray-50 border-gray-200"
+                            />
+                            <button
+                                onClick={() => { setIsSearching(false); setSearchQuery(''); }}
+                                className="absolute right-3 text-gray-400 hover:text-gray-600"
+                            >
+                                <X className="h-4 w-4" />
+                            </button>
+                        </div>
+                    ) : (
+                        <Button variant="ghost" size="icon" onClick={() => setIsSearching(true)} className="text-gray-500 hover:text-gray-700">
+                            <Search className="h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
             </div>
 
@@ -146,8 +180,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                     <div className="flex items-center justify-center h-full text-gray-400">
                         <Loader2 className="h-6 w-6 animate-spin mr-2" /> Loading messages...
                     </div>
-                ) : messages.length === 0 ? (
-                    <div className="flex items-center justify-center h-full text-gray-400">Start the conversation!</div>
+                ) : filteredMessages.length === 0 ? (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                        {searchQuery ? 'No matching messages found.' : 'Start the conversation!'}
+                    </div>
                 ) : (
                     <>
                         {isLoadingMore && (
@@ -155,15 +191,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                 <Loader2 className="h-6 w-6 animate-spin" />
                             </div>
                         )}
-                        {messages.map((msg) => {
+                        {filteredMessages.map((msg) => {
                             const isMe = msg.senderId === currentUserId;
                             // Checking senderId is the most robust way to determine ownership
 
                             return (
-                                <div key={msg.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
+                                <div key={msg.id} className={cn("flex", isMe ? "justify-end" : "justify-start gap-2")}>
+                                    {!isMe && (
+                                        <UserAvatar name={displayName} src={participant.profile_picture} className="h-8 w-8 mt-auto flex-shrink-0" />
+                                    )}
                                     <div className={cn(
-                                        "max-w-[70%] rounded-lg p-3 shadow-sm",
-                                        isMe ? "bg-blue-600 text-white rounded-br-none" : "bg-white text-gray-800 rounded-bl-none border border-gray-200"
+                                        "max-w-[70%] rounded-[20px] p-4 shadow-sm",
+                                        isMe ? "bg-[#E3F2FD] text-[#111827] rounded-br-sm" : "bg-[#E5E7EB] text-[#111827] rounded-bl-sm"
                                     )}>
                                         {msg.mediaUrl && (
                                             <div className="mb-2">
@@ -181,12 +220,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                             </div>
                                         )}
                                         {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
-                                        <div className={cn("text-[10px] mt-1 text-right opacity-70", isMe ? "text-blue-100" : "text-gray-400")}>
-                                            {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                            {isMe && (
-                                                <span className="ml-1">{msg.isRead ? '✓✓' : '✓'}</span>
-                                            )}
-                                        </div>
+                                    </div>
+                                    <div className="text-[10px] mt-2 mb-2 self-end text-gray-400 px-2 min-w-[40px]">
+                                        {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        {isMe && (
+                                            <span className="ml-[2px]">{msg.isRead ? '✓✓' : '✓'}</span>
+                                        )}
                                     </div>
                                 </div>
                             );
@@ -206,8 +245,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         accept="image/*,video/*,application/pdf"
                         onChange={handleFileSelect}
                     />
-                    <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-blue-600">
-                        <Paperclip className="h-5 w-5" />
+                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600 cursor-default">
+                        {/* Placeholder face icon for the "type something..." row */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
                     </Button>
                     {isVoiceRecording ? (
                         <VoiceRecorder
@@ -223,15 +263,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={handleKeyDown}
-                                placeholder="Type a message..."
-                                className="flex-1"
+                                placeholder="Type something..."
+                                className="flex-1 bg-gray-50 border-gray-200"
                                 disabled={isSending}
                                 autoFocus
                             />
+                            <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-blue-600">
+                                <FileText className="h-5 w-5" />
+                            </Button>
                             <Button variant="ghost" size="icon" onClick={() => setIsVoiceRecording(true)} className="text-gray-500 hover:text-blue-600">
                                 <Mic className="h-5 w-5" />
                             </Button>
-                            <Button onClick={handleSend} disabled={isSending || (!newMessage.trim() && !fileInputRef.current?.files?.length)} className="bg-blue-600 hover:bg-blue-700">
+                            <Button onClick={handleSend} disabled={isSending || (!newMessage.trim() && !fileInputRef.current?.files?.length)} variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
                                 <Send className="h-5 w-5" />
                             </Button>
                         </>

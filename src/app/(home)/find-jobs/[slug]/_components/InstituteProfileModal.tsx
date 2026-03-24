@@ -279,7 +279,7 @@ const InstituteProfileModal: React.FC<InstituteProfileModalProps> = ({
                 <div className="border-t border-gray-200 p-4 bg-gray-50">
                     <button
                         onClick={onClose}
-                        className="w-full px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium"
+                        className="w-full px-4 py-2 bg-[#233F64] hover:bg-[#169BA4] text-white rounded-lg transition-colors font-medium"
                     >
                         Close
                     </button>

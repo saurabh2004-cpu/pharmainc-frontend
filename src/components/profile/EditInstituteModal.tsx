@@ -467,7 +467,7 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate, onL
                 type="button"
                 onClick={handleAddSocialLink}
                 disabled={isManagingLinks || !newPlatform || !newSocialLinkUrl}
-                className="w-full md:w-auto mt-4"
+                className="w-full md:w-auto mt-3 bg-[#233F64] hover:bg-[#169BA4]"
               >
                 <Plus className="h-4 w-4 mr-1" />
                 Add
@@ -480,11 +480,12 @@ export function EditInstituteModal({ isOpen, onClose, institution, onUpdate, onL
               type="button"
               variant="outline"
               onClick={onClose}
+              className="bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
               disabled={isLoading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className="bg-[#233F64] hover:bg-[#169BA4]">
               {isLoading ? "Saving..." : "Save Changes"}
             </Button>
           </div>

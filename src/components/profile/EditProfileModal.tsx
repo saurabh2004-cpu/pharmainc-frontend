@@ -403,7 +403,7 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate, onLinksChang
                 type="button"
                 onClick={handleAddSocialLink}
                 disabled={isManagingLinks || !newPlatform || !newSocialLinkUrl}
-                className="w-full md:w-auto mt-4"
+                className="w-full md:w-auto mt-4 bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white"
               >
                 <Plus className="h-4 w-4 mr-1 " />
                 Add
@@ -417,10 +417,11 @@ export function EditProfileModal({ isOpen, onClose, user, onUpdate, onLinksChang
               variant="outline"
               onClick={onClose}
               disabled={isLoading}
+              className='bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white'
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} className='bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white'>
               {isLoading ? "Updating..." : "Update Profile"}
             </Button>
           </div>

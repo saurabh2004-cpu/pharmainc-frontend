@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { UserAvatar } from '@/components/UserAvatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Conversation } from '@/types/message';
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface ConversationListProps {
     conversations: Conversation[];
@@ -15,18 +17,39 @@ const ConversationList: React.FC<ConversationListProps> = ({
     selectedConversationId,
     onSelectConversation
 }) => {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filteredConversations = conversations.filter(conversation => {
+        const { participant } = conversation;
+        const displayName = participant.firstName
+            ? `${participant.firstName} ${participant.lastName || ''}`
+            : participant.name || 'Unknown';
+        return displayName.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
     return (
         <div className="flex flex-col h-full border-r border-gray-200">
-            <div className="p-4 border-b border-gray-200">
-                <h2 className="text-xl font-semibold">Messages</h2>
+            <div className="p-4 border-b border-gray-200 space-y-4">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xl font-semibold">Messages</h2>
+                </div>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                        placeholder="Search"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 bg-gray-50 border-gray-200 rounded-full h-10"
+                    />
+                </div>
             </div>
             <div className="flex-1 overflow-y-auto">
-                {conversations.length === 0 ? (
+                {filteredConversations.length === 0 ? (
                     <div className="p-4 text-center text-gray-500">
-                        No conversations yet.
+                        {searchQuery ? 'No matching conversations.' : 'No conversations yet.'}
                     </div>
                 ) : (
-                    conversations.map((conversation) => {
+                    filteredConversations.map((conversation) => {
                         const { id, participant, lastMessage, unreadCount, updatedAt } = conversation;
                         const isSelected = id === selectedConversationId;
                         const displayName = participant.firstName

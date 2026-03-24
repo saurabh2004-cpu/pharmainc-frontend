@@ -102,7 +102,7 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
             e.preventDefault();
             handleAddSkill();
         }
-    }; 
+    };
 
     return (
         <Card className="rounded-xl shadow-sm border-gray-200 bg-white">
@@ -126,7 +126,7 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
                             <Button
                                 onClick={handleAddSkill}
                                 disabled={!newSkill.trim() || isSaving}
-                                className="gap-2"
+                                className="gap-2 bg-[#233F64] hover:bg-[#169BA4]"
                             >
                                 <Plus className="h-4 w-4" />
                                 Add

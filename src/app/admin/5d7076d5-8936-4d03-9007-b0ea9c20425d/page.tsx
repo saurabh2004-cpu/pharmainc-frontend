@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Building, Upload, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { Building, Upload, Loader2, LogIn, UserPlus, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -184,6 +184,7 @@ const AdminInstituteOnboardingPage = () => {
   const [mode, setMode] = useState<'signin' | 'signup'>('signup');
   const [institutionData, setInstitutionData] = useState<any>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Form data for both signin and signup
   const [formData, setFormData] = useState({
@@ -466,14 +467,23 @@ const AdminInstituteOnboardingPage = () => {
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => handleInputChange('password', e.target.value)}
-                disabled={loading}
-                className={errors.password ? 'border-red-500' : ''}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => handleInputChange('password', e.target.value)}
+                  disabled={loading}
+                  className={`pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
             </div>
 
@@ -828,14 +838,23 @@ const AdminInstituteOnboardingPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
-                    disabled={loading}
-                    className={errors.password ? 'border-red-500' : ''}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      disabled={loading}
+                      className={`pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                    </button>
+                  </div>
                   {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
                 </div>
 
@@ -912,14 +931,23 @@ const AdminInstituteOnboardingPage = () => {
 
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="password-signup">Password *</Label>
-                    <Input
-                      id="password-signup"
-                      type="password"
-                      value={formData.password}
-                      onChange={(e) => handleInputChange('password', e.target.value)}
-                      disabled={loading}
-                      className={errors.password ? 'border-red-500' : ''}
-                    />
+                    <div className="relative">
+                      <Input
+                        id="password-signup"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => handleInputChange('password', e.target.value)}
+                        disabled={loading}
+                        className={`pr-10 ${errors.password ? 'border-red-500' : ''}`}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                      </button>
+                    </div>
                     {errors.password && <p className="text-sm text-red-600">{errors.password}</p>}
                   </div>
                 </div>

@@ -558,7 +558,7 @@ export const ProfileHeader = ({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full"
+                                className="rounded-full hover:bg-[#169BA4] hover:text-white"
                                 onClick={() => setIsShareModalOpen(true)}
                             >
                                 <Share2 className="h-4 w-4" />
@@ -566,7 +566,7 @@ export const ProfileHeader = ({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full"
+                                className="rounded-full hover:bg-[#169BA4] hover:text-white"
                                 onClick={() => {
                                     if (institution && isOwnInstitute) {
                                         setIsEditInstituteModalOpen(true);

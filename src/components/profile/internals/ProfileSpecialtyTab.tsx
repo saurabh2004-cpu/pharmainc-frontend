@@ -125,7 +125,7 @@ export const ProfileSpecialtyTab = ({ userId, currentUserId, refreshTrigger }: P
               <Button
                 onClick={handleAddSpeciality}
                 disabled={!newSpeciality.trim() || isSaving}
-                className="gap-2"
+                className="gap-2 bg-[#233F64] hover:bg-[#169BA4]"
               >
                 <Plus className="h-4 w-4" />
                 Add

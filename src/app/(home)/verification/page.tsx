@@ -80,7 +80,7 @@ export default function VerificationPage() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
-          <Button variant="outline" onClick={() => router.back()} size="lg" className="px-8 h-14 text-lg">
+          <Button variant="outline" onClick={() => router.back()} size="lg" className="px-8 h-14 text-lg bg-[#233F64] hover:bg-[#169BA4] hover:text-white text-white">
             Back
           </Button>
         </div>

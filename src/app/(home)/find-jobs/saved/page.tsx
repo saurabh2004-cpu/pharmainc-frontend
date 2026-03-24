@@ -258,7 +258,7 @@ const SavedJobsPage = () => {
 
     return (
         <div className="bg-gray-50 min-h-screen">
-            <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:gap-6">
+            <div className="px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
                 <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100%-22rem)]">
                     <div className="p-4 sm:p-6">
                         <div className="mb-6">
