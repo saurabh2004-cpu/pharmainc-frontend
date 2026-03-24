@@ -21,13 +21,6 @@ jobs:
           docker build \
             --build-arg NEXT_PUBLIC_SOCKET_URL=${{ secrets.NEXT_PUBLIC_SOCKET_URL }} \
             --build-arg NEXT_PUBLIC_SOCKET_URL_SERVER=${{ secrets.NEXT_PUBLIC_SOCKET_URL_SERVER }} \
-            --build-arg NEXT_PUBLIC_API_AUTH=${{ secrets.NEXT_PUBLIC_API_AUTH }} \
-            --build-arg NEXT_PUBLIC_API_USER=${{ secrets.NEXT_PUBLIC_API_USER }} \
-            --build-arg NEXT_PUBLIC_API_NETWORK=${{ secrets.NEXT_PUBLIC_API_NETWORK }} \
-            --build-arg NEXT_PUBLIC_API_BACKGROUND=${{ secrets.NEXT_PUBLIC_API_BACKGROUND }} \
-            --build-arg NEXT_PUBLIC_API_INSTITUTE=${{ secrets.NEXT_PUBLIC_API_INSTITUTE }} \
-            --build-arg NEXT_PUBLIC_API_JOB=${{ secrets.NEXT_PUBLIC_API_JOB }} \
-            --build-arg NEXT_PUBLIC_API_CONTENT=${{ secrets.NEXT_PUBLIC_API_CONTENT }} \
             -t ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest
 
