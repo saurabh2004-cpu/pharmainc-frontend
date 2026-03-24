@@ -38,7 +38,7 @@ interface LeftSidebarProps {
 
 const navigations = [
   { href: '/dashboard', icon: HiChartBar, label: 'Dashboard', userTypes: ['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'] },
-  { href: '/sidebar-icons/3d-house.png', icon: HiHome, label: 'Home', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
+  { href: '/find-jobs', icon: HiHome, label: 'Home', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
   { href: '/notifications', icon: HiBell, label: 'Notifications' },
   { href: '/messages', icon: HiEnvelope, label: 'Messages' },
   { href: '/dashboard/posted-jobs', icon: HiBriefcase, label: 'Posted Jobs', userTypes: ['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'] },
