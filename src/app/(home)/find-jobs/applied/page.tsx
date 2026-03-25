@@ -599,7 +599,7 @@ const AppliedJobsPage = () => {
                               </div>
                             </div>
                             <div className="flex flex-col sm:items-end gap-3 ">
-                              <Badge variant={getStatusBadgeVariant(application.status)} className='bg-[#169BA4]'>
+                              <Badge variant={getStatusBadgeVariant(application.status)} className='bg-[#169BA4] text-white'>
                                 {application.status?.replace(/_/g, ' ') || 'PENDING'}
                               </Badge>
 

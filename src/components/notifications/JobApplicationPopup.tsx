@@ -151,15 +151,18 @@ export const JobApplicationPopup = ({
                                         <p className="text-xs text-gray-600">
                                             {interviewDate} at {interviewTime}
                                         </p>
-                                        <Link
-                                            href={interviewLink}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors w-fit"
-                                            onClick={(e) => e.stopPropagation()}
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (interviewLink) {
+                                                    const link = interviewLink;
+                                                    window.open(link.startsWith('http') ? link : `https://${link}`, '_blank');
+                                                }
+                                            }}
+                                            className="inline-flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors w-fit cursor-pointer"
                                         >
                                             Join Interview
-                                        </Link>
+                                        </button>
                                     </div>
                                 ) : (
                                     <p className="text-xs text-gray-700">

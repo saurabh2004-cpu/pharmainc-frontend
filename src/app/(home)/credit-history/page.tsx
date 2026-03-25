@@ -51,12 +51,12 @@ const CreditHistoryPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50/50 pb-12">
-            <div className="max-w-6xl mx-auto px-4 pt-8 space-y-8">
+            <div className="px-2 mx-auto px-4 pt-8 space-y-8">
                 {/* Header Section */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-4">
-                        <Link 
-                            href="/dashboard" 
+                        <Link
+                            href="/dashboard"
                             className="p-2.5 bg-white hover:bg-gray-100 rounded-xl border border-gray-200 shadow-sm transition-all group"
                         >
                             <ArrowLeft className="w-5 h-5 text-gray-600 group-hover:-translate-x-0.5 transition-transform" />
@@ -120,7 +120,7 @@ const CreditHistoryPage = () => {
                                     history.map((transaction) => {
                                         const isDebit = transaction.type?.toLowerCase() === 'debit';
                                         const amount = isDebit ? transaction.cost : transaction.purchasedCredits;
-                                        const actionLabel = transaction.action?.split('_').map((word: string) => 
+                                        const actionLabel = transaction.action?.split('_').map((word: string) =>
                                             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
                                         ).join(' ') || 'Transaction';
 

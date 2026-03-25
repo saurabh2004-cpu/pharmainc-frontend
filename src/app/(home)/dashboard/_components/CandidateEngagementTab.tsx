@@ -47,7 +47,7 @@ export const CandidateEngagementTab = ({ credits, loadingCredits }: CandidateEng
   // Transform API data for charts
   const hasStats = instituteStats && !loading
 
-  const transformedTrends = hasStats && instituteStats.trends && instituteStats.trends.length > 0
+  const transformedTrends = (hasStats && instituteStats.trends && instituteStats.trends.length > 0)
     ? instituteStats.trends.map(trend => ({
       name: new Date(trend.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       views: trend.views,
@@ -284,7 +284,7 @@ export const CandidateEngagementTab = ({ credits, loadingCredits }: CandidateEng
           )}
         </ChartCard>
 
-        <ChartCard
+        {/* <ChartCard
           title="Engagement Metrics"
           subtitle="Key performance indicators"
           actions={
@@ -307,7 +307,7 @@ export const CandidateEngagementTab = ({ credits, loadingCredits }: CandidateEng
               </AreaChart>
             </ResponsiveContainer>
           )}
-        </ChartCard>
+        </ChartCard> */}
       </div>
     </div>
   )
