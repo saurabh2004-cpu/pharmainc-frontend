@@ -12,7 +12,19 @@ const Navbar = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const { currentUser } = useUserStore();
     const { currentInstitution } = useInstitutionStore();
+    const [hasToken, setHasToken] = useState(false);
+    const [userType, setUserType] = useState<string | null>(null);
 
+    useEffect(() => {
+        const cookies = document.cookie.split('; ');
+        const token = cookies.find(row => row.startsWith('accessToken='));
+        const type = cookies.find(row => row.startsWith('userType='));
+        
+        setHasToken(!!token);
+        if (type) {
+            setUserType(type.split('=')[1]);
+        }
+    }, []);
     const navLinks = [
         // { title: "Jobs", href: "/jobs" },
         // { title: "Resources", href: "/resources" },
@@ -63,19 +75,19 @@ const Navbar = () => {
 
                 <div className="flex items-center space-x-3">
                     <div className="hidden sm:flex items-center space-x-3">
-                        {currentUser ? (
-                            <Link href="/home">
+                        {currentUser || (hasToken && userType === 'USER') ? (
+                            <Link href="/find-jobs">
                                 <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
                                     Home
                                 </button>
                             </Link>
-                        ) : currentInstitution ? (
+                        ) : currentInstitution || (hasToken && userType === 'INSTITUTE') ? (
                             <Link href="/dashboard">
                                 <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
                                     Home
                                 </button>
                             </Link>
-                        ) : (
+                        ) : !hasToken ? (
                             <>
                                 <Link href="/auth">
                                     <button className='px-3 md:px-4 py-2 rounded-full outline-1 outline-black font-semibold text-sm transition-all duration-200 hover:bg-black hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
@@ -88,7 +100,7 @@ const Navbar = () => {
                                     </button>
                                 </Link>
                             </>
-                        )}
+                        ) : null}
                     </div>
 
                     <button
@@ -119,19 +131,19 @@ const Navbar = () => {
                     </div>
 
                     <div className="flex flex-col sm:hidden space-y-3 pb-4">
-                        {currentUser ? (
-                            <Link href="/home" onClick={() => setIsMobileMenuOpen(false)}>
+                        {currentUser || (hasToken && userType === 'USER') ? (
+                            <Link href="/find-jobs" onClick={() => setIsMobileMenuOpen(false)}>
                                 <button className='px-4 py-3 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 w-full'>
                                     Home
                                 </button>
                             </Link>
-                        ) : currentInstitution ? (
+                        ) : currentInstitution || (hasToken && userType === 'INSTITUTE') ? (
                             <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
                                 <button className='px-4 py-3 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 w-full'>
                                     Home
                                 </button>
                             </Link>
-                        ) : (
+                        ) : !hasToken ? (
                             <>
                                 <Link href="/auth" onClick={() => setIsMobileMenuOpen(false)}>
                                     <button className='px-4 py-3 rounded-full outline-1 outline-black font-semibold text-sm transition-all duration-200 hover:bg-black hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2 w-full'>
@@ -144,7 +156,7 @@ const Navbar = () => {
                                     </button>
                                 </Link>
                             </>
-                        )}
+                        ) : null}
                     </div>
                 </div>
             </div>
