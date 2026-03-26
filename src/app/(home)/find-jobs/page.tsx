@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useInView } from 'react-intersection-observer';
-import { Search, Filter, MapPin, Building, DollarSign, ArrowLeft, X } from 'lucide-react';
+import { Search, Filter, MapPin, Building, DollarSign, ArrowLeft, X, Briefcase } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,6 +22,7 @@ const FindJobsPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [sortBy, setSortBy] = useState('default');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const filtersRef = useRef<HTMLDivElement>(null);
 
 
@@ -168,27 +169,35 @@ const FindJobsPage = () => {
   };
 
   return (
-    <div className="bg-[#F3F6FD] min-h-screen">
-      <div className="px-2 max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:gap-2 pt-6">
-        <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100%-25rem)]">
+    <div className="bg-[#F3F6FD] min-h-screen mb-12 lg:mb-0">
+      <div className="px-2 sm:px-4 lg:px-2 max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:gap-2 pt-6">
+        <div className="w-full lg:flex-1 lg:min-w-0">
           {/* Top Search Bar */}
           <div className="mb-6">
-            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center px-4 h-[72px] gap-3">
-              <Search className="h-6 w-6 text-blue-500 ml-2" />
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center sm:px-4 h-[65px] sm:h-[72px] sm:gap-3">
+              <Search className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 ml-2" />
               <input
                 type="text"
                 placeholder="Search for Jobs, Colleagues"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
-                className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 text-lg placeholder:text-gray-400 outline-none"
+                className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 text-base sm:text-lg placeholder:text-gray-400 outline-none"
               />
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-500"
-              >
-                <Filter className="h-6 w-6" />
-              </button>
+              <div className="flex items-center  sm:gap-2 pr-1">
+                <button
+                  onClick={() => setShowFilters(!showFilters)} 
+                  className="p-2 sm:p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-500"
+                >
+                  <Filter className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 sm:p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-500"
+                >
+                  <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
+                </button>
+              </div>
             </div>
 
             {/* Existing Filters Dropdown Logic remains - only UI wrapper matches screenshot if needed */}
@@ -315,7 +324,7 @@ const FindJobsPage = () => {
           {/* Search Query Result Header */}
           {searchQuery && (
             <div className="mb-6 px-1">
-              <h2 className="text-[28px] font-bold text-[#111827]">
+              <h2 className="text-xl sm:text-[28px] font-bold text-[#111827]">
                 “ {searchQuery} ” <span className="text-gray-500 font-medium">Results</span>
               </h2>
             </div>
@@ -327,7 +336,7 @@ const FindJobsPage = () => {
               {filters.jobType !== 'all' && (
                 <button
                   onClick={() => handleFilterChange('jobType', 'all')}
-                  className="bg-blue-600 text-white px-5 py-2.5 rounded-2xl text-sm font-semibold hover:bg-blue-700 transition-all flex items-center gap-2"
+                  className="bg-blue-600 text-white px-3 py-1.5 sm:px-5 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-semibold hover:bg-blue-700 transition-all flex items-center gap-1.5 sm:gap-2"
                 >
                   {filters.jobType}
                   <X className="h-4 w-4" />
@@ -360,7 +369,7 @@ const FindJobsPage = () => {
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">SORT BY</span>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
-                <SelectTrigger className="w-fit h-10 px-4 py-2 text-sm font-semibold text-blue-600 border border-gray-200 bg-white rounded-2xl hover:bg-gray-50 focus:ring-0">
+                <SelectTrigger className="w-fit h-8 sm:h-10 px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-sm font-semibold text-blue-600 border border-gray-200 bg-white rounded-xl sm:rounded-2xl hover:bg-gray-50 focus:ring-0">
                   <SelectValue placeholder="Recommended" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
@@ -403,14 +412,49 @@ const FindJobsPage = () => {
           )}
         </div>
 
-        <JobRightSidebar
-          searchQuery={searchQuery}
-          totalJobs={totalJobs}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          formatTimeAgo={formatTimeAgo}
-          currentUserId={currentUser?.id}
-        />
+        <div className="hidden lg:block">
+          <JobRightSidebar
+            searchQuery={searchQuery}
+            totalJobs={totalJobs}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            formatTimeAgo={formatTimeAgo}
+            currentUserId={currentUser?.id}
+          />
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <div className="absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-[#F3F6FD] shadow-2xl transform transition-transform duration-300 ease-in-out">
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between p-4 bg-white border-b">
+                  <h3 className="text-lg font-bold">Menu</h3>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto pb-20">
+                  <JobRightSidebar
+                    searchQuery={searchQuery}
+                    totalJobs={totalJobs}
+                    filters={filters}
+                    onFilterChange={handleFilterChange}
+                    formatTimeAgo={formatTimeAgo}
+                    currentUserId={currentUser?.id}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
 

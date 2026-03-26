@@ -226,7 +226,7 @@ export const PostedJobsTab = () => {
       </div>
 
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <input
@@ -234,7 +234,7 @@ export const PostedJobsTab = () => {
               placeholder="Search posted jobs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-80 focus:outline-none focus:ring-2 focus:ring-[#169BA4]"
+              className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg md:w-80 focus:outline-none focus:ring-2 focus:ring-[#169BA4]"
             />
           </div>
           <Select

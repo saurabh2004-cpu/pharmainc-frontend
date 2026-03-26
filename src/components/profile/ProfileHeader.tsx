@@ -522,19 +522,20 @@ export const ProfileHeader = ({
                             setImageModalType('coverImage');
                             setIsEditImageModalOpen(true);
                         }}
-                        className="absolute top-4 right-4 bg-black/50 hover:bg-black/60 text-white backdrop-blur-sm px-3 py-2 text-sm rounded-full flex items-center transition-colors z-10"
+                        className="absolute top-2 right-2 sm:top-4 sm:right-4 bg-black/50 hover:bg-black/60 text-white backdrop-blur-sm px-2 py-1.5 sm:px-3 sm:py-2 text-[10px] sm:text-xs md:text-sm rounded-full flex items-center transition-colors z-10"
                     >
-                        <Camera className="h-4 w-4 mr-2" />
-                        Edit cover
+                        <Camera className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                        <span className="hidden sm:inline">Edit cover</span>
+                        <span className="inline sm:hidden">Edit</span>
                     </button>
                 )}
 
-                <div className="absolute -bottom-16 left-6">
+                <div className="absolute -bottom-12 sm:-bottom-16 left-4 sm:left-6">
                     <div className="relative">
                         <UserAvatar
                             name={(institution ? displayInstitution?.name : displayUser?.firstName) || "User"}
                             src={getDisplayProfilePicture() || undefined}
-                            className="h-32 w-32 border-4 border-white shadow-lg text-4xl"
+                            className="h-31 w-24 sm:h-32 w-32 border-4 border-white shadow-lg text-2xl sm:text-4xl"
                         />
                         {(isOwnProfile || isOwnInstitute) && (
                             <button
@@ -542,31 +543,31 @@ export const ProfileHeader = ({
                                     setImageModalType('profileImage');
                                     setIsEditImageModalOpen(true);
                                 }}
-                                className="absolute bottom-2 right-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-2 shadow-sm transition-colors cursor-pointer z-10"
+                                className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-full p-1.5 sm:p-2 shadow-sm transition-colors cursor-pointer z-10"
                             >
-                                <Camera className="h-4 w-4 text-gray-600" />
+                                <Camera className="h-3 w-3 sm:h-4 sm:w-4 text-gray-600" />
                             </button>
                         )}
                     </div>
                 </div>
             </div>
 
-            <div className="pt-16 pb-4 px-6 relative">
-                <div className="absolute top-4 right-6 flex gap-2">
+            <div className="pt-12 sm:pt-16 pb-4 px-4 sm:px-6 relative">
+                <div className="flex flex-wrap items-center justify-end gap-2 mb-4">
                     {(isOwnProfile || isOwnInstitute) ? (
                         <>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full hover:bg-[#169BA4] hover:text-white"
+                                className="rounded-full hover:bg-[#169BA4] hover:text-white h-8 sm:h-9 text-xs sm:text-sm"
                                 onClick={() => setIsShareModalOpen(true)}
                             >
-                                <Share2 className="h-4 w-4" />
+                                <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full hover:bg-[#169BA4] hover:text-white"
+                                className="rounded-full hover:bg-[#169BA4] hover:text-white h-8 sm:h-9 text-xs sm:text-sm"
                                 onClick={() => {
                                     if (institution && isOwnInstitute) {
                                         setIsEditInstituteModalOpen(true);
@@ -575,8 +576,9 @@ export const ProfileHeader = ({
                                     }
                                 }}
                             >
-                                <Edit className="h-4 w-4 mr-2" />
-                                {institution && isOwnInstitute ? "Edit Institution" : "Edit Profile"}
+                                <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                                <span className="hidden sm:inline">{institution && isOwnInstitute ? "Edit Institution" : "Edit Profile"}</span>
+                                <span className="inline sm:hidden">Edit</span>
                             </Button>
                         </>
                     ) : (
@@ -584,18 +586,18 @@ export const ProfileHeader = ({
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full"
+                                className="rounded-full h-8 sm:h-9"
                                 onClick={() => setIsShareModalOpen(true)}
                             >
-                                <Share2 className="h-4 w-4" />
+                                <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                             <Button
                                 variant="outline"
                                 size="sm"
-                                className="rounded-full"
+                                className="rounded-full h-8 sm:h-9"
                                 onClick={handleMessage}
                             >
-                                <MessageSquare className="h-4 w-4" />
+                                <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                             </Button>
                         </>
                     )}

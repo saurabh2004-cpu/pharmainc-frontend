@@ -23,7 +23,8 @@ import {
   ChevronUp,
   ChevronDown,
   DollarSign,
-  Briefcase
+  Briefcase,
+  X
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -50,6 +51,7 @@ const SavedJobsPage = () => {
   const [sortField, setSortField] = useState<string>('savedAt');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [itemsPerPage] = useState(10);
 
   const [suggestedJobs, setSuggestedJobs] = useState<any[]>([]);
@@ -266,21 +268,29 @@ const SavedJobsPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
+    <div className="bg-gray-50 min-h-screen mb-12 lg:mb-0">
+      <div className="px-0 sm:px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
         <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100%-22rem)]">
-          <div className="p-4 sm:p-6">
+          <div className="p-4 sm:p-3 pb-20 lg:pb-6">
             <div className="mb-6">
-              <Button
-                variant="ghost"
-                onClick={() => router.back()}
-                className="mb-4 pl-0 hover:pl-2 transition-all"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Button>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => router.back()}
+                  className="pl-0 hover:pl-2 transition-all h-8 sm:h-auto"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </Button>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-500 bg-white border border-gray-200 shadow-sm"
+                >
+                  <Briefcase className="h-5 w-5" />
+                </button>
+              </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Saved Jobs</h1>
-              <p className="text-gray-600 mt-2">Jobs you have bookmarked for later</p>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Jobs you have bookmarked for later</p>
             </div>
 
             <Card className="mb-6">
@@ -299,7 +309,7 @@ const SavedJobsPage = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-600 whitespace-nowrap">Sort by:</span>
                     <Select value={sortField} onValueChange={setSortField}>
-                      <SelectTrigger className="w-32 sm:w-40">
+                      <SelectTrigger className="w-full sm:w-40 h-9 sm:h-10">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -312,6 +322,7 @@ const SavedJobsPage = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
+                      className="h-9 w-9 sm:h-10 sm:w-10"
                     >
                       {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
@@ -348,14 +359,14 @@ const SavedJobsPage = () => {
                 {paginatedJobs.map((job) => (
                   <Card
                     key={job.savedJobId || job.id}
-                    className="hover:shadow-md transition-shadow cursor-pointer group"
+                    className="hover:shadow-md transition-shadow cursor-pointer group rounded-xl sm:rounded-2xl"
                     onClick={() => router.push(`/find-jobs/${generateSlug(job as Job)}`)}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
+                    <CardContent className="p-2 sm:p-4">
+                      <div className="flex items-start gap-3 sm:gap-4">
                         {/* Institute logo: image if available, else colored initial */}
                         {job.companyLogo ? (
-                          <div className="h-12 w-12 rounded-lg border border-gray-100 flex-shrink-0 overflow-hidden">
+                          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg border border-gray-100 flex-shrink-0 overflow-hidden">
                             <Image
                               src={buildImageUrl(job.companyLogo)}
                               alt={job.companyName || 'Institute'}
@@ -365,51 +376,50 @@ const SavedJobsPage = () => {
                             />
                           </div>
                         ) : (
-                          <UserAvatar name={job.companyName} className="h-12 w-12 rounded-lg border border-gray-100" />
+                          <UserAvatar name={job.companyName} className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg border border-gray-100" />
                         )}
 
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold text-lg text-gray-900 mb-1 group-hover:text-blue-600 transition-colors">
+                              <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-0.5 sm:mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
                                 {job.title}
                               </h3>
-                              <p className="text-gray-600 mb-2">{job.companyName}</p>
+                              <p className="text-gray-500 text-sm sm:text-gray-600 mb-2 line-clamp-1">{job.companyName}</p>
                             </div>
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="text-gray-400 hover:text-red-500 hover:bg-red-50 -mt-1 -mr-2"
+                              className="text-gray-400 hover:text-red-500 hover:bg-red-50 -mt-1 -mr-2 h-8 w-8 sm:h-9 sm:w-9"
                               onClick={(e) => handleRemoveSavedJob(e, job.id)}
                               title="Remove from saved"
                             >
-                              <Trash2 className="h-5 w-5" />
+                              <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                             </Button>
                           </div>
 
-                          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+                          <div className="flex flex-wrap gap-x-4 gap-y-2 text-xs sm:text-sm text-gray-500">
                             {job.workLocation && (
                               <div className="flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                {/* {job.workLocation} */}
-                                <span>  {[job.city, job.country].filter(Boolean).join(', ')}</span>
+                                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                <span className="line-clamp-1">  {[job.city, job.country].filter(Boolean).join(', ')}</span>
                               </div>
                             )}
                             {job.jobType && (
                               <div className="flex items-center gap-1">
-                                <Building2 className="h-4 w-4" />
-                                {job.jobType}
+                                <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                <span className="line-clamp-1">{job.jobType}</span>
                               </div>
                             )}
                             {job.salaryMin && (
                               <div className="flex items-center gap-1">
-                                <DollarSign className="h-4 w-4" />
-                                {job.salaryCurrency} {job.salaryMin.toLocaleString()}
+                                <DollarSign className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                                <span>{job.salaryCurrency} {job.salaryMin.toLocaleString()}</span>
                               </div>
                             )}
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              Saved {formatTimeAgo(job.savedAt || '')}
+                              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                              <span className="whitespace-nowrap">Saved {formatTimeAgo(job.savedAt || '')}</span>
                             </div>
                           </div>
                         </div>
@@ -423,18 +433,22 @@ const SavedJobsPage = () => {
                   <div className="flex justify-center gap-2 mt-6">
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                     >
                       Previous
                     </Button>
-                    <span className="flex items-center px-4 text-sm text-gray-600">
+                    <span className="flex items-center px-2 sm:px-4 text-xs sm:text-sm text-gray-600">
                       Page {currentPage} of {totalPages}
                     </span>
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                       disabled={currentPage === totalPages}
+                      className="h-9 sm:h-10 text-xs sm:text-sm"
                     >
                       Next
                     </Button>
@@ -445,12 +459,45 @@ const SavedJobsPage = () => {
           </div>
         </div>
 
-        <JobRightSidebar
-          suggestedJobs={suggestedJobs}
-          loadingSuggestions={loadingSuggestions}
-          formatTimeAgo={formatTimeAgo}
-          currentUserId={currentUser?.id}
-        />
+        <div className="hidden lg:block">
+          <JobRightSidebar
+            suggestedJobs={suggestedJobs}
+            loadingSuggestions={loadingSuggestions}
+            formatTimeAgo={formatTimeAgo}
+            currentUserId={currentUser?.id}
+          />
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <div className="absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-gray-50 shadow-2xl transform transition-transform duration-300 ease-in-out">
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between p-4 bg-white border-b">
+                  <h3 className="text-lg font-bold">Menu</h3>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto pb-20">
+                  <JobRightSidebar
+                    suggestedJobs={suggestedJobs}
+                    loadingSuggestions={loadingSuggestions}
+                    formatTimeAgo={formatTimeAgo}
+                    currentUserId={currentUser?.id}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1679,24 +1679,24 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
               </fieldset>
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between gap-4 pt-6 border-t border-gray-200">
+              <div className="flex flex-col-reverse md:flex-row justify-between gap-4 pt-6 border-t border-gray-200">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={handleDiscard}
                   disabled={isSubmitting || !isVerified}
-                  className="px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
+                  className="w-full md:w-auto px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
                 >
                   Discard
                 </Button>
 
-                <div className="flex gap-3">
+                <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
                   <Button
                     type="button"
                     variant="secondary"
                     onClick={handleSaveDraft}
                     disabled={isSubmitting || !isVerified}
-                    className="px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
+                    className="w-full md:w-auto px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
                   >
                     {isLoading ? "Saving..." : "Save as Draft"}
                   </Button>
@@ -1707,7 +1707,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                       variant="outline"
                       onClick={handlePrevious}
                       disabled={isSubmitting || !isVerified}
-                      className="px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
+                      className="w-full md:w-auto px-6 bg-[#169BA4] hover:bg-[#169BA4]/80 text-white hover:text-white"
                     >
                       <ArrowLeft className="h-4 w-4 mr-2 " />
                       Previous
@@ -1719,7 +1719,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                       type="button"
                       onClick={handleNext}
                       disabled={isSubmitting || !isVerified}
-                      className="px-8 bg-[#233F64] hover:bg-[#169BA4]"
+                      className="w-full md:w-auto px-8 bg-[#233F64] hover:bg-[#169BA4]"
                     >
                       Next
                       <ArrowRight className="h-4 w-4 ml-2" />
@@ -1730,7 +1730,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                     <Button
                       type="button"
                       onClick={handleSubmit}
-                      className="px-8 bg-[#233F64] hover:bg-[#169BA4]"
+                      className="w-full md:w-auto px-8 bg-[#233F64] hover:bg-[#169BA4]"
                       disabled={isSubmitting || !isVerified}
                     >
                       {isSubmitting ? (isEditMode ? "Updating..." : "Creating...") : (isEditMode ? "Update Job" : "Create Job")}

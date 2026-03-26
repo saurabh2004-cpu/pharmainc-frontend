@@ -113,7 +113,7 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
                 {/* Add Skill Input - Only for own profile */}
                 {isOwnProfile && (
                     <div className="space-y-2">
-                        <div className="flex gap-2">
+                        <div className="flex flex-col sm:flex-row gap-2">
                             <Input
                                 type="text"
                                 placeholder="Enter a skill (e.g., React, Node.js)"
@@ -121,12 +121,12 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
                                 onChange={(e) => setNewSkill(e.target.value)}
                                 onKeyPress={handleKeyPress}
                                 disabled={isSaving}
-                                className="flex-1"
+                                className="flex-1 text-sm sm:text-base"
                             />
                             <Button
                                 onClick={handleAddSkill}
                                 disabled={!newSkill.trim() || isSaving}
-                                className="gap-2 bg-[#233F64] hover:bg-[#169BA4]"
+                                className="gap-2 bg-[#233F64] hover:bg-[#169BA4] w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base"
                             >
                                 <Plus className="h-4 w-4" />
                                 Add

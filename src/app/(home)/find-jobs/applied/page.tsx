@@ -31,7 +31,9 @@ import {
   ChevronDown,
   Video,
   Phone,
-  ExternalLink
+  ExternalLink,
+  X,
+  Briefcase
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -112,6 +114,7 @@ const AppliedJobsPage = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortField, setSortField] = useState<string>('applied_at');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -450,16 +453,29 @@ const AppliedJobsPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
+    <div className="bg-gray-50 min-h-screen mb-12 lg:mb-0">
+      <div className="px-0 sm:px-2 mx-auto flex flex-col lg:flex-row lg:gap-6">
         <div className="w-full lg:flex-1 lg:min-w-0 lg:max-w-[calc(100%-22rem)]">
-          <div className="p-4 sm:p-6">
+          <div className="p-4 sm:p-3 pb-20 lg:pb-6">
             <div className="mb-6">
-              <Button variant="ghost" onClick={() => router.back()} className="mb-4">
-                <ArrowLeft className="mr-2 h-4 w-4" /> Back to Find Jobs
-              </Button>
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => router.back()}
+                  className="pl-0 hover:pl-2 transition-all h-8 sm:h-auto"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  <span className="hidden sm:inline">Back</span>
+                </Button>
+                <button
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="lg:hidden p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-500 bg-white border border-gray-200 shadow-sm"
+                >
+                  <Briefcase className="h-5 w-5" />
+                </button>
+              </div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">My Applied Jobs</h1>
-              <p className="text-gray-600 mt-2">Track and manage your job applications</p>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base">Track and manage your job applications</p>
             </div>
 
             {/* Status Tabs */}
@@ -496,16 +512,16 @@ const AppliedJobsPage = () => {
 
             {/* Filter Section */}
             <Card className="mb-6">
-              <CardContent className="p-4">
+              <CardContent className="md:p-4"> 
                 <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
                       type="text"
-                      placeholder="Search by job title, company..."
+                      placeholder="Search jobs..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 h-9 sm:h-10"
                     />
                   </div>
 
@@ -515,7 +531,7 @@ const AppliedJobsPage = () => {
 
             {/* Applications List */}
             {sortedApplications.length === 0 && !loading ? (
-              <Card className="p-12">
+              <Card className="p-6 lg:p-12">
                 <div className="text-center">
                   <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No Applications Found</h3>
@@ -531,12 +547,12 @@ const AppliedJobsPage = () => {
               <>
                 <Card>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                       <CardTitle>Applications ({sortedApplications.length})</CardTitle>
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-gray-600 hidden sm:inline">Sort by:</span>
                         <Select value={sortField} onValueChange={setSortField}>
-                          <SelectTrigger className="w-32">
+                          <SelectTrigger className="w-full sm:w-32 h-9 sm:h-10">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -545,7 +561,12 @@ const AppliedJobsPage = () => {
                             <SelectItem value="status">Status</SelectItem>
                           </SelectContent>
                         </Select>
-                        <Button variant="ghost" size="sm" onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                          className="h-9 w-9 sm:h-10 sm:w-10"
+                        >
                           {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </Button>
                       </div>
@@ -554,12 +575,12 @@ const AppliedJobsPage = () => {
                   <CardContent className="p-0">
                     <div className="divide-y">
                       {paginatedApplications.map((application) => (
-                        <div key={application.id} className="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
-                          <div className="flex flex-col sm:flex-row gap-4">
-                            <div className="flex items-start gap-4 flex-1">
+                        <div key={application.id} className="p-2 sm:p-4 hover:bg-gray-50 transition-colors">
+                          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                            <div className="flex items-start gap-3 sm:gap-4 flex-1">
                               {/* Institute logo: image if available, else colored initial */}
                               {application.companyLogo ? (
-                                <div className="h-12 w-12 flex-shrink-0 rounded overflow-hidden border border-gray-100">
+                                <div className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-lg overflow-hidden border border-gray-100">
                                   <Image
                                     src={buildImageUrl(application.companyLogo)}
                                     alt={application.companyName || 'Institute'}
@@ -569,16 +590,16 @@ const AppliedJobsPage = () => {
                                   />
                                 </div>
                               ) : (
-                                <UserAvatar name={application.companyName} className="h-12 w-12 flex-shrink-0" />
+                                <UserAvatar name={application.companyName} className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-lg" />
                               )}
                               <div className="flex-1 min-w-0">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-1">{application.jobTitle}</h3>
-                                <p className="text-sm text-gray-600 mb-2">{application.companyName}</p>
-                                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
+                                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-0.5 sm:mb-1 line-clamp-1">{application.jobTitle}</h3>
+                                <p className="text-xs sm:text-sm text-gray-500 sm:text-gray-600 mb-2 line-clamp-1">{application.companyName}</p>
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[10px] sm:text-sm text-gray-500">
                                   {application.jobLocation && (
                                     <div className="flex items-center gap-1">
-                                      <MapPin className="h-4 w-4" />
-                                      <span>
+                                      <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                                      <span className="line-clamp-1">
                                         {(application.jobWorkLocation?.toLowerCase() === 'on-site' || application.jobWorkLocation?.toLowerCase() === 'onsite') && (application.jobCity || application.jobCountry)
                                           ? `${[application.jobCity, application.jobCountry].filter(Boolean).join(', ')}`
                                           : application.jobLocation}
@@ -587,28 +608,28 @@ const AppliedJobsPage = () => {
                                   )}
                                   {application.jobType && (
                                     <div className="flex items-center gap-1">
-                                      <Building2 className="h-4 w-4" />
-                                      <span>{application.jobType}</span>
+                                      <Building2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                                      <span className="line-clamp-1">{application.jobType}</span>
                                     </div>
                                   )}
                                   <div className="flex items-center gap-1">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>Applied: {formatDate(application.applied_at || application.appliedDate || application.created_at)}</span>
+                                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                                    <span className="whitespace-nowrap">Applied: {formatDate(application.applied_at || application.appliedDate || application.created_at)}</span>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                            <div className="flex flex-col sm:items-end gap-3 ">
-                              <Badge variant={getStatusBadgeVariant(application.status)} className='bg-[#169BA4] text-white'>
+                            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-2 sm:gap-3 sm:min-w-[140px]">
+                              <Badge variant={getStatusBadgeVariant(application.status)} className='bg-[#169BA4] text-white text-[10px] sm:text-xs py-0 sm:py-0.5'>
                                 {application.status?.replace(/_/g, ' ') || 'PENDING'}
                               </Badge>
 
                               {/* Respond to Next Round Buttons */}
                               {application.status === 'NEXT_ROUND_REQUESTED' && (
-                                <div className="flex gap-2">
+                                <div className="flex gap-1.5 sm:gap-2">
                                   <Button
                                     size="sm"
-                                    className="bg-[#233F64] hover:bg-[#169BA4] text-white"
+                                    className="bg-[#233F64] hover:bg-[#169BA4] text-white h-7 sm:h-9 text-[10px] sm:text-sm px-2 sm:px-4"
                                     onClick={() => handleNextRoundResponse(application.id, 'accept')}
                                     disabled={actionLoading === application.id}
                                   >
@@ -616,7 +637,7 @@ const AppliedJobsPage = () => {
                                   </Button>
                                   <Button
                                     size="sm"
-                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                    className="bg-red-600 hover:bg-red-700 text-white h-7 sm:h-9 text-[10px] sm:text-sm px-2 sm:px-4"
                                     onClick={() => handleNextRoundResponse(application.id, 'reject')}
                                     disabled={actionLoading === application.id}
                                   >
@@ -629,13 +650,13 @@ const AppliedJobsPage = () => {
                               {/* Users no longer respond to INTERVIEW_SCHEDULED */}
                               {/* Institute now directly finalizes after scheduling */}
 
-                              <div className="flex gap-2">
-                                <Button className='hover:bg-[#169BA4] hover:text-white' variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${generateSlug(application.job as Job)}`)}>
-                                  <Eye className="mr-1 h-4 w-4" /> View Job
+                              <div className="flex gap-1.5 sm:gap-2 ml-auto sm:ml-0">
+                                <Button className='hover:bg-[#169BA4] hover:text-white h-7 sm:h-9 text-[10px] sm:text-sm px-2 sm:px-3' variant="outline" size="sm" onClick={() => router.push(`/find-jobs/${generateSlug(application.job as Job)}`)}>
+                                  <Eye className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">View</span>
                                 </Button>
                                 {(application.resume_url || application.resumeUrl) && (
-                                  <Button className='hover:bg-[#169BA4] hover:text-white' variant="outline" size="sm" onClick={() => handleDownloadResume(application.resume_url || application.resumeUrl)}>
-                                    <Download className="mr-1 h-4 w-4" /> Resume
+                                  <Button className='hover:bg-[#169BA4] hover:text-white h-7 sm:h-9 text-[10px] sm:text-sm px-2 sm:px-3' variant="outline" size="sm" onClick={() => handleDownloadResume(application.resume_url || application.resumeUrl)}>
+                                    <Download className="mr-1 h-3 w-3 sm:h-4 sm:w-4" /> <span className="hidden xs:inline">Resume</span>
                                   </Button>
                                 )}
                               </div>
@@ -654,27 +675,27 @@ const AppliedJobsPage = () => {
                             const isVideo = type.toLowerCase().includes('video');
 
                             return (
-                              <div className="mt-4 p-4 bg-green-50 rounded-lg border border-green-100">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                  <div className="flex items-start gap-3">
-                                    <div className="p-2 bg-white rounded-full shadow-sm text-green-600">
-                                      {isVideo ? <Video className="h-5 w-5" /> : <Phone className="h-5 w-5" />}
+                              <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-green-50 rounded-lg border border-green-100">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                                  <div className="flex items-start gap-2 sm:gap-3">
+                                    <div className="p-1.5 sm:p-2 bg-white rounded-full shadow-sm text-green-600 flex-shrink-0">
+                                      {isVideo ? <Video className="h-4 w-4 sm:h-5 sm:w-5" /> : <Phone className="h-4 w-4 sm:h-5 sm:w-5" />}
                                     </div>
-                                    <div>
-                                      <h4 className="font-semibold text-green-900">
+                                    <div className="min-w-0">
+                                      <h4 className="font-semibold text-green-900 text-sm sm:text-base line-clamp-1">
                                         {isVideo ? 'Video Interview Scheduled' : 'Phone Interview Scheduled'}
                                       </h4>
-                                      <p className="text-sm text-green-700 mt-0.5">
+                                      <p className="text-xs text-green-700 mt-0.5 sm:mt-1 line-clamp-2">
                                         {isVideo
                                           ? "Your video interview has been confirmed. Please join using the button below."
-                                          : "The interviewer will call you at the scheduled time. Please ensure you are available at this time."}
+                                          : "The interviewer will call you at the scheduled time. Please ensure you are available."}
                                       </p>
-                                      <div className="flex flex-wrap items-center gap-4 mt-2 text-sm font-medium text-green-800">
-                                        <div className="flex items-center gap-1.5">
-                                          <Calendar className="h-4 w-4" />
+                                      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mt-2 text-[10px] sm:text-sm font-medium text-green-800">
+                                        <div className="flex items-center gap-1">
+                                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                                           <span>{date}</span>
                                         </div>
-                                        <div className="flex items-center gap-1.5">
+                                        <div className="flex items-center gap-1">
                                           <div className="rounded-full h-1 w-1 bg-green-400" />
                                           <span>{time}</span>
                                         </div>
@@ -684,10 +705,10 @@ const AppliedJobsPage = () => {
 
                                   {isVideo && link && (
                                     <Button
-                                      className="bg-green-600 hover:bg-green-700 text-white shrink-0"
+                                      className="bg-green-600 hover:bg-green-700 text-white shrink-0 h-8 sm:h-10 text-xs sm:text-sm"
                                       onClick={() => window.open(link.startsWith('http') ? link : `https://${link}`, '_blank')}
                                     >
-                                      <ExternalLink className="mr-2 h-4 w-4" /> Join Interview
+                                      <ExternalLink className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" /> Join Interview
                                     </Button>
                                   )}
                                 </div>
@@ -732,12 +753,45 @@ const AppliedJobsPage = () => {
           </div>
         </div>
 
-        <JobRightSidebar
-          suggestedJobs={suggestedJobs}
-          loadingSuggestions={loadingSuggestions}
-          formatTimeAgo={formatTimeAgo}
-          currentUserId={currentUser?.id}
-        />
+        <div className="hidden lg:block">
+          <JobRightSidebar
+            suggestedJobs={suggestedJobs}
+            loadingSuggestions={loadingSuggestions}
+            formatTimeAgo={formatTimeAgo}
+            currentUserId={currentUser?.id}
+          />
+        </div>
+
+        {/* Mobile Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity"
+              onClick={() => setIsSidebarOpen(false)}
+            />
+            <div className="absolute right-0 top-0 h-full w-[85%] max-w-[400px] bg-gray-50 shadow-2xl transform transition-transform duration-300 ease-in-out">
+              <div className="h-full flex flex-col">
+                <div className="flex items-center justify-between p-4 bg-white border-b">
+                  <h3 className="text-lg font-bold">Menu</h3>
+                  <button
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="p-2 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto pb-20">
+                  <JobRightSidebar
+                    suggestedJobs={suggestedJobs}
+                    loadingSuggestions={loadingSuggestions}
+                    formatTimeAgo={formatTimeAgo}
+                    currentUserId={currentUser?.id}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

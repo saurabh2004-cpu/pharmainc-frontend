@@ -11,7 +11,7 @@ interface ChartCardProps {
 export const ChartCard = ({ title, subtitle, children, actions }: ChartCardProps) => {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-col md:flex-row md:items-center justify-between">
         <div>
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
           <CardDescription className="text-sm text-gray-600">{subtitle}</CardDescription>

@@ -167,7 +167,7 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
           <div className="lg:col-span-2 space-y-6">
             {/* Key Information */}
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-2">
                 <Building2 className="h-5 w-5 text-blue-600" />
                 Key Information
               </h2>
@@ -254,8 +254,8 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
 
             {/* Services */}
             {instituteProfile.services && instituteProfile.services.length > 0 && (
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Services Offered</h2>
+              <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">Services Offered</h2>
                 <div className="flex flex-wrap gap-2">
                   {instituteProfile.services.map((service, index) => (
                     <Badge key={index} variant="secondary" className="px-3 py-1 text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 border-blue-100">
@@ -269,8 +269,8 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
 
           <div className="space-y-6">
             {/* Contact Information */}
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 h-fit">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Contact Information</h2>
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100 h-fit">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Contact Information</h2>
               <div className="space-y-4">
                 {instituteProfile.contactEmail && (
                   <div className="group flex items-start gap-3">
@@ -322,7 +322,7 @@ export function ProfilePageClient({ profileData, instituteData, currentUserId, u
 
   // Render User Profile (existing logic)
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-6">
       <ProfileHeader
         user={userData}
         institution={null}

@@ -74,7 +74,7 @@ const JobDetailsPage = () => {
     }
 
     return (
-        <div className="container mx-auto py-8 px-4 max-w-7xl">
+        <div className="container mx-auto py-2 md:py-8 px-1 md:px-4 max-w-7xl">
             <Button
                 variant="ghost"
                 className="mb-6 pl-0 hover:pl-2 transition-all"

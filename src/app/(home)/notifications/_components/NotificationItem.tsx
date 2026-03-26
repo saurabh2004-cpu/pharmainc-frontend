@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { MessageCircle, UserPlus, Briefcase, Check, X, Calendar, UserCheck } from 'lucide-react'
+import { MessageCircle, UserPlus, Briefcase, Check, X, Calendar, UserCheck, Hospital, HospitalIcon } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import Image from 'next/image'
@@ -109,7 +109,7 @@ export const NotificationItem = ({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2">
+          <div className="md:flex items-start justify-between gap-2">
             <div className="flex-1">
               <h4 className="text-sm font-semibold text-gray-900">
                 {title || (instituteName ? `${instituteName}` : 'Notification')}
@@ -154,11 +154,15 @@ export const NotificationItem = ({
 
               {/* Context details */}
               {(jobTitle && instituteName && status !== 'INTERVIEW_SCHEDULED') && (
-                <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                  <Briefcase size={12} />
-                  <span>{jobTitle}</span>
-                  <span>•</span>
-                  <span>{instituteName}</span>
+                <div className="md:flex items-center gap-2 mt-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-2">
+                    <Briefcase size={12} />
+                    <span>{jobTitle}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Hospital size={12} />
+                    <span>{instituteName}</span>
+                  </div>
                 </div>
               )}
 
@@ -171,7 +175,7 @@ export const NotificationItem = ({
               )}
             </div>
 
-            <span className="text-xs text-gray-400 whitespace-nowrap ml-2">
+            <span className="text-xs text-gray-400 whitespace-nowrap md:ml-2">
               {time || (timestamp && new Date(timestamp).toLocaleDateString())}
             </span>
           </div>

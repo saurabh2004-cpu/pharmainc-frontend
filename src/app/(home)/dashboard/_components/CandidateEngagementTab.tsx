@@ -88,16 +88,16 @@ export const CandidateEngagementTab = ({ credits, loadingCredits }: CandidateEng
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-end md:items-center justify-between gap-2 md:gap-0">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Candidate Engagement</h2>
+          <h2 className="text-md font-semibold text-gray-900">Candidate Engagement</h2>
           <p className="text-sm text-gray-600">
             {loading ? 'Loading statistics...' : 'Overall statistics for all jobs posted by your institute'}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Select defaultValue="daily">
-            <SelectTrigger className="w-24">
+            <SelectTrigger className="w-48 md:w-24">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

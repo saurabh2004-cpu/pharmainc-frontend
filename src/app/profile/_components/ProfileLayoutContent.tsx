@@ -56,8 +56,8 @@ export default function ProfileLayoutContent({ children }: ProfileLayoutContentP
           </div>
         </div>
 
-        <div className="flex-1 min-w-0 w-full border-x border-gray-200">
-          <main className="w-full p-4">
+        <div className="flex-1 min-w-0 w-full border-x border-gray-200 bg-gray-50/30">
+          <main className="w-full p-2 sm:p-4 md:p-6">
             {children}
           </main>
         </div>

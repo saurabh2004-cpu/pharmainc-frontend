@@ -268,7 +268,7 @@ const ApplicationDetailsPage = () => {
     const displayName = user.firstName ? `${user.firstName} ${user.lastName || ''}` : user.name;
 
     return (
-        <div className="container mx-auto p-6 max-w-6xl">
+        <div className="container mx-auto p-2 md:p-6 max-w-6xl">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <Button
@@ -289,7 +289,7 @@ const ApplicationDetailsPage = () => {
                 <div className="lg:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <div className="flex items-start gap-4">
+                            <div className="flex flex-col md:flex-row items-center md:items-start gap-4">
                                 <UserAvatar name={displayName} className="h-20 w-20" />
                                 <div className="flex-1">
                                     <CardTitle className="text-2xl mb-2">{displayName}</CardTitle>
@@ -326,7 +326,7 @@ const ApplicationDetailsPage = () => {
                                 )}
                             </div>
 
-                            <div className="flex gap-3 mt-6">
+                            <div className="flex flex-col md:flex-row gap-3 mt-6">
                                 <Button onClick={() => handleDownloadResume(application.resumeUrl)} disabled={downloadingResume}>
                                     {downloadingResume ? 'Downloading...' : 'Download Resume'}
                                 </Button>

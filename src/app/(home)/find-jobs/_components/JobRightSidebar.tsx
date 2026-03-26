@@ -219,7 +219,7 @@ const JobRightSidebar: React.FC<JobRightSidebarProps> = ({
               </div>
             )}
 
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
+            <div className="hidden bg-white rounded-lg border border-gray-200 p-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
                 <div

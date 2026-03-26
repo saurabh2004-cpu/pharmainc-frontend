@@ -46,7 +46,7 @@ const navigations = [
   { href: '/my-networks', icon: HiUserGroup, label: 'My Networks', userTypes: [''] },
   { href: '/find-jobs/bookmarks', icon: HiBookmark, label: 'Bookmarks', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
   {
-    href: '/find-jobs', icon: HiBriefcase, label: 'Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"],
+    href: '/find-jobs/applied', icon: HiBriefcase, label: 'Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"],
     subheadings: [
       { href: '/find-jobs/applied', icon: HiCheckCircle, label: 'Applied Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
       // { href: '/find-jobs/saved-jobs', icon: HiBookmark, label: 'Saved Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] }
@@ -294,17 +294,17 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
             <div className="xl:hidden flex flex-col items-center gap-4 relative" ref={profileMenuRef}>
               <button
                 onClick={handleProfileClick}
-                className="rounded-xl overflow-hidden shadow-sm border border-black/5 transition-transform hover:scale-105"
+                className="rounded-full overflow-hidden shadow-sm border border-black/5 transition-transform hover:scale-105"
               >
                 {sidebarProfilePicture ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={sidebarProfilePicture}
                     alt="Profile"
-                    className="w-12 h-12 object-cover"
+                    className="w-12 h-8 object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 bg-blue-100 flex items-center justify-center text-blue-600 font-bold uppercase rounded-xl">
+                  <div className="w-12 h-12 bg-blue-100 flex items-center justify-center text-blue-600 font-bold uppercase rounded-full">
                     {(("firstName" in displayUser && displayUser.firstName) || displayUser.name || "U")[0]}
                   </div>
                 )}

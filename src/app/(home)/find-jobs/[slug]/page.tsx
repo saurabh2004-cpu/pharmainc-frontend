@@ -263,7 +263,7 @@ const JobDetailPage = () => {
   if (!job) {
     return (
       <div className="min-h-screen bg-white">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex  items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-4">
             <button onClick={() => router.back()} className="p-1">
               <ArrowLeft className="h-5 w-5" />
@@ -287,28 +287,30 @@ const JobDetailPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-4 border-b border-gray-200 gap-4 md:gap-0">
+        <div className="flex items-center justify-between md:justify-start w-full md:w-auto gap-4">
           <button
             onClick={() => router.back()}
-            className="p-1"
+            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
-              <Briefcase className="h-4 w-4 text-white" />
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gray-900 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-            <span className="font-semibold uppercase">{job.title}</span>
+            <span className="font-semibold uppercase text-xs sm:text-base text-gray-900 truncate max-w-[150px] sm:max-w-[300px] md:max-w-none">
+              {job.title}
+            </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex justify-between md:justify-end w-full md:w-auto items-center gap-3">
           {isMounted && (!currentUser || currentUser.role !== 'INSTITUTE') && (
             <>
               <button
                 onClick={handleBookmark}
-                className="p-2 rounded-full hover:bg-gray-100 "
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
               >
                 <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-blue-500 text-blue-500' : 'text-gray-400'}`} />
               </button>
@@ -316,7 +318,7 @@ const JobDetailPage = () => {
               {!currentUser ? (
                 <Button
                   onClick={() => router.push(`/auth?type=signin&redirectTo=/find-jobs/${jobSlug}`)}
-                  className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6"
+                  className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm whitespace-nowrap"
                 >
                   Login to Apply
                 </Button>
@@ -324,18 +326,20 @@ const JobDetailPage = () => {
                 hasAlreadyApplied ? (
                   <Button
                     disabled
-                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6 cursor-not-allowed opacity-80"
+                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm cursor-not-allowed opacity-80 whitespace-nowrap"
                   >
-                    <CheckCircle className="mr-2 h-4 w-4" />
+                    <CheckCircle className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     APPLIED
                   </Button>
                 ) : (
                   <Button
                     onClick={handleApply}
                     disabled={isApplying}
-                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-6 disabled:opacity-60"
+                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm disabled:opacity-60 whitespace-nowrap"
                   >
-                    {isApplying ? 'Checking...' : 'APPLY NOW →'}
+                    {isApplying ? 'Checking...' : (
+                      <>APPLY NOW <span>→</span></>
+                    )}
                   </Button>
                 )
               )}
@@ -345,23 +349,23 @@ const JobDetailPage = () => {
       </div>
 
       {/* Navigation Tabs - Simplified with only Overview and Share */}
-      <div className="max-w-7xl mx-auto px-6 mt-6">
+      <div className="max-w-7xl mx-auto px-2 md:px-6 mt-6">
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
             {/* Left side - Navigation Tabs */}
-            <div className="flex gap-8">
-              <button className="py-2 border-b-2 border-black font-medium text-black">
+            <div className="flex gap-6 sm:gap-8">
+              <button className="py-2 border-b-2 border-black font-medium text-black text-sm sm:text-base">
                 Overview
               </button>
             </div>
 
             {/* Right side - Share Button */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4 sm:gap-6">
               <button
                 onClick={() => setShowShareModal(true)}
-                className="flex items-center gap-2 text-sm text-gray-600 hover:text-black transition-colors"
+                className="flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-black transition-colors"
               >
-                <Share className="h-4 w-4" />
+                <Share className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Share
               </button>
             </div>
@@ -369,11 +373,11 @@ const JobDetailPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-7xl mx-auto p-2 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Content */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-start gap-6">
+            <div className="flex flex-col md:flex-row items-start gap-6">
               {/* Institute logo: image if available, else black square with initials */}
               {buildImageUrl((job.institute as any)?.profile_picture ?? undefined, '') ? (
                 <div
@@ -415,7 +419,7 @@ const JobDetailPage = () => {
                   <span className="text-sm text-gray-500">{formatTimeAgo(job.created_at)}</span>
                 </div>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-3 leading-tight uppercase">
+                <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight uppercase">
                   {job.title}
                 </h1>
 

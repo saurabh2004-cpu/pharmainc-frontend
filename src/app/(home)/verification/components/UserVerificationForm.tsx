@@ -298,9 +298,9 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
     };
 
     return (
-        <div className="container mx-auto py-12 px-4 max-w-4xl">
+        <div className="container mx-auto py-4 md:py-12 px-4 max-w-4xl">
             <div className="mb-10">
-                <h2 className="text-3xl font-bold text-gray-900 font-sans mb-2">Professional Credentials</h2>
+                <h2 className="text-xl md:text-3xl font-bold text-gray-900 font-sans mb-2">Professional Credentials</h2>
                 <p className="text-gray-500">Complete this form to verify your medical identity and professional status.</p>
 
                 {verificationStatus === "REJECTED" && (
@@ -827,7 +827,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                             control={form.control}
                             name="declaration"
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-5 rounded-2xl bg-gray-50 border border-gray-100">
+                                <FormItem className="flex flex-row items-start space-x-3 space-y-0 p-2 md:p-5 rounded-2xl bg-gray-50 border border-gray-100">
                                     <FormControl>
                                         <Checkbox
                                             checked={field.value}
@@ -845,7 +845,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                         />
                     </div>
 
-                    <div className="flex items-center justify-center pt-8">
+                    <div className="flex items-center justify-center lg:pt-8">
                         <Button
                             type="submit"
                             size="lg"
@@ -875,7 +875,7 @@ function Section({ title, description, children }: { title: string; description:
                 <h3 className="text-lg font-bold text-gray-900 font-sans">{title}</h3>
                 <p className="text-sm text-gray-500">{description}</p>
             </div>
-            <div className="p-6 md:p-8">
+            <div className="p-2 md:p-8">
                 {children}
             </div>
         </div>

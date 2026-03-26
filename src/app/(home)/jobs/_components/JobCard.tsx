@@ -132,14 +132,14 @@ const JobCard = ({ job }: JobCardProps) => {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-[24px] p-6 mb-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 border border-gray-100/50 group"
+      className="bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-6 mb-4 shadow-[0_2px_12px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-300 border border-gray-100/50 group"
     >
       <div className="flex flex-col gap-5">
         {/* Header Section */}
         <div className="flex items-start justify-between">
           <div className="flex gap-4">
             {/* Company Logo */}
-            <div className="w-[56px] h-[56px] rounded-[14px] overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-white flex items-center justify-center p-1.5">
+            <div className="w-12 h-12 sm:w-[56px] sm:h-[56px] rounded-[10px] sm:rounded-[14px] overflow-hidden border border-gray-100 shadow-sm flex-shrink-0 bg-white flex items-center justify-center p-1 sm:p-1.5">
               {instituteImageUrl ? (
                 <div className="relative w-full h-full">
                   <Image
@@ -162,12 +162,12 @@ const JobCard = ({ job }: JobCardProps) => {
             </div>
 
             <div className="flex flex-col gap-0.5 min-w-0 pt-0.5">
-              <h3 className="text-[20px] font-bold text-[#111827] leading-tight group-hover:text-blue-600 transition-colors truncate">
+              <h3 className="text-lg sm:text-[20px] font-bold text-[#111827] leading-tight group-hover:text-blue-600 transition-colors truncate">
                 {job.title}
               </h3>
-              <div className="flex items-center gap-2 text-[15px] font-normal text-gray-500">
-                <span className="truncate">{job.institution?.name || "Healthcare Institute"}</span>
-                <span className="text-gray-400">·</span>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-[15px] font-normal text-gray-500">
+                <span className="truncate max-w-[150px] sm:max-w-none">{job.institution?.name || "Healthcare Institute"}</span>
+                <span className="text-gray-400 hidden sm:inline">·</span>
                 <span className="whitespace-nowrap">Posted {formatTimeAgo(job.created_at)}</span>
               </div>
             </div>
@@ -199,13 +199,13 @@ const JobCard = ({ job }: JobCardProps) => {
 
         {/* Footer Tags & Salary */}
         <div className="flex flex-wrap items-center gap-3 mt-1">
-          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+          <div className="bg-[#F3F4F6] px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-[14px] font-medium text-gray-600">
             {job.experienceLevel || '3y+'}
           </div>
-          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+          <div className="bg-[#F3F4F6] px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-[14px] font-medium text-gray-600">
             {job.jobType || 'Full time'}
           </div>
-          <div className="bg-[#F3F4F6] px-4 py-2 rounded-full text-[14px] font-medium text-gray-600">
+          <div className="bg-[#F3F4F6] px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-[14px] font-medium text-gray-600">
             {(() => {
               const workLoc = job.workLocation || "On-site";
               const isHybridOrOnsite = ["hybrid", "onsite", "on-site"].includes(workLoc.toLowerCase());
@@ -218,14 +218,14 @@ const JobCard = ({ job }: JobCardProps) => {
           </div>
 
 
-          <div className="flex items-baseline gap-1.5 ml-auto sm:ml-4">
-            <span className="text-[18px] font-bold text-[#111827]">
+          <div className="flex items-baseline gap-1 sm:gap-1.5 ml-auto">
+            <span className="text-base sm:text-[18px] font-bold text-[#111827]">
               {job.salaryMin && job.salaryMax ?
                 `${job.salaryCurrency === 'INR' ? '₹' : '$'}${Math.round(job.salaryMin / 1000)}k-${Math.round(job.salaryMax / 1000)}k` :
                 '$10k-13k'
               }
             </span>
-            <span className="text-[14px] font-normal text-gray-400">/month</span>
+            <span className="text-[12px] sm:text-[14px] font-normal text-gray-400">/mo</span>
           </div>
         </div>
       </div>

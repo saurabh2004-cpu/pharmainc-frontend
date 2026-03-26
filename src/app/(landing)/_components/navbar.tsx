@@ -19,7 +19,7 @@ const Navbar = () => {
         const cookies = document.cookie.split('; ');
         const token = cookies.find(row => row.startsWith('accessToken='));
         const type = cookies.find(row => row.startsWith('userType='));
-        
+
         setHasToken(!!token);
         if (type) {
             setUserType(type.split('=')[1]);
@@ -75,13 +75,13 @@ const Navbar = () => {
 
                 <div className="flex items-center space-x-3">
                     <div className="hidden sm:flex items-center space-x-3">
-                        {currentUser || (hasToken && userType === 'USER') ? (
+                        {hasToken && userType === 'USER' ? (
                             <Link href="/find-jobs">
                                 <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
                                     Home
                                 </button>
                             </Link>
-                        ) : currentInstitution || (hasToken && userType === 'INSTITUTE') ? (
+                        ) : hasToken && userType === 'INSTITUTE' ? (
                             <Link href="/dashboard">
                                 <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
                                     Home

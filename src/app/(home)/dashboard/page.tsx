@@ -113,12 +113,12 @@ const DashboardContent = () => {
       {/* <DashboardHeader /> */}
 
       <div className="px-2 py-6 bg-white w-full">
-        <div className="mb-6 flex justify-between items-start">
-          <div>
+        <div className="mb-6 flex flex-col justify-between items-start gap-2">
+          <div >
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Institute Dashboard</h1>
             <p className="text-gray-600">Track your hiring metrics</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between  md:justify-end gap-4 w-full">
             {(getUserType() === 'INSTITUTE' || getUserType() === 'INSTITUTE') && (
               <Link
                 href="/credit-history"
@@ -154,7 +154,7 @@ const DashboardContent = () => {
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-6 w-full justify-start">
+          <TabsList className="mb-6 w-full overflow-x-auto justify-start">
             <TabsTrigger value="overview" className={`px-4 py-2 ${activeTab === 'overview' ? 'bg-[#169BA4] text-white' : ''}`}>
               Overview
             </TabsTrigger>

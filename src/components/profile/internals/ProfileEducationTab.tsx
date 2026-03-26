@@ -91,53 +91,55 @@ export const ProfileEducationTab = ({ userId, currentUserId, onAdd, onEdit, refr
 
   return (
     <Card className="rounded-xl shadow-sm border-gray-200 bg-white">
-      <CardHeader className="flex flex-row items-center justify-between  border-b border-gray-100">
-        <CardTitle className="text-xl font-bold text-gray-900">Education</CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl font-bold text-gray-900">Education</CardTitle>
         {isOwnProfile && (
-          <Button onClick={onAdd} size="sm" className="gap-2 bg-[#233F64] hover:bg-[#169BA4]">
+          <Button onClick={onAdd} size="sm" className="gap-2 bg-[#233F64] hover:bg-[#169BA4] w-full sm:w-auto">
             <Plus className="h-4 w-4" /> Add Education
           </Button>
         )}
       </CardHeader>
-      <CardContent className="">
+      <CardContent className="p-4 sm:p-6">
         {isLoading ? (
           <div className="text-center py-4 text-gray-500">Loading education...</div>
         ) : educations.length > 0 ? (
           <div className="space-y-6">
             {educations.map((edu) => (
               <div key={edu.id} className="relative flex gap-4 group">
-                <div className="mt-1">
-                  <div className="h-12 w-12 rounded-lg bg-orange-50 flex items-center justify-center border border-orange-100">
-                    <GraduationCap className="h-6 w-6 text-orange-600" />
+                <div className="mt-1 flex-shrink-0">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-lg bg-orange-50 flex items-center justify-center border border-orange-100">
+                    <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-orange-600" />
                   </div>
                 </div>
                 <div className="flex-1">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">{edu.instituteName || "Unknown Institute"}</h3>
-                      <p className="text-gray-700 font-medium">{edu.title || edu.degree}</p>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 leading-tight truncate-two-lines">{edu.instituteName || "Unknown Institute"}</h3>
+                      <p className="text-sm sm:text-base text-gray-700 font-medium mt-0.5">{edu.title || edu.degree}</p>
                     </div>
                     {isOwnProfile && (
-                      <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-blue-600 hover:text-white hover:bg-[#169BA4]" onClick={() => handleEditClick(edu)}>
+                      <div className="flex-shrink-0 flex gap-1 sm:gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 sm:text-gray-500 hover:text-white hover:bg-[#169BA4]" onClick={() => handleEditClick(edu)}>
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-500 hover:text-white hover:bg-[#169BA4]" onClick={() => handleDelete(edu.id)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 sm:text-gray-500 hover:text-white hover:bg-[#169BA4]" onClick={() => handleDelete(edu.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     )}
                   </div>
 
-                  <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                    <span>{formatDate((edu as any).startDate || edu.start_date)} - {formatDate((edu as any).endDate || edu.end_date, !((edu as any).endDate || edu.end_date))}</span>
+                  <div className="text-sm text-gray-500 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <span className="font-medium text-gray-600 uppercase text-[10px] tracking-wider sm:normal-case sm:text-sm sm:font-normal sm:text-gray-500">
+                      {formatDate((edu as any).startDate || edu.start_date)} - {formatDate((edu as any).endDate || edu.end_date, !((edu as any).endDate || edu.end_date))}
+                    </span>
                     {(edu.city || edu.country) && (
-                      <>
-                        <span>•</span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-gray-300">•</span>
                         <span>{edu.city}{edu.country ? `, ${edu.country}` : ''}</span>
-                      </>
+                      </span>
                     )}
-                  </p>
+                  </div>
 
                   {edu.description && (
                     <p className="text-sm text-gray-600 mt-3 whitespace-pre-wrap leading-relaxed">

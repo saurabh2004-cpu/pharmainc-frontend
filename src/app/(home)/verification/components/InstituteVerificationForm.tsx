@@ -127,9 +127,9 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
     };
 
     return (
-        <div className="container mx-auto py-12 px-4 max-w-4xl">
+        <div className="container mx-auto py-4 md:py-12 px-1 md:px-4 max-w-4xl">
             <div className="mb-10">
-                <h2 className="text-3xl font-bold text-gray-900 font-sans mb-2">Institute Verification</h2>
+                <h2 className="text-xl md:text-3xl font-bold text-gray-900 font-sans mb-2">Institute Verification</h2>
                 <p className="text-gray-500">Provide official details to verify your institute's identity.</p>
 
                 {verificationStatus === "REJECTED" && (
@@ -260,7 +260,7 @@ export function InstituteVerificationForm({ verificationStatus, setVerificationS
                         </div>
                     </Section>
 
-                    <div className="flex items-center justify-center pt-8">
+                    <div className="flex items-center justify-center pt-2 lg:pt-8">
                         <Button
                             type="submit"
                             size="lg"
