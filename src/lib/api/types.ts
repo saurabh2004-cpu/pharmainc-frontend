@@ -802,3 +802,23 @@ export interface ApplicationStats {
   interviewScheduled: number;
   rejected: number;
 }
+
+export interface Package {
+  id: string;
+  name: string;
+  price: number;
+  credits: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Transaction {
+  id: string;
+  amount: number;
+  instituteId: string;
+  packageId: string;
+  createdAt: string;
+  updatedAt: string;
+  package?: Package;
+  institute?: Institution;
+}
