@@ -58,9 +58,10 @@ export function SearchableSelect({
             <PopoverTrigger asChild>
                 <Button
                     variant="outline"
+                    data-slot="select-trigger"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between", className)}
+                    className={cn("w-full justify-between  hover:bg-white", className)}
                     disabled={disabled}
                 >
                     {value
@@ -87,8 +88,8 @@ export function SearchableSelect({
                                     <div
                                         key={option.value}
                                         className={cn(
-                                            "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground",
-                                            value === option.value && "bg-accent/50"
+                                            "relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-[#169BA4] hover:text-white transition-colors",
+                                            value === option.value && "bg-[#169BA4]/20 text-[#169BA4] font-medium"
                                         )}
                                         onClick={() => {
                                             onValueChange(option.value);

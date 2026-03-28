@@ -119,7 +119,7 @@ export function InstituteSignUpForm({
                     value={name}
                     onChange={(e) => onNameChange(e.target.value)}
                     disabled={loading}
-                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.name ? "border-red-500 focus:ring-red-500" : ""}`}
+                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.name ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
             </div>
@@ -132,7 +132,7 @@ export function InstituteSignUpForm({
                         onValueChange={onCountryChange}
                         disabled={loading || loadingCountries}
                     >
-                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}>
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder={loadingCountries ? "Loading..." : "Select Country"} />
                         </SelectTrigger>
                         <SelectContent>
@@ -152,7 +152,7 @@ export function InstituteSignUpForm({
                         onValueChange={onCityChange}
                         disabled={loading || !country || loadingCities}
                     >
-                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}>
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder={loadingCities ? "Loading..." : "Select City"} />
                         </SelectTrigger>
                         <SelectContent>
@@ -171,7 +171,7 @@ export function InstituteSignUpForm({
                 <div className="space-y-2">
                     <Label htmlFor="institute-type" className="text-gray-600">Institute Type *</Label>
                     <Select value={type} onValueChange={onTypeChange} disabled={loading}>
-                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.type ? "border-red-500 focus:ring-red-500" : ""}`}>
+                        <SelectTrigger className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.type ? "border-red-500 focus:ring-red-500" : ""}`}>
                             <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -195,7 +195,7 @@ export function InstituteSignUpForm({
                     value={email}
                     onChange={(e) => onEmailChange(e.target.value)}
                     disabled={loading}
-                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
+                    className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
                 />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
             </div>
@@ -209,7 +209,7 @@ export function InstituteSignUpForm({
                         value={contactNumber}
                         onChange={(e) => onContactNumberChange(e.target.value)}
                         disabled={loading}
-                        className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.contactNumber ? "border-red-500 focus:ring-red-500" : ""}`}
+                        className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.contactNumber ? "border-red-500 focus:ring-red-500" : ""}`}
                     />
                     {errors.contactNumber && <p className="text-red-500 text-xs mt-1">{errors.contactNumber}</p>}
                 </div>
@@ -223,7 +223,7 @@ export function InstituteSignUpForm({
                             value={password}
                             onChange={(e) => onPasswordChange(e.target.value)}
                             disabled={loading}
-                            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
+                            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
                         />
                         <button
                             type="button"
@@ -247,7 +247,7 @@ export function InstituteSignUpForm({
                         value={bedsCount}
                         onChange={(e) => onBedsCountChange(e.target.value)}
                         disabled={loading}
-                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4]"
                     />
                 </div>
                 <div className="space-y-2">
@@ -259,7 +259,7 @@ export function InstituteSignUpForm({
                         value={staffCount}
                         onChange={(e) => onStaffCountChange(e.target.value)}
                         disabled={loading}
-                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white"
+                        className="h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4]"
                     />
                 </div>
             </div>

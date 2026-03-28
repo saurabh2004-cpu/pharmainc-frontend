@@ -113,8 +113,8 @@ const DashboardContent = () => {
       {/* <DashboardHeader /> */}
 
       <div className="px-2 py-6 bg-white w-full">
-        <div className="mb-6 flex flex-col justify-between items-start gap-2">
-          <div >
+        <div className="mb-6 flex flex-col md:flex-row justify-between items-start gap-2 px-3">
+          <div className='w-full md:ml-6'>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Institute Dashboard</h1>
             <p className="text-gray-600">Track your hiring metrics</p>
           </div>

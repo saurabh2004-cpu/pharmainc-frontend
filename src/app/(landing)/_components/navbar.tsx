@@ -77,25 +77,25 @@ const Navbar = () => {
                     <div className="hidden sm:flex items-center space-x-3">
                         {hasToken && userType === 'USER' ? (
                             <Link href="/find-jobs">
-                                <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
+                                <button className='px-3 md:px-4 py-2 rounded-full bg-[#233F64] text-white font-semibold text-sm transition-all duration-200 hover:bg-[#169BA4] hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#169BA4] focus:ring-offset-2'>
                                     Home
                                 </button>
                             </Link>
                         ) : hasToken && userType === 'INSTITUTE' ? (
                             <Link href="/dashboard">
-                                <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
+                                <button className='px-3 md:px-4 py-2 rounded-full bg-[#233F64] text-white font-semibold text-sm transition-all duration-200 hover:bg-[#169BA4] hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#169BA4] focus:ring-offset-2'>
                                     Home
                                 </button>
                             </Link>
                         ) : !hasToken ? (
                             <>
                                 <Link href="/auth">
-                                    <button className='px-3 md:px-4 py-2 rounded-full outline-1 outline-black font-semibold text-sm transition-all duration-200 hover:bg-black hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
+                                    <button className='px-3 md:px-4 py-2 rounded-full outline-1 outline-black font-semibold text-sm transition-all duration-200 bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#169BA4] focus:ring-offset-2'>
                                         Log In
                                     </button>
                                 </Link>
                                 <Link href="/auth?type=signup">
-                                    <button className='px-3 md:px-4 py-2 rounded-full bg-black text-white font-semibold text-sm transition-all duration-200 hover:bg-gray-800 hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2'>
+                                    <button className='px-3 md:px-4 py-2 rounded-full bg-[#233F64] text-white font-semibold text-sm transition-all duration-200 hover:bg-[#169BA4] hover:text-white hover:shadow-md active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#169BA4] focus:ring-offset-2'>
                                         Sign Up
                                     </button>
                                 </Link>

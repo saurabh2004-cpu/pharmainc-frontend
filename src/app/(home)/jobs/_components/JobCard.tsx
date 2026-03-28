@@ -162,7 +162,7 @@ const JobCard = ({ job }: JobCardProps) => {
             </div>
 
             <div className="flex flex-col gap-0.5 min-w-0 pt-0.5">
-              <h3 className="text-lg sm:text-[20px] font-bold text-[#111827] leading-tight group-hover:text-blue-600 transition-colors truncate">
+              <h3 className="text-lg sm:text-[20px] font-bold text-[#111827] leading-tight group-hover:text-[#169BA4] transition-colors truncate">
                 {job.title}
               </h3>
               <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm sm:text-[15px] font-normal text-gray-500">
@@ -181,7 +181,7 @@ const JobCard = ({ job }: JobCardProps) => {
                 isSaved ? "text-gray-400" : "text-gray-300 hover:text-gray-500 hover:bg-gray-50"
               )}
             >
-              <Bookmark className="h-[26px] w-[26px]" fill={isSaved ? "currentColor" : "none"} strokeWidth={1.5} />
+              <Bookmark className="h-[26px] w-[26px]" stroke={isSaved ? "#0AD4CE" : "#233F64"} fill={isSaved ? "#0AD4CE" : "none"} strokeWidth={1.5} />
             </button>
             <button
               onClick={handleMoreClick}

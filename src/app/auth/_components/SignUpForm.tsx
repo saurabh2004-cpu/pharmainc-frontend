@@ -77,7 +77,7 @@ export function SignUpForm({
             value={firstName}
             onChange={(e) => onFirstNameChange(e.target.value)}
             disabled={loading}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.firstName ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.firstName ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
         </div>
@@ -89,7 +89,7 @@ export function SignUpForm({
             value={lastName}
             onChange={(e) => onLastNameChange(e.target.value)}
             disabled={loading}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.lastName ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.lastName ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
         </div>
@@ -104,7 +104,7 @@ export function SignUpForm({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           disabled={loading}
-          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
+          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
         />
         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
       </div>
@@ -119,7 +119,7 @@ export function SignUpForm({
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={loading}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           <button
             type="button"
@@ -143,7 +143,7 @@ export function SignUpForm({
             searchPlaceholder="Search country..."
             emptyMessage="No country found."
             disabled={loading || loadingCountries}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.country ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           {errors.country && <p className="text-red-500 text-xs mt-1">{errors.country}</p>}
         </div>
@@ -157,13 +157,11 @@ export function SignUpForm({
             searchPlaceholder="Search city..."
             emptyMessage="No city found."
             disabled={loading || !country || loadingCities}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.city ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
         </div>
       </div>
-
-
       {roleSpecificFields}
 
       < div className="flex items-center space-x-2" >

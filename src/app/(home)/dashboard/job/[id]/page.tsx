@@ -77,7 +77,7 @@ const JobDetailsPage = () => {
         <div className="container mx-auto py-2 md:py-8 px-1 md:px-4 max-w-7xl">
             <Button
                 variant="ghost"
-                className="mb-6 pl-0 hover:pl-2 transition-all"
+                className="mb-6 pl-0 hover:pl-2 transition-all hover:bg-[#169BA4] hover:text-white"
                 onClick={() => router.back()}
             >
                 <ArrowLeft className="mr-2 h-4 w-4" />

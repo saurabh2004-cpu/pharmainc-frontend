@@ -295,7 +295,7 @@ const SavedJobsPage = () => {
 
             <Card className="mb-6">
               <CardContent className="p-4">
-                <div className="flex flex-col sm:flex-row gap-4">
+                <div className="flex flex-col sm:flex-row gap-4 items-center">
                   <div className="flex-1 relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <Input
@@ -322,7 +322,7 @@ const SavedJobsPage = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc')}
-                      className="h-9 w-9 sm:h-10 sm:w-10"
+                      className="h-9 w-9 sm:h-10 sm:w-10 bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white"
                     >
                       {sortDirection === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                     </Button>
@@ -333,8 +333,8 @@ const SavedJobsPage = () => {
 
             {sortedJobs.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 px-4 bg-white rounded-lg border border-gray-200 border-dashed">
-                <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-                  <FileText className="h-10 w-10 text-blue-300" />
+                <div className="">
+                  <FileText className="h-10 w-10 text-[#169BA4]" />
                 </div>
                 <h3 className="text-2xl font-semibold text-gray-800 mb-2 font-sans">
                   {searchTerm ? 'No jobs found' : 'No saved jobs yet'}
@@ -347,7 +347,7 @@ const SavedJobsPage = () => {
                 {!searchTerm && (
                   <Button
                     onClick={() => router.push('/find-jobs')}
-                    className="bg-blue-600 hover:bg-blue-700"
+                    className="bg-[#233F64] hover:bg-[#169BA4]"
                   >
                     <Briefcase className="w-4 h-4 mr-2" />
                     Browse Jobs
@@ -382,7 +382,7 @@ const SavedJobsPage = () => {
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-0.5 sm:mb-1 group-hover:text-blue-600 transition-colors line-clamp-1">
+                              <h3 className="font-semibold text-base sm:text-lg text-gray-900 mb-0.5 sm:mb-1 group-hover:text-[#169BA4] transition-colors line-clamp-1">
                                 {job.title}
                               </h3>
                               <p className="text-gray-500 text-sm sm:text-gray-600 mb-2 line-clamp-1">{job.companyName}</p>

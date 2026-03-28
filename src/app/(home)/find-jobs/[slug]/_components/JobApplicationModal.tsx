@@ -62,7 +62,7 @@ export default function JobApplicationModal({
         setIsLoadingOrgData(true);
         try {
           const orgData = await getCurrentOrganization();
-          
+
           // Map numeric experience to range value
           const mapExperienceToRange = (years: number | undefined) => {
             if (years === undefined || years === null) return '';
@@ -257,7 +257,7 @@ export default function JobApplicationModal({
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5 text-blue-600" />
+            <Briefcase className="w-5 h-5 text-[#233F64]" />
             Apply for Position
           </DialogTitle>
           <DialogDescription>
@@ -308,8 +308,8 @@ export default function JobApplicationModal({
                 <Label htmlFor="experienceYears" className="text-sm font-medium">
                   Years of Experience *
                 </Label>
-                <Select 
-                  value={formData.experienceYears} 
+                <Select
+                  value={formData.experienceYears}
                   onValueChange={(value) => handleInputChange('experienceYears', value)}
                 >
                   <SelectTrigger>
@@ -426,14 +426,14 @@ export default function JobApplicationModal({
             <Button
               variant="outline"
               onClick={onClose}
-              className="flex-1"
+              className="flex-1 hover:bg-[#169BA4] hover:text-white transition-colors"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1 bg-blue-600 hover:bg-blue-700"
+              className="flex-1 bg-[#233F64] hover:bg-[#169BA4] disabled:opacity-80"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

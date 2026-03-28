@@ -108,18 +108,18 @@ const ProfileIncompleteModal = ({ isOpen, onClose, errorMessage, userId, isProfi
                     </div>
 
                     {/* Footer */}
-                    <div className="p-6 bg-gray-50 rounded-b-2xl border-t border-gray-100">
+                    <div className="p-6 bg-white  rounded-b-2xl border-t border-gray-100">
                         <div className="flex gap-3">
                             <Button
                                 variant="outline"
                                 onClick={onClose}
-                                className="flex-1 h-11"
+                                className="flex-1 h-11 hover:bg-[#169BA4] hover:text-white"
                             >
                                 Cancel
                             </Button>
                             <Button
                                 onClick={handleCompleteProfile}
-                                className="flex-1 h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                                className="flex-1 h-11 bg-[#233F64] hover:bg-[#169BA4] text-white font-medium"
                             >
                                 {isNotVerified && !isProfileIncomplete ? 'Verify Profile →' : 'Complete Profile →'}
                             </Button>

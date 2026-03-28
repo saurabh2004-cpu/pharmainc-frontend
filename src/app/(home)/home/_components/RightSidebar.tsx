@@ -121,7 +121,7 @@ export function RightSidebar() {
             <h3 className="font-semibold text-sm text-gray-900 font-sans">Job Suggestions</h3>
             <button
               onClick={handleShowMore}
-              className="text-xs text-blue-600 hover:underline font-sans"
+              className="text-xs text-[#169BA4] hover:underline font-sans"
             >
               See all
             </button>
@@ -145,7 +145,7 @@ export function RightSidebar() {
               ))}
               <button
                 onClick={handleShowMore}
-                className="w-full mt-3 py-2 px-4 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-medium rounded-md transition-colors font-sans"
+                className="w-full mt-3 py-2 px-4 bg-[#169BA4] hover:bg-[#169BA4] text-white text-sm font-medium rounded-md transition-colors font-sans"
               >
                 Show More Jobs
               </button>

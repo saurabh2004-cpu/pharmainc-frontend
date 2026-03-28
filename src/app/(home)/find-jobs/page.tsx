@@ -175,10 +175,10 @@ const FindJobsPage = () => {
           {/* Top Search Bar */}
           <div className="mb-6">
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 flex items-center sm:px-4 h-[65px] sm:h-[72px] sm:gap-3">
-              <Search className="h-5 w-5 sm:h-6 sm:w-6 text-blue-500 ml-2" />
+              <Search className="h-5 w-5 sm:h-6 sm:w-6 text-[#169BA4] ml-2" />
               <input
                 type="text"
-                placeholder="Search for Jobs, Colleagues"
+                placeholder="Search for Jobs"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
@@ -186,7 +186,7 @@ const FindJobsPage = () => {
               />
               <div className="flex items-center  sm:gap-2 pr-1">
                 <button
-                  onClick={() => setShowFilters(!showFilters)} 
+                  onClick={() => setShowFilters(!showFilters)}
                   className="p-2 sm:p-3 hover:bg-gray-50 rounded-2xl transition-colors text-gray-500"
                 >
                   <Filter className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -280,7 +280,7 @@ const FindJobsPage = () => {
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <Input
                         type="text"
-                        placeholder="Enter location (e.g., New York, Remote)"
+                        placeholder="Enter location (e.g., Mumbai, Remote)"
                         value={filters.location === 'all' ? '' : filters.location}
                         onChange={(e) => handleFilterChange('location', e.target.value || 'all')}
                         className="pl-10 pr-4 h-10 text-sm border-gray-200 rounded-lg w-full bg-gray-50 focus:bg-white focus:border-blue-500 transition-all duration-200"
@@ -304,7 +304,7 @@ const FindJobsPage = () => {
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-gray-200 flex justify-between items-center">
+                <div className="mt-6 pt-4 border-t border-[#169BA4]  flex justify-between items-center">
                   <div className="text-sm text-gray-600">
                     {totalJobs} jobs found
                   </div>
@@ -312,7 +312,7 @@ const FindJobsPage = () => {
                     onClick={clearFilters}
                     variant="outline"
                     size="sm"
-                    className="px-4 py-2"
+                    className="px-4 py-2 bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white"
                   >
                     Clear All Filters
                   </Button>
@@ -369,7 +369,7 @@ const FindJobsPage = () => {
             <div className="flex items-center gap-3">
               <span className="text-sm font-bold text-gray-400 uppercase tracking-wider">SORT BY</span>
               <Select value={sortBy} onValueChange={(value) => setSortBy(value)}>
-                <SelectTrigger className="w-fit h-8 sm:h-10 px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-sm font-semibold text-blue-600 border border-gray-200 bg-white rounded-xl sm:rounded-2xl hover:bg-gray-50 focus:ring-0">
+                <SelectTrigger className="w-fit h-8 sm:h-10 px-3 sm:px-4 py-1.5 sm:py-2 text-[12px] sm:text-sm font-semibold text-[#169BA4] border border-gray-200 bg-white rounded-xl sm:rounded-2xl hover:bg-gray-50 focus:ring-0">
                   <SelectValue placeholder="Recommended" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">

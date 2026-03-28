@@ -17,10 +17,15 @@ import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, CreditCard, History, Package as PackageIcon, RefreshCw, ShoppingCart, CheckCircle2, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { ArrowLeft, CreditCard, History, Package as PackageIcon, RefreshCw, ShoppingCart, CheckCircle2, ArrowUpRight, ArrowDownRight, ChevronLeft, ChevronRight } from 'lucide-react'
+
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
+import PackageCard from '@/components/credit-history/PackageCard'
+import { motion, AnimatePresence } from 'framer-motion'
+
+
 
 const CreditHistoryPage = () => {
     const { currentInstitution, fetchCurrentInstitution } = useInstitutionStore()
@@ -34,6 +39,16 @@ const CreditHistoryPage = () => {
 
     const [purchaseLoadingId, setPurchaseLoadingId] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState('history')
+    const scrollRef = React.useRef<HTMLDivElement>(null)
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (scrollRef.current) {
+            const { scrollLeft, clientWidth } = scrollRef.current
+            const scrollTo = direction === 'left' ? scrollLeft - clientWidth : scrollLeft + clientWidth
+            scrollRef.current.scrollTo({ left: scrollTo, behavior: 'smooth' })
+        }
+    }
+
 
     useEffect(() => {
         if (!currentInstitution) {
@@ -58,8 +73,14 @@ const CreditHistoryPage = () => {
         setLoadingHistory(true)
         try {
             const data = await getCreditsHistoryByInstituteId(currentInstitution.id)
-            setHistory(Array.isArray(data) ? data : data.data || [])
+            const rawData = Array.isArray(data) ? data : data.data || []
+            // Secondary sort on frontend to be 100% sure
+            const sortedData = [...rawData].sort((a, b) => 
+                new Date(b.created_at || b.createdAt).getTime() - new Date(a.created_at || a.createdAt).getTime()
+            )
+            setHistory(sortedData)
         } catch (error) {
+
             console.error("Failed to fetch history", error)
             toast.error("Failed to load credits history")
         } finally {
@@ -72,8 +93,12 @@ const CreditHistoryPage = () => {
         setLoadingTransactions(true)
         try {
             const data = await getTransactionsByInstituteId()
-            setTransactions(data || [])
+            const sortedData = (data || []).sort((a, b) => 
+                new Date(b.createdAt || b.created_at || 0).getTime() - new Date(a.createdAt || a.created_at || 0).getTime()
+            )
+            setTransactions(sortedData)
         } catch (error) {
+
             console.error("Failed to fetch transactions", error)
             toast.error("Failed to load purchase transactions")
         } finally {
@@ -138,7 +163,7 @@ const CreditHistoryPage = () => {
                     <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-blue-50 rounded-xl">
-                                <History className="w-6 h-6 text-blue-600" />
+                                <History className="w-6 h-6 text-[#169BA4]" />
                             </div>
                             <div>
                                 <p className="text-sm font-medium text-gray-500">Total Transactions</p>
@@ -167,7 +192,7 @@ const CreditHistoryPage = () => {
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                                 <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-                                    <History className="w-5 h-5 text-indigo-600" /> Credits Activity Logs
+                                    <History className="w-5 h-5 text-[#169BA4]" /> Credits Activity Logs
                                 </h2>
                                 <Button variant="ghost" size="sm" onClick={fetchHistory} disabled={loadingHistory}>
                                     <RefreshCw className={`w-4 h-4 mr-2 ${loadingHistory ? 'animate-spin' : ''}`} /> Refresh
@@ -250,7 +275,7 @@ const CreditHistoryPage = () => {
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                             <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                                 <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-                                    <CreditCard className="w-5 h-5 text-indigo-600" /> Package Purchase History
+                                    <CreditCard className="w-5 h-5 text-[#169BA4]" /> Package Purchase History
                                 </h2>
                                 <Button variant="ghost" size="sm" onClick={fetchTransactions} disabled={loadingTransactions}>
                                     <RefreshCw className={`w-4 h-4 mr-2 ${loadingTransactions ? 'animate-spin' : ''}`} /> Refresh
@@ -309,68 +334,129 @@ const CreditHistoryPage = () => {
 
                     {/* 3. Packages Content */}
                     <TabsContent value="packages">
-                        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                                <h2 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-                                    <PackageIcon className="w-5 h-5 text-emerald-600" /> Buy Credits
-                                </h2>
-                                <Button variant="ghost" size="sm" onClick={fetchPackages} disabled={loadingPackages}>
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingPackages ? 'animate-spin' : ''}`} /> Refresh
+                        <div className="space-y-8">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-900">Choose Your Credit Pack</h2>
+                                    <p className="text-gray-500 mt-1">Select a package that best fits your institution's needs</p>
+                                </div>
+                                <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={fetchPackages} 
+                                    disabled={loadingPackages}
+                                    className="bg-white border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl px-4 h-10 transition-all font-semibold"
+                                >
+                                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingPackages ? 'animate-spin' : ''}`} /> 
+                                    Sync Packages
                                 </Button>
                             </div>
 
-                            <div className="overflow-x-auto">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-gray-50/80 hover:bg-gray-50/80">
-                                            <TableHead className="font-semibold text-gray-900 py-4 px-6">Package Name</TableHead>
-                                            <TableHead className="font-semibold text-gray-900 py-4 text-right">Credits</TableHead>
-                                            <TableHead className="font-semibold text-gray-900 py-4 text-right">Price</TableHead>
-                                            <TableHead className="font-semibold text-gray-900 py-4 text-center pr-6">Action</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {loadingPackages ? (
-                                            Array(4).fill(0).map((_, i) => (
-                                                <TableRow key={i} className="animate-pulse">
-                                                    <TableCell className="px-6 py-4"><Skeleton className="h-5 w-40" /></TableCell>
-                                                    <TableCell className="text-right py-4"><Skeleton className="h-5 w-20 ml-auto" /></TableCell>
-                                                    <TableCell className="text-right py-4"><Skeleton className="h-5 w-16 ml-auto" /></TableCell>
-                                                    <TableCell className="text-center py-4 pr-6"><Skeleton className="h-9 w-24 mx-auto rounded-lg" /></TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : packages.length > 0 ? (
-                                            packages.map((pkg) => (
-                                                <TableRow key={pkg.id} className="hover:bg-gray-50/50 transition-colors">
-                                                    <TableCell className="px-6 py-4 font-bold text-gray-900">{pkg.name}</TableCell>
-                                                    <TableCell className="text-right py-4 font-semibold text-indigo-600">{pkg.credits.toLocaleString()} Credits</TableCell>
-                                                    <TableCell className="text-right py-4 font-bold text-gray-900">₹{pkg.price.toLocaleString()}</TableCell>
-                                                    <TableCell className="text-center py-4 pr-6">
-                                                        <Button
-                                                            onClick={() => handlePurchase(pkg)}
-                                                            disabled={purchaseLoadingId !== null}
-                                                            className="bg-[#233F64] hover:bg-[#169BA4] text-white rounded-lg px-6 h-9"
-                                                        >
-                                                            {purchaseLoadingId === pkg.id ? (
-                                                                <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                                                            ) : (
-                                                                <ShoppingCart className="w-4 h-4 mr-2" />
-                                                            )}
-                                                            Purchase
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={4} className="h-72 text-center text-gray-400">
-                                                    No packages available
-                                                </TableCell>
-                                            </TableRow>
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                            {loadingPackages ? (
+                                <div className="flex gap-6 overflow-x-auto pb-8 snap-x no-scrollbar">
+                                    {[1, 2, 3].map((i) => (
+                                        <div key={i} className="min-w-[300px] md:min-w-[350px] snap-center bg-white rounded-[2rem] border border-gray-100 p-6 h-[500px] animate-pulse relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-24 h-24 bg-gray-50 -mr-12 -mt-12 rounded-full" />
+                                            <div className="w-16 h-16 bg-gray-100 rounded-2xl mx-auto mb-8" />
+                                            <div className="h-6 bg-gray-100 rounded-full w-3/4 mx-auto mb-4" />
+                                            <div className="h-10 bg-gray-100 rounded-full w-1/2 mx-auto mb-8" />
+                                            <div className="space-y-4">
+                                                {[1, 2, 3, 4].map(j => (
+                                                    <div key={j} className="h-3.5 bg-gray-50 rounded-full w-full" />
+                                                ))}
+                                            </div>
+                                            <div className="mt-auto pt-8">
+                                                <div className="h-14 bg-gray-100 rounded-xl w-full" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : packages.length > 0 ? (
+                                <div className="relative group/scroll px-4 md:px-0">
+                                    {/* Desktop Navigation Buttons */}
+                                    <div className="absolute top-1/2 -left-4 md:-left-6 -translate-y-1/2 z-20 hidden md:block">
+                                        <Button 
+                                            variant="outline" 
+                                            size="icon" 
+                                            onClick={() => scroll('left')}
+                                            className="w-12 h-12 rounded-full bg-white shadow-xl border-gray-100 hover:bg-[#169BA4] hover:text-white transition-all duration-300"
+                                        >
+                                            <ChevronLeft className="w-6 h-6" />
+                                        </Button>
+                                    </div>
+                                    <div className="absolute top-1/2 -right-4 md:-right-6 -translate-y-1/2 z-20 hidden md:block">
+                                        <Button 
+                                            variant="outline" 
+                                            size="icon" 
+                                            onClick={() => scroll('right')}
+                                            className="w-12 h-12 rounded-full bg-white shadow-xl border-gray-100 hover:bg-[#169BA4] hover:text-white transition-all duration-300"
+                                        >
+                                            <ChevronRight className="w-6 h-6" />
+                                        </Button>
+                                    </div>
+
+                                    <div 
+                                        ref={scrollRef}
+                                        className="flex gap-8 overflow-x-auto pb-12 pt-4 snap-x no-scrollbar scroll-smooth"
+                                    >
+                                        <AnimatePresence mode="popLayout">
+                                            {packages.map((pkg, index) => (
+                                                <motion.div
+                                                    key={pkg.id}
+                                                    initial={{ opacity: 0, scale: 0.9 }}
+                                                    whileInView={{ opacity: 1, scale: 1 }}
+                                                    viewport={{ margin: "0px -10% 0px -10%" }}
+                                                    transition={{ 
+                                                        delay: index * 0.1, 
+                                                        duration: 0.5
+                                                    }}
+                                                    className="min-w-[300px] md:min-w-[350px] lg:min-w-[380px] snap-center py-4"
+                                                >
+
+                                                    <PackageCard
+                                                        pkg={pkg}
+                                                        onPurchase={handlePurchase}
+                                                        isLoading={purchaseLoadingId === pkg.id}
+                                                        isDisabled={purchaseLoadingId !== null}
+                                                        isPopular={index === 1 || pkg.name.toLowerCase().includes('standard')}
+                                                    />
+                                                </motion.div>
+                                            ))}
+                                        </AnimatePresence>
+                                    </div>
+
+                                    
+                                    {/* Scroll Indicator Hint */}
+                                    <div className="flex justify-center gap-2 mt-2 md:hidden">
+                                        {packages.map((_, i) => (
+                                            <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200" />
+                                        ))}
+                                    </div>
+                                    
+                                    <style jsx global>{`
+                                        .no-scrollbar::-webkit-scrollbar {
+                                            display: none;
+                                        }
+                                        .no-scrollbar {
+                                            -ms-overflow-style: none;
+                                            scrollbar-width: none;
+                                        }
+                                    `}</style>
+                                </div>
+                            ) : (
+                                <div className="bg-white rounded-2xl border border-gray-200 p-20 text-center space-y-4">
+                                    <div className="p-4 bg-gray-50 rounded-full w-fit mx-auto">
+                                        <PackageIcon className="w-10 h-10 text-gray-300" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900">No Packages Found</h3>
+                                        <p className="text-gray-500">We couldn't find any available credit packages at the moment.</p>
+                                    </div>
+                                    <Button onClick={fetchPackages} variant="outline" className="mt-4">
+                                        Try Refreshing
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </TabsContent>
                 </Tabs>

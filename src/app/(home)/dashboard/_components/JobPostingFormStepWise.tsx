@@ -65,6 +65,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchableSelect } from "@/components/ui/searchable-select";
+import JobPostSuccess from './JobPostSuccess';
 
 const STEPS = [
   { id: 1, name: 'Job Information', description: 'Basic details about the position', icon: Briefcase },
@@ -123,21 +124,7 @@ const quillFormats = [
 
 const rolesData = healthcareRoles as Record<string, Record<string, string[]>>;
 
-const skillOptions = [
-  { value: "JavaScript", label: "JavaScript" },
-  { value: "React", label: "React" },
-  { value: "Node.js", label: "Node.js" },
-  { value: "Communication", label: "Communication" },
-  { value: "Leadership", label: "Leadership" },
-  { value: "Medical Coding", label: "Medical Coding" },
-  { value: "Patient Care", label: "Patient Care" },
-  { value: "Surgery", label: "Surgery" },
-  { value: "Pediatrics", label: "Pediatrics" },
-  { value: "Cardiology", label: "Cardiology" },
-  { value: "Radiology", label: "Radiology" },
-  { value: "Anesthesiology", label: "Anesthesiology" },
-  { value: "Emergency Medicine", label: "Emergency Medicine" },
-];
+import { skillOptions } from "@/lib/constants/skills";
 
 const jobPostingSchema = z.object({
   // Required fields
@@ -234,6 +221,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
   const [openSubSpeciality, setOpenSubSpeciality] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isRestoring, setIsRestoring] = useState(false); // Guard for draft restoration
+  const [isJobPostedSuccessfully, setIsJobPostedSuccessfully] = useState(false);
   // State for dynamic location fields
   const [countries, setCountries] = useState<LocationOption[]>([]);
   const [cities, setCities] = useState<LocationOption[]>([]);
@@ -716,8 +704,11 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
         localStorage.removeItem('job-draft-new');
       }
 
-      router.push('/dashboard');
+      // router.push('/dashboard');
       setCurrentStep(1);
+      
+      // Instead of immediate redirect, show success component
+      setIsJobPostedSuccessfully(true);
 
     } catch (error: any) {
       const errorMessage = parseApiError(error);
@@ -822,7 +813,20 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
           min-height: 120px !important;
         }
       `}</style>
-      <Card className="bg-white border border-gray-200 shadow-sm">
+
+      {isJobPostedSuccessfully ? (
+        <JobPostSuccess 
+          isEditMode={isEditMode} 
+          onPostAnother={() => {
+            setIsJobPostedSuccessfully(false);
+            setCurrentStep(1);
+            if (isEditMode) {
+              router.push('/dashboard/post-job');
+            }
+          }}
+        />
+      ) : (
+        <Card className="bg-white border border-gray-200 shadow-sm">
         <CardHeader className="border-b border-gray-100">
           <CardTitle className="text-2xl font-bold text-gray-900">
             {isEditMode ? "Edit Job Posting" : "Create New Job Posting"}
@@ -845,8 +849,8 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                       <div
                         className={`
                         w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all
-                        ${isCompleted ? 'bg-green-500 border-green-500 text-white' : ''}
-                        ${isCurrent ? 'bg-blue-600 border-blue-600 text-white' : ''}
+                        ${isCompleted ? 'bg-[#169BA4] border-[#169BA4] text-white' : ''}
+                        ${isCurrent ? 'bg-[#169BA4] border-[#169BA4] text-white' : ''}
                         ${!isCompleted && !isCurrent ? 'bg-gray-100 border-gray-300 text-gray-400' : ''}
                       `}
                       >
@@ -857,7 +861,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                         )}
                       </div>
                       <div className="mt-2 text-center">
-                        <p className={`text-sm font-medium ${isCurrent ? 'text-blue-600' : 'text-gray-600'}`}>
+                        <p className={`text-sm font-medium ${isCurrent ? 'text-[#169BA4]' : 'text-gray-600'}`}>
                           {step.name}
                         </p>
                         <p className="text-xs text-gray-500 mt-1 hidden md:block">
@@ -1013,7 +1017,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                     variant="outline"
                                     role="combobox"
                                     className={cn(
-                                      "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
+                                      "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2 hover:bg-white",
                                       !field.value && "text-muted-foreground"
                                     )}
                                     disabled={!selectedRole || isLoading}
@@ -1035,7 +1039,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                           key={option}
                                           className={cn(
                                             "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                            "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                            "cursor-pointer hover:bg-[#169BA4] hover:text-white"
                                           )}
                                           onClick={() => {
                                             field.onChange(option);
@@ -1082,7 +1086,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                     variant="outline"
                                     role="combobox"
                                     className={cn(
-                                      "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2",
+                                      "w-full justify-between h-11 bg-gray-50 border-gray-200 px-3 py-2 hover:bg-white",
                                       !field.value && "text-muted-foreground"
                                     )}
                                     disabled={!selectedSpeciality || isLoading}
@@ -1104,7 +1108,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                           key={option}
                                           className={cn(
                                             "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                            "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                            "cursor-pointer hover:bg-[#169BA4] hover:text-white"
                                           )}
                                           onClick={() => {
                                             field.onChange(option);
@@ -1269,7 +1273,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                       type="button"
                                       variant="outline"
                                       role="combobox"
-                                      className="w-full justify-between min-h-[44px] bg-gray-50 border-gray-200 px-3 py-2"
+                                      className="w-full hover:bg-[#ffffff] hover:text-white justify-between min-h-[44px] bg-gray-50 border-gray-200 px-3 py-2"
                                     >
                                       <div className="flex flex-wrap gap-1 items-center text-left">
                                         {selectedSkills.length > 0 ? (
@@ -1288,7 +1292,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                             </Badge>
                                           ))
                                         ) : (
-                                          <span className="text-muted-foreground">
+                                          <span className="text-black">
                                             Select skills...
                                           </span>
                                         )}
@@ -1313,7 +1317,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
                                                 key={option.value}
                                                 className={cn(
                                                   "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-                                                  "cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                                                  "cursor-pointer hover:bg-[#169BA4] hover:text-white"
                                                 )}
                                                 onClick={() => toggleSkill(option.value)}
                                                 onMouseDown={(e) => e.preventDefault()}
@@ -1743,6 +1747,7 @@ const JobPostingForm = ({ jobId, isVerified = true }: JobPostingFormProps) => {
           </Form>
         </CardContent >
       </Card >
+      )}
     </>
   );
 };

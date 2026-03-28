@@ -39,7 +39,7 @@
     "src/components/logo.tsx",
     "src/app/(home)/dashboard/_components/PostedJobsTab.tsx",
     ".next/dev/types/**/*.ts"
-  ],
+, "src/components/profile/internals/ProfileSkillsTab.tsx"  ],
   "exclude": [
     "node_modules"
   ]

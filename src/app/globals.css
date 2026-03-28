@@ -229,7 +229,7 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 217 91% 60%;
+    --ring: 184 76% 36.5%;
 
     --radius: 0.75rem;
 
@@ -270,7 +270,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --ring: 184 76% 50%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -442,4 +442,20 @@
 
 .scrollbar-none::-webkit-scrollbar {
   display: none;
+}
+
+/* Global Input Focus Style Override */
+[data-slot="input"]:focus-visible,
+[data-slot="textarea"]:focus-visible,
+[data-slot="select-trigger"]:focus-visible {
+  border-color: #169BA4 !important;
+  --ring: 184 76% 36.5% !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(22, 155, 164, 0.45) !important;
+}
+
+[data-slot="input"]:focus,
+[data-slot="textarea"]:focus,
+[data-slot="select-trigger"]:focus {
+  border-color: #169BA4 !important;
 }

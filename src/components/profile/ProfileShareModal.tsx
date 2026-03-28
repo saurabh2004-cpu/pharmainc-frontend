@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -23,11 +23,11 @@ export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShar
   const [copied, setCopied] = useState(false);
   const [profileUrl, setProfileUrl] = useState("");
 
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== "undefined") {
       setProfileUrl(window.location.href);
     }
-  });
+  }, []);
 
   const shareText = `Check out ${user.name}'s professional profile on PharmInc`;
 
@@ -127,7 +127,7 @@ export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShar
                   {user.name?.[0]?.toUpperCase() || "U"}
                 </div>
                 <div>
-                  <span className="text-sm font-semibold block">{user.name || "Unknown User"}</span>
+                  <span className="text-sm font-semibold block">{user.firstName || "Unknown User"}</span>
                   {(user.role || user.specialization) && (
                     <span className="text-xs text-gray-600">
                       {user.role}{user.specialization ? ` • ${user.specialization}` : ''}

@@ -645,7 +645,7 @@ const JobApplicationsPage = () => {
                                             </td> */}
                                             <td className="px-6 py-4">
                                                 <Badge variant={getStatusBadgeVariant(app.status || 'applied')}>
-                                                    {app.status || 'APPLIED'}
+                                                    {app.status?.split('_').join(' ') || 'APPLIED'}
                                                 </Badge>
                                             </td>
                                             <td className=" py-4 relative">
@@ -656,7 +656,7 @@ const JobApplicationsPage = () => {
                                                     </div>
 
                                                     {/* Fixed Icons - Absolutely positioned */}
-                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white pl-2">
+                                                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2  pl-2">
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -666,40 +666,35 @@ const JobApplicationsPage = () => {
                                                         >
                                                             <Eye className="h-4 w-4" />
                                                         </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                                                            onClick={() => handleMessageCandidate(app)}
-                                                            disabled={initiatingChat === app.id}
-                                                            title="Message Candidate"
-                                                        >
-                                                            <MessageCircle className="h-4 w-4" />
-                                                        </Button>
+                                                        {app.resumeUrl && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 text-[#169BA4] hover:text-[#169BA4]/80 hover:bg-[#169BA4]/10"
+                                                                onClick={() => handleDownloadResume(app.resumeUrl)}
+                                                                title="Download Resume"
+                                                            >
+                                                                <Download className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
                                                         <DropdownMenu>
                                                             <DropdownMenuTrigger asChild>
-                                                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                                                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-white">
                                                                     <span className="sr-only">Open menu</span>
                                                                     <MoreVertical className="h-4 w-4" />
                                                                 </Button>
                                                             </DropdownMenuTrigger>
-                                                            <DropdownMenuContent align="end">
-                                                                <DropdownMenuItem onClick={() => handleViewApplication(app)}>
+                                                            <DropdownMenuContent align="end" >
+                                                                <DropdownMenuItem onClick={() => handleViewApplication(app)} className="focus:bg-[#169BA4] focus:text-white cursor-pointer">
                                                                     <Eye className="mr-2 h-4 w-4" />
                                                                     View Details
-                                                                </DropdownMenuItem>
-                                                                <DropdownMenuItem
-                                                                    onClick={() => handleMessageCandidate(app)}
-                                                                    disabled={initiatingChat === app.id}
-                                                                >
-                                                                    <MessageCircle className="mr-2 h-4 w-4" />
-                                                                    Message Candidate
                                                                 </DropdownMenuItem>
                                                                 {app.userId && (
                                                                     <DropdownMenuItem
                                                                         // onClick={() => handleDownloadResume(app.userId, app.userName || 'Applicant')}
                                                                         onClick={() => handleDownloadResume(app.resumeUrl)}
                                                                         disabled={isProcessing(`download-${app.userId}`)}
+                                                                        className="focus:bg-[#169BA4] focus:text-white cursor-pointer"
                                                                     >
                                                                         <Download className="mr-2 h-4 w-4" />
                                                                         Download Resume

@@ -167,7 +167,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </div>
                       )}
-                      {href === '/messages' && unreadMessagesCount > 0 && !isCurrentActive && (
+                      {href === '/messages' && unreadMessagesCount > 0 && (
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                           {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                         </div>
@@ -189,7 +189,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                           {unreadCount > 9 ? '9+' : unreadCount}
                         </div>
                       )}
-                      {href === '/messages' && unreadMessagesCount > 0 && !isCurrentActive && (
+                      {href === '/messages' && unreadMessagesCount > 0 && (
                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-semibold">
                           {unreadMessagesCount > 9 ? '9+' : unreadMessagesCount}
                         </div>
@@ -229,12 +229,12 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
         {['HOSPITAL', 'CLINIC', 'LAB', 'PHARMACY'].includes(userType || '') && (
           <Link
             href="/dashboard/post-job"
-            className={`group xl:flex xl:items-center xl:gap-4 xl:px-4 xl:py-3 xl:rounded-full xl:hover:bg-gray-100 xl:w-full flex items-center justify-center w-12 h-12 rounded-full hover:bg-gray-100 transition-colors relative ${isActive('/dashboard/posted-jobs') ? 'bg-gray-50' : ''}`}
+            className={`group xl:flex xl:items-center xl:gap-4 xl:px-4 xl:py-3 xl:rounded-full bg-[#233F64] hover:bg-[#169BA4] transition-colors xl:w-full flex items-center justify-center w-12 h-12 rounded-full relative ${isActive('/dashboard/posted-jobs') ? 'ring-2 ring-offset-2 ring-[#233F64]' : ''}`}
           >
             <div className="relative">
-              <HiPlusCircle className={`h-6 w-6 text-gray-700 group-hover:text-gray-900`} />
+              <HiPlusCircle className={`h-6 w-6 text-white transition-colors`} />
             </div>
-            <span className={`xl:block hidden text-xl text-gray-900 ${isActive('/dashboard/posted-jobs') ? 'font-semibold' : 'font-normal'}`}>
+            <span className={`xl:block hidden text-xl text-white transition-colors ${isActive('/dashboard/posted-jobs') ? 'font-bold' : 'font-medium'}`}>
               Post A New Job
             </span>
           </Link>
@@ -246,7 +246,11 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
           <>
             {/* Desktop View */}
             <div className="xl:flex hidden flex-col w-full h-full relative" ref={profileMenuRef}>
-              <div className="bg-gradient-to-b from-[#B1DEFC] via-[#E5F2FB] to-[#FAFBFC] rounded-[24px] p-5 pb-5 flex flex-col border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] h-auto overflow-hidden">
+              <div className="bg-gradient-to-b from-[#D2F0F2] via-[#D9F7F1] to-[#E6FCFA] 
+rounded-[24px] p-5 pb-5 flex flex-col 
+border border-gray-100 
+shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] 
+h-auto overflow-hidden">
                 <div className="flex items-center gap-3 w-full mb-5">
                   <div className="w-[56px] h-[56px] flex-shrink-0 bg-white rounded-[16px] shadow-sm overflow-hidden border border-black/5 z-10 relative">
                     {sidebarProfilePicture ? (

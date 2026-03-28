@@ -419,24 +419,24 @@ export const PostedJobsTab = () => {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                   onClick={() => router.push(`/dashboard/job/${job.id}`)}
-                                  className="cursor-pointer group hover:text-white hover:bg-[#169BA4]"
+                                  className="cursor-pointer group focus:bg-[#169BA4] focus:text-white"
                                 >
-                                  <FileText className="w-4 h-4 mr-2 text-gray-600 group-hover:text-white" />
+                                  <FileText className="w-4 h-4 mr-2 text-gray-600 group-focus:text-white" />
                                   View
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => router.push(`/dashboard/job/${job.id}/edit`)}
-                                  className="cursor-pointer group hover:bg-[#169BA4]"
+                                  className="cursor-pointer group focus:bg-[#169BA4] focus:text-white"
                                 >
-                                  <FaEdit className="w-4 h-4 mr-2 text-gray-600 group-hover:text-green-600 group-hover:text-white" />
+                                  <FaEdit className="w-4 h-4 mr-2 text-gray-600 group-focus:text-white" />
                                   Edit
                                 </DropdownMenuItem>
                                 {job.status === 'expired' && (
                                   <DropdownMenuItem
                                     onClick={() => setJobToRenew(job)}
-                                    className="cursor-pointer group text-amber-700 focus:text-amber-800 focus:bg-amber-50 bg-[#233F64] hover:bg-[#169BA4]"
+                                    className="cursor-pointer group focus:bg-[#169BA4] focus:text-white"
                                   >
-                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    <RefreshCw className="w-4 h-4 mr-2 text-gray-600 group-focus:text-white" />
                                     Renew Job
                                   </DropdownMenuItem>
                                 )}

@@ -23,7 +23,7 @@ function AuthContent() {
       <div className="space-y-4 mb-8">
         <div className="flex flex-col gap-4">
           <Link href={`/auth/doctor?type=${type}${redirectQuery}`}>
-            <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
+            <div className="border-2 border-[#233F64] rounded-lg p-6 cursor-pointer hover:border-[#169BA4] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center overflow-hidden z-10">
@@ -47,7 +47,7 @@ function AuthContent() {
           </Link>
 
           <Link href={`/auth/institute?type=${type}${redirectQuery}`}>
-            <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
+            <div className="border-2 border-[#233F64] rounded-lg p-6 cursor-pointer hover:border-[#169BA4] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-cyan-200 border-2 border-white flex items-center justify-center overflow-hidden z-10">
@@ -74,7 +74,7 @@ function AuthContent() {
 
 
           <Link href={`/auth/student?type=${type}${redirectQuery}`}>
-            <div className="border-2 border-gray-200 rounded-lg p-6 cursor-pointer hover:border-[#3B82F6] hover:scale-[1.02] transition-all duration-200">
+            <div className="border-2 border-[#233F64] rounded-lg p-6 cursor-pointer hover:border-[#169BA4] hover:scale-[1.02] transition-all duration-200">
               <div className="flex items-center gap-4">
                 <div className="flex items-center">
                   <div className="w-10 h-10 rounded-full bg-orange-200 border-2 border-white flex items-center justify-center overflow-hidden z-10">

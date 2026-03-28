@@ -46,9 +46,8 @@ export function TestimonialCarousel() {
               className="h-1 flex-1 rounded-full bg-gray-300 overflow-hidden"
             >
               <div
-                className={`h-full bg-[#3B82F6] transition-all duration-300 ${
-                  index === currentIndex ? "w-full" : "w-0"
-                }`}
+                className={`h-full bg-[#3B82F6] transition-all duration-300 ${index === currentIndex ? "w-full" : "w-0"
+                  }`}
                 style={{
                   animation:
                     index === currentIndex
@@ -65,16 +64,16 @@ export function TestimonialCarousel() {
           key={currentIndex}
           className="animate-fadeIn"
         >
-          <h2 className="text-3xl font-semibold text-gray-800 leading-tight mb-6">
+          <h2 className="text-3xl font-semibold text-white leading-tight mb-6">
             {currentTestimonial.quote}
           </h2>
 
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-700 font-medium">
+              <p className="text-white font-medium">
                 — {currentTestimonial.author}
               </p>
-              <p className="text-gray-600 text-sm">{currentTestimonial.role}</p>
+              <p className="text-white text-sm">{currentTestimonial.role}</p>
             </div>
 
             <div className="flex items-center gap-1 flex-shrink-0">

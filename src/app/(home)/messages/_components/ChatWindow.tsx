@@ -21,6 +21,7 @@ interface ChatWindowProps {
     onLoadMore?: () => void;
     hasMore?: boolean;
     isLoadingMore?: boolean;
+    onBack?: () => void;
 }
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -33,7 +34,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     isLoadingMessages,
     onLoadMore,
     hasMore,
-    isLoadingMore
+    isLoadingMore,
+    onBack
 }) => {
     const [newMessage, setNewMessage] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -142,6 +144,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             {/* Header */}
             <div className="p-4 bg-white border-b border-gray-200 flex items-center justify-between shadow-sm min-h-[72px]">
                 <div className="flex items-center gap-3">
+                    {onBack && (
+                        <button
+                            onClick={onBack}
+                            className="mr-1 md:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600"><path d="m15 18-6-6 6-6" /></svg>
+                        </button>
+                    )}
                     <UserAvatar name={displayName} src={participant.profile_picture} className="h-10 w-10" />
                     <div>
                         <h3 className="font-semibold text-gray-900">{displayName}</h3>
@@ -245,10 +255,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         accept="image/*,video/*,application/pdf"
                         onChange={handleFileSelect}
                     />
-                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600 cursor-default">
+                    {/* <Button variant="ghost" size="icon" className="text-gray-400 hover:text-gray-600 cursor-default">
                         {/* Placeholder face icon for the "type something..." row */}
-                        {/* <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg> */}
-                    </Button>
+                    {/* <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><line x1="9" y1="9" x2="9.01" y2="9" /><line x1="15" y1="9" x2="15.01" y2="9" /></svg> */}
+                    {/* </Button> */}
                     {isVoiceRecording ? (
                         <VoiceRecorder
                             onSend={(blob) => {
@@ -268,14 +278,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                 disabled={isSending}
                                 autoFocus
                             />
-                            <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="text-gray-500 hover:text-blue-600">
+                            <Button variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} className="text-[#169BA4] hover:bg-[#169BA4] hover:text-white">
                                 <FileText className="h-5 w-5" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => setIsVoiceRecording(true)} className="text-gray-500 hover:text-blue-600">
+                            <Button variant="ghost" className="text-[#169BA4] hover:bg-[#169BA4] hover:text-white" size="icon" onClick={() => setIsVoiceRecording(true)}>
                                 <Mic className="h-5 w-5" />
                             </Button>
                             <Button onClick={handleSend} disabled={isSending || (!newMessage.trim() && !fileInputRef.current?.files?.length)} variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                                <Send className="h-5 w-5" />
+                                <Send className="h-5 w-5 text-[#169BA4]" />
                             </Button>
                         </>
                     )}

@@ -279,15 +279,18 @@ const MessagesContent = () => {
 
   return (
     <div className="container mx-auto px-2 h-[calc(100vh-35px)] mt-4 bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-      <div className="grid grid-cols-1 md:grid-cols-3 h-full">
-        <div className="md:col-span-1 h-full overflow-hidden">
+      <div className="flex w-full h-full md:grid md:grid-cols-3">
+        {/* Left Column: Conversation List */}
+        <div className={`md:col-span-1 h-full overflow-hidden w-full md:block ${selectedConversation ? 'hidden' : 'block'}`}>
           <ConversationList
             conversations={conversations}
             selectedConversationId={selectedConversationId || undefined}
             onSelectConversation={setSelectedConversationId}
           />
         </div>
-        <div className="md:col-span-2 h-full overflow-hidden border-l border-gray-200">
+        
+        {/* Right Column: Chat Window */}
+        <div className={`md:col-span-2 h-full overflow-hidden md:border-l md:border-gray-200 w-full md:flex md:flex-col ${selectedConversation ? 'flex flex-col' : 'hidden md:block'}`}>
           {selectedConversation ? (
             <ChatWindow
               key={selectedConversation.id}
@@ -301,6 +304,7 @@ const MessagesContent = () => {
               onLoadMore={handleLoadMore}
               hasMore={hasMore}
               isLoadingMore={loadingMore}
+              onBack={() => setSelectedConversationId(null)}
             />
           ) : (
             <div className="flex h-full items-center justify-center bg-slate-50 text-gray-400">

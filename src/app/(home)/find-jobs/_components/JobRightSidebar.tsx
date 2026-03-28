@@ -146,7 +146,7 @@ const JobRightSidebar: React.FC<JobRightSidebarProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="w-2 h-2 bg-[#169BA4] rounded-full"></div>
                       <span className="text-sm text-gray-600">Applied Jobs</span>
                     </div>
                     <span className="text-sm font-semibold text-gray-900">{stats.applied}</span>
@@ -307,7 +307,7 @@ const JobRightSidebar: React.FC<JobRightSidebarProps> = ({
                           <span>{job.jobType}</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                          <span className="text-xs text-[#169BA4] bg-[#169BA4]/10 px-2 py-0.5 rounded-full border border-[#169BA4]">
                             {job.experienceLevel}
                           </span>
                           <div className="text-xs text-gray-400 flex items-center gap-1">

@@ -36,7 +36,7 @@ export function SignInForm({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           disabled={loading}
-          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
+          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.email ? "border-red-500 focus:ring-red-500" : ""}`}
         />
         {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
       </div>
@@ -51,7 +51,7 @@ export function SignInForm({
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={loading}
-            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
+            className={`h-11 bg-gray-50 border-gray-200 focus:bg-white pr-10 focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.password ? "border-red-500 focus:ring-red-500" : ""}`}
           />
           <button
             type="button"

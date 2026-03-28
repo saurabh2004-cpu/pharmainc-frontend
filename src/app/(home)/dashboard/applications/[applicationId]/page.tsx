@@ -327,10 +327,10 @@ const ApplicationDetailsPage = () => {
                             </div>
 
                             <div className="flex flex-col md:flex-row gap-3 mt-6">
-                                <Button onClick={() => handleDownloadResume(application.resumeUrl)} disabled={downloadingResume}>
+                                <Button onClick={() => handleDownloadResume(application.resumeUrl)} disabled={downloadingResume} className=' bg-[#233F64] hover:bg-[#169BA4] hover:text-white'>
                                     {downloadingResume ? 'Downloading...' : 'Download Resume'}
                                 </Button>
-                                <Button variant="outline" onClick={handleMessageCandidate} disabled={initiatingChat}>
+                                <Button variant="outline" onClick={handleMessageCandidate} disabled={initiatingChat} className='bg-[#233F64] text-white hover:bg-[#169BA4] hover:text-white'>
                                     {initiatingChat ? 'Starting Chat...' : 'Message Candidate'}
                                 </Button>
                             </div>

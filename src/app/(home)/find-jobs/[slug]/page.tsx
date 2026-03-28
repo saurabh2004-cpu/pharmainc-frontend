@@ -19,6 +19,8 @@ import { toast } from 'sonner';
 import { buildImageUrl } from '@/utils/buildImageUrl';
 
 
+
+
 // Generate job stats
 const generateJobStats = () => ({
   totalApplicants: Math.floor(Math.random() * 200) + 50,
@@ -100,6 +102,10 @@ const JobDetailPage = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   const hasAlreadyApplied = jobId ? hasAppliedToJob(jobId) : false;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleBookmark = async () => {
     if (!currentUser) {
@@ -273,7 +279,12 @@ const JobDetailPage = () => {
         </div>
         <div className="max-w-6xl mx-auto p-6 text-center">
           <p className="text-gray-500 mb-4">The job you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => router.back()}>Go Back</Button>
+          <Button
+            onClick={() => router.back()}
+            className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium"
+          >
+            Go Back
+          </Button>
         </div>
       </div>
     );
@@ -326,7 +337,7 @@ const JobDetailPage = () => {
                 hasAlreadyApplied ? (
                   <Button
                     disabled
-                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm cursor-not-allowed opacity-80 whitespace-nowrap"
+                    className="bg-[#169BA4] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm cursor-not-allowed opacity-80 whitespace-nowrap"
                   >
                     <CheckCircle className="mr-1 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     APPLIED
@@ -335,7 +346,7 @@ const JobDetailPage = () => {
                   <Button
                     onClick={handleApply}
                     disabled={isApplying}
-                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm disabled:opacity-60 whitespace-nowrap"
+                    className="bg-[#233F64] hover:bg-[#169BA4] text-white font-medium px-4 sm:px-6 h-9 sm:h-10 text-xs sm:text-sm disabled:opacity-80 whitespace-nowrap"
                   >
                     {isApplying ? 'Checking...' : (
                       <>APPLY NOW <span>→</span></>
@@ -373,7 +384,7 @@ const JobDetailPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-2 md:p-6">
+      <div className=" mx-auto p-2 md:p-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Content */}
           <div className="lg:col-span-2 space-y-6">
@@ -382,7 +393,7 @@ const JobDetailPage = () => {
               {buildImageUrl((job.institute as any)?.profile_picture ?? undefined, '') ? (
                 <div
                   onClick={handleViewInstituteProfile}
-                  className={`w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden border border-gray-200 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-blue-200 transition-all duration-200' : ''}`}
+                  className={`w-20 h-20 rounded-2xl flex-shrink-0 overflow-hidden border border-gray-200 ${isUser ? 'cursor-pointer hover:ring-4 hover:ring-[#169BA4] transition-all duration-200' : ''}`}
                   title={isUser ? 'Click to view institute profile' : ''}
                 >
                   <Image
@@ -409,7 +420,7 @@ const JobDetailPage = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <span
                     onClick={handleViewInstituteProfile}
-                    className={`text-lg font-semibold text-gray-900 ${isUser ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''
+                    className={`text-lg font-semibold text-gray-900 ${isUser ? 'cursor-pointer hover:text-[#169BA4] transition-colors' : ''
                       }`}
                     title={isUser ? 'Click to view institute profile' : ''}
                   >
@@ -449,7 +460,7 @@ const JobDetailPage = () => {
                   </div>
                   {job.salaryMin && job.salaryMax && (
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4" />
+                      {/* <DollarSign className="h-4 w-4" /> */}
                       <span className="font-medium">
                         {job.salaryCurrency} {job.salaryMin.toLocaleString()} - {job.salaryMax.toLocaleString()}
                       </span>
@@ -485,7 +496,7 @@ const JobDetailPage = () => {
                 </Badge>
               ))}
               {(job.experienceLevel && job.experienceLevel !== 'Entry Level') && (
-                <Badge variant="outline" className="border-blue-300 text-blue-700 bg-blue-50 px-3 py-1">
+                <Badge variant="outline" className="border-[#169BA4] text-white bg-[#169BA4] px-3 py-1">
                   <CheckCircle className="w-3 h-3 mr-1" />
                   Work Exp Needed
                 </Badge>
@@ -696,7 +707,7 @@ const JobDetailPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Building2 className="w-5 h-5 text-blue-600" />
+                    <Building2 className="w-5 h-5 text-[#233F64]" />
                     About the Company
                   </CardTitle>
                 </CardHeader>
@@ -704,7 +715,7 @@ const JobDetailPage = () => {
                   <div>
                     <h4
                       onClick={handleViewInstituteProfile}
-                      className={`font-semibold text-gray-900 mb-1 flex items-center gap-2 flex-wrap ${isUser ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+                      className={`font-semibold text-gray-900 mb-1 flex items-center gap-2 flex-wrap ${isUser ? 'cursor-pointer hover:text-[#169BA4] transition-colors' : ''}`}
                       title={isUser ? 'Click to view institute profile' : ''}
                     >
                       <span className="break-words">{job.institute?.name}</span>

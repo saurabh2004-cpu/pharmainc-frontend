@@ -1,16 +1,27 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ChevronsUpDown, Check } from "lucide-react";
 import { useState, useEffect, KeyboardEvent } from "react";
 import {
     getSkills,
     createSkills,
-    deleteSkills
 } from "@/lib/api/services/userProfile";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import {
+    Command,
+    CommandGroup,
+    CommandInput,
+    CommandList,
+} from "@/components/ui/command";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { skillOptions } from "@/lib/constants/skills";
 
 interface ProfileSkillsTabProps {
     userId: string;
@@ -21,8 +32,9 @@ interface ProfileSkillsTabProps {
 export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: ProfileSkillsTabProps) => {
     const isOwnProfile = currentUserId === userId;
     const [skills, setSkills] = useState<string[]>([]);
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [newSkill, setNewSkill] = useState("");
+    const [open, setOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     // Fetch skills
@@ -32,10 +44,13 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
             const data = await getSkills();
             if (Array.isArray(data)) {
                 setSkills(data);
+                setSelectedSkills(data);
             } else if (data && 'skills' in data && Array.isArray(data.skills)) {
                 setSkills(data.skills);
+                setSelectedSkills(data.skills);
             } else {
                 setSkills([]);
+                setSelectedSkills([]);
             }
         } catch (error) {
             console.error("Failed to fetch skills:", error);
@@ -48,60 +63,31 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
         fetchSkills();
     }, [userId, refreshTrigger]);
 
-    const handleAddSkill = async () => {
-        const trimmedSkill = newSkill.trim();
-
-        // Validation
-        if (!trimmedSkill) {
-            toast.error("Skill cannot be empty");
-            return;
+    const toggleSkill = (skill: string) => {
+        const isSelected = selectedSkills.includes(skill);
+        if (isSelected) {
+            setSelectedSkills(selectedSkills.filter(s => s !== skill));
+        } else {
+            setSelectedSkills([...selectedSkills, skill]);
         }
+    };
 
-        // Check for duplicates (case-insensitive)
-        const skillExists = skills.some(s => s.toLowerCase() === trimmedSkill.toLowerCase());
-        if (skillExists) {
-            toast.error("Skill already exists");
-            setNewSkill("");
-            return;
-        }
-
+    const handleSaveSkills = async () => {
         setIsSaving(true);
         try {
-            const updatedSkills = [...skills, trimmedSkill];
-            await createSkills({ skills: updatedSkills });
-            setSkills(updatedSkills);
-            setNewSkill("");
-            toast.success("Skill added");
+            await createSkills({ skills: selectedSkills });
+            setSkills(selectedSkills);
+            toast.success("Skills updated successfully");
         } catch (e) {
-            console.error("Failed to add skill:", e);
-            toast.error("Failed to add skill");
+            console.error("Failed to update skills:", e);
+            toast.error("Failed to update skills");
         } finally {
             setIsSaving(false);
         }
     };
 
-    const handleDeleteSkill = async (skillToDelete: string) => {
-        if (!confirm(`Remove "${skillToDelete}"?`)) return;
-
-        setIsSaving(true);
-        try {
-            const updatedSkills = skills.filter(s => s !== skillToDelete);
-            await createSkills({ skills: updatedSkills });
-            setSkills(updatedSkills);
-            toast.success("Skill removed");
-        } catch (e) {
-            console.error("Failed to remove skill:", e);
-            toast.error("Failed to remove skill");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAddSkill();
-        }
+    const handleDeleteSkill = (skillToDelete: string) => {
+        setSelectedSkills(selectedSkills.filter(s => s !== skillToDelete));
     };
 
     return (
@@ -112,63 +98,120 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
             <CardContent className="space-y-6">
                 {/* Add Skill Input - Only for own profile */}
                 {isOwnProfile && (
-                    <div className="space-y-2">
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            <Input
-                                type="text"
-                                placeholder="Enter a skill (e.g., React, Node.js)"
-                                value={newSkill}
-                                onChange={(e) => setNewSkill(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                disabled={isSaving}
-                                className="flex-1 text-sm sm:text-base"
-                            />
+                    <div className="space-y-4">
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-gray-700">Add Skills</label>
+                            <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        role="combobox"
+                                        disabled={isSaving}
+                                        className="w-full hover:bg-[#ffffff] hover:text-white justify-between min-h-[44px] bg-gray-50 border-gray-200 px-3 py-2 h-auto"
+                                    >
+                                        <div className="flex flex-wrap gap-1 items-center text-left">
+                                            {selectedSkills.length > 0 ? (
+                                                selectedSkills.map((skill) => (
+                                                    <Badge
+                                                        key={skill}
+                                                        variant="secondary"
+                                                        className="flex items-center gap-1"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteSkill(skill);
+                                                        }}
+                                                    >
+                                                        {skill}
+                                                        <X className="h-3 w-3 cursor-pointer hover:text-red-500" />
+                                                    </Badge>
+                                                ))
+                                            ) : (
+                                                <span className="text-black">
+                                                    Select skills...
+                                                </span>
+                                            )}
+                                        </div>
+                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="w-[400px] p-0" align="start">
+                                    <Command>
+                                        <CommandInput placeholder="Search skills..." />
+                                        <CommandList>
+                                            <CommandGroup>
+                                                {skillOptions.map((option) => {
+                                                    const isSelected = selectedSkills.includes(option.value);
+                                                    return (
+                                                        <div
+                                                            key={option.value}
+                                                            className={cn(
+                                                                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                                                                "cursor-pointer hover:bg-[#169BA4] hover:text-white"
+                                                            )}
+                                                            onClick={() => toggleSkill(option.value)}
+                                                            onMouseDown={(e) => e.preventDefault()}
+                                                        >
+                                                            <div className="flex items-center w-full">
+                                                                <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4 flex-shrink-0",
+                                                                        isSelected ? "opacity-100" : "opacity-0"
+                                                                    )}
+                                                                />
+                                                                <span className="flex-grow">{option.label}</span>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                        <div className="flex justify-end">
                             <Button
-                                onClick={handleAddSkill}
-                                disabled={!newSkill.trim() || isSaving}
-                                className="gap-2 bg-[#233F64] hover:bg-[#169BA4] w-full sm:w-auto h-9 sm:h-10 text-sm sm:text-base"
+                                onClick={handleSaveSkills}
+                                disabled={isSaving || (JSON.stringify(skills) === JSON.stringify(selectedSkills))}
+                                className="gap-2 bg-[#233F64] hover:bg-[#169BA4] h-10 px-8"
                             >
                                 <Plus className="h-4 w-4" />
-                                Add
+                                Add Skills
                             </Button>
                         </div>
                         <p className="text-xs text-gray-500">
-                            Add skills one by one. Press Enter or click Add to save.
+                            Search and select skills from the dropdown, then click "Add Skills" to save your updates.
                         </p>
                     </div>
                 )}
 
-                {/* Skills Display */}
-                {isLoading ? (
-                    <div className="text-center py-4 text-gray-500">Loading skills...</div>
-                ) : skills.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                        {skills.map((skill) => (
-                            <Badge
-                                key={skill}
-                                variant="secondary"
-                                className="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 flex items-center gap-2"
-                            >
-                                {skill}
-                                {isOwnProfile && (
-                                    <button
-                                        onClick={() => handleDeleteSkill(skill)}
-                                        className="text-blue-500 hover:text-blue-700 focus:outline-none transition-colors"
-                                        disabled={isSaving}
-                                        aria-label={`Remove ${skill}`}
+                {/* Skills Display - Only for other users' profiles */}
+                {!isOwnProfile && (
+                    <>
+                        {isLoading ? (
+                            <div className="text-center py-4 text-gray-500">Loading skills...</div>
+                        ) : skills.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {skills.map((skill) => (
+                                    <Badge
+                                        key={skill}
+                                        variant="secondary"
+                                        className="px-3 py-1.5 text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200"
                                     >
-                                        <X className="h-3.5 w-3.5" />
-                                    </button>
-                                )}
-                            </Badge>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-                        <p className="text-gray-500">
-                            {isOwnProfile ? "No skills added yet. Add your first skill above!" : "No skills listed yet."}
-                        </p>
-                    </div>
+                                        {skill}
+                                    </Badge>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                                <p className="text-gray-500">
+                                    No skills listed yet.
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </CardContent>
         </Card>

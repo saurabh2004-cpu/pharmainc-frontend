@@ -46,7 +46,12 @@ const verificationSchema = z.object({
     professionalTitle: z.string().min(1, "Professional title is required"),
     primarySpecialty: z.string().min(1, "Primary specialty is required"),
     licenseNumber: z.string().min(1, "License number is required"),
-    licenseExpiryDate: z.string().min(1, "License expiry date is required"),
+    licenseExpiryDate: z.string().min(1, "License expiry date is required").refine((date) => {
+        const selectedDate = new Date(date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return selectedDate >= today;
+    }, "License expiry date cannot be in the past"),
     isLicenceSuspended: z.boolean().default(false),
 
     licenceSuspensionReason: z.string().optional(),
@@ -297,8 +302,22 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
         }
     };
 
+    const onError = (errors: any) => {
+        const errorKeys = Object.keys(errors);
+        if (errorKeys.length > 0) {
+            const firstErrorKey = errorKeys[0];
+            const element = document.getElementsByName(firstErrorKey)[0] as HTMLElement || 
+                          document.getElementById(firstErrorKey);
+            
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            toast.error("Please correct the errors before submitting.");
+        }
+    };
+
     return (
-        <div className="container mx-auto py-4 md:py-12 px-4 max-w-4xl">
+        <div className="container mx-auto py-4 md:py-12 px-4 ">
             <div className="mb-10">
                 <h2 className="text-xl md:text-3xl font-bold text-gray-900 font-sans mb-2">Professional Credentials</h2>
                 <p className="text-gray-500">Complete this form to verify your medical identity and professional status.</p>
@@ -352,7 +371,7 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
             </div>
 
             <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+                <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-10">
                     {/* SECTION 1: Personal Information */}
                     <Section title="1. Personal Information" description="Verify your identity and contact details">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -572,7 +591,11 @@ export function UserVerificationForm({ verificationStatus, setVerificationStatus
                                     <FormItem>
                                         <FormLabel>License Expiry Date</FormLabel>
                                         <FormControl>
-                                            <Input type="date" {...field} />
+                                            <Input 
+                                                type="date" 
+                                                min={new Date().toISOString().split('T')[0]} 
+                                                {...field} 
+                                            />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

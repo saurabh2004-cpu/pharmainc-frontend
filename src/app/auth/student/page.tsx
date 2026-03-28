@@ -201,7 +201,7 @@ function StudentAuthContent() {
           }}
           disabled={loading}
           required
-          className={errors.university ? "border-red-500 focus:ring-red-500" : ""}
+          className={`h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4] ${errors.university ? "border-red-500 focus:ring-red-500" : ""}`}
         />
         {errors.university && <p className="text-red-500 text-xs mt-1">{errors.university}</p>}
       </div>
@@ -213,7 +213,7 @@ function StudentAuthContent() {
           onValueChange={setSpeciality}
           disabled={loading}
         >
-          <SelectTrigger>
+          <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
             <SelectValue placeholder="Select category" />
           </SelectTrigger>
           <SelectContent>
@@ -245,7 +245,7 @@ function StudentAuthContent() {
           onValueChange={setSubSpeciality}
           disabled={!speciality || loading}
         >
-          <SelectTrigger>
+          <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
             <SelectValue placeholder="Select role" />
           </SelectTrigger>
           <SelectContent>
@@ -261,7 +261,7 @@ function StudentAuthContent() {
       <div className="space-y-2">
         <Label htmlFor="yearOfStudy">Year of Study</Label>
         <Select value={yearOfStudy} onValueChange={setYearOfStudy}>
-          <SelectTrigger>
+          <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
             <SelectValue placeholder="Select your year of study" />
           </SelectTrigger>
           <SelectContent>

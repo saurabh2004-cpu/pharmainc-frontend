@@ -194,7 +194,7 @@ function DoctorAuthContent() {
       <div className="space-y-2">
         <Label htmlFor="gender">Gender</Label>
         <Select value={gender} onValueChange={setGender}>
-          <SelectTrigger>
+          <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
             <SelectValue placeholder="Select your gender" />
           </SelectTrigger>
           <SelectContent>
@@ -212,7 +212,7 @@ function DoctorAuthContent() {
             placeholder="Years of practice"
             value={experience}
             onChange={(e) => setExperience(e.target.value)}
-            disabled={loading}
+            className="h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4]"
           />
         </div>
 
@@ -224,14 +224,14 @@ function DoctorAuthContent() {
             placeholder="e.g. Cardiology, Pediatrics"
             value={specialization}
             onChange={(e) => setSpecialization(e.target.value)}
-            disabled={loading}
+            className="h-11 bg-gray-50 border-gray-200 focus:bg-white focus:border-[#169BA4] focus:ring-[#169BA4]"
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="role">Role</Label>
           <Select value={role} onValueChange={setRole}>
-            <SelectTrigger>
+            <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
               <SelectValue placeholder="Select your role" />
             </SelectTrigger>
             <SelectContent>
@@ -250,7 +250,7 @@ function DoctorAuthContent() {
             onValueChange={setSpeciality}
             disabled={!role || loading}
           >
-            <SelectTrigger>
+            <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
               <SelectValue placeholder="Select speciality" />
             </SelectTrigger>
             <SelectContent>
@@ -270,7 +270,7 @@ function DoctorAuthContent() {
             onValueChange={setSubSpeciality}
             disabled={!speciality || loading}
           >
-            <SelectTrigger>
+            <SelectTrigger className="focus:border-[#169BA4] focus:ring-[#169BA4]">
               <SelectValue placeholder="Select sub-speciality" />
             </SelectTrigger>
             <SelectContent>

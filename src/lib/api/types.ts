@@ -809,6 +809,7 @@ export interface Package {
   price: number;
   credits: number;
   createdAt: string;
+  created_at?: string;
   updatedAt: string;
 }
 
@@ -818,6 +819,7 @@ export interface Transaction {
   instituteId: string;
   packageId: string;
   createdAt: string;
+  created_at?: string;
   updatedAt: string;
   package?: Package;
   institute?: Institution;

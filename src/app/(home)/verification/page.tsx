@@ -97,7 +97,7 @@ export default function VerificationPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-blue-600" />
+              <Shield className="w-6 h-6 text-[#169BA4]" />
               <h1 className="text-xl font-bold text-gray-900 font-sans">Verification</h1>
             </div>
           </div>
