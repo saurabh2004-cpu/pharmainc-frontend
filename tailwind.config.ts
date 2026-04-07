@@ -67,11 +67,6 @@ export default {
           hashtagText: "#1D4ED8",
         },
       },
-      fontFamily: {
-        serif: ["DM Serif Display", "serif"],
-        sans: ["Inter", "sans-serif"],
-        chirp: ["var(--font-chirp)", "system-ui", "sans-serif"],
-      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -133,6 +128,12 @@ export default {
         "pulse-ring":
           "pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite",
         ecg: "ecg 10s linear forwards infinite",
+      },
+      fontFamily: {
+        poppins: ["var(--poppins-font)", "sans-serif"],
+        figtree: ["var(--figtree-font)", "sans-serif"],
+        chirp: ["var(--chirp-font)", "sans-serif"],
+        nunito: ["var(--nunito-font)", "sans-serif"],
       },
     },
   },

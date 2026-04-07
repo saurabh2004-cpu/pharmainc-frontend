@@ -41,7 +41,7 @@ export const ProfileEducationTab = ({ userId, currentUserId, onAdd, onEdit, refr
     try {
       // Using shared/public API to support viewing others
 
-      const data = await getEducation();
+      const data = await getEducation(isOwnProfile ? undefined : userId);
       // Sort by startDate/start_date desc, handle both camelCase and snake_case
       const sorted = data.sort((a, b) => {
         const aStartDate = (a as any).startDate || a.start_date;

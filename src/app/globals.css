@@ -50,9 +50,11 @@
   --color-medical-hashtag-bg: #eff6ff;
   --color-medical-hashtag-text: #1d4ed8;
 
-  --font-serif: var(--font-chirp), serif;
-  --font-sans: var(--font-chirp), sans-serif;
-  --font-chirp: var(--font-chirp), system-ui, sans-serif;
+  --font-serif: var(--chirp-font), serif;
+  --font-sans: var(--chirp-font), sans-serif;
+  --font-chirp: var(--chirp-font), system-ui, sans-serif;
+  --font-poppins: var(--poppins-font), system-ui, sans-serif;
+  --font-figtree: var(--figtree-font), system-ui, sans-serif;
 
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);

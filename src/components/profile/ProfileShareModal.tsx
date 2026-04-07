@@ -25,9 +25,13 @@ export default function ProfileShareModal({ isOpen, onClose, user }: ProfileShar
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setProfileUrl(window.location.href);
+      const url = new URL(window.location.href);
+      if (!url.searchParams.has("id") && user.id) {
+        url.searchParams.set("id", user.id);
+      }
+      setProfileUrl(url.toString());
     }
-  }, []);
+  }, [user.id]);
 
   const shareText = `Check out ${user.name}'s professional profile on PharmInc`;
 

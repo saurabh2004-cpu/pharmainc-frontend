@@ -3,7 +3,7 @@ import "./globals.css";
 
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
-import { twitterChirp } from "@/lib/fonts";
+import { twitterChirp, figtree, poppins, nunito } from "@/lib/fonts";
 import { WelcomeProvider } from "@/components/WelcomeProvider";
 import { EntityProvider } from "@/components/EntityProvider";
 
@@ -24,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${twitterChirp.variable} min-h-screen flex flex-col font-chirp overflow-y-scroll`}>
+      <body className={`${twitterChirp.variable} ${figtree.variable} ${poppins.variable} ${nunito.variable} min-h-screen flex flex-col font-chirp overflow-y-scroll`}>
         <div className="flex flex-col grow">{children}</div>
         <Toaster />
         <WelcomeProvider />

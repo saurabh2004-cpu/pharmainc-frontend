@@ -7,7 +7,9 @@ const publicRoutes = [
   '/about-us',
   '/',
   '/profile',
-  '/institute'
+  '/institute',
+  '/medical-professionals',
+  '/hospitals-and-institutes'
   // Add any other public routes here
 ];
 
@@ -35,10 +37,12 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get('accessToken')?.value;
 
   const isPublicRoute = publicRoutes.some(route => {
-    if (route === '/') {
-      return pathname === '/';
+    const lowerPath = pathname.toLowerCase();
+    const lowerRoute = route.toLowerCase();
+    if (lowerRoute === '/') {
+      return lowerPath === '/';
     }
-    return pathname.startsWith(route);
+    return lowerPath.startsWith(lowerRoute);
   });
 
   // If user is not authenticated and trying to access a protected route

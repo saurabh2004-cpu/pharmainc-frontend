@@ -13,15 +13,18 @@ interface ProfileLayoutContentProps {
 export default function ProfileLayoutContent({ children }: ProfileLayoutContentProps) {
   const { currentUser, fetchCurrentUser } = useUserStore()
   const { currentInstitution, fetchCurrentInstitution } = useInstitutionStore()
-  const userType = getUserType()
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
+  const [userTypeState, setUserTypeState] = React.useState<string | null>(null)
 
   useEffect(() => {
     const token = getAuthToken()
     if (!token) return
+    
+    setIsLoggedIn(true)
+    const type = getUserType()
+    setUserTypeState(type)
 
-    const userType = getUserType()
-
-    if (userType === 'institution') {
+    if (type === 'institution') {
       fetchCurrentInstitution()
     } else {
       fetchCurrentUser()
@@ -29,9 +32,7 @@ export default function ProfileLayoutContent({ children }: ProfileLayoutContentP
   }, [fetchCurrentUser, fetchCurrentInstitution])
 
   const currentEntity = (() => {
-    const userType = getUserType();
-
-    if (userType === 'institution' && currentInstitution) {
+    if (userTypeState === 'institution' && currentInstitution) {
       return {
         id: currentInstitution.id,
         name: currentInstitution.name,
@@ -50,11 +51,13 @@ export default function ProfileLayoutContent({ children }: ProfileLayoutContentP
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="max-w-8xl mx-auto flex justify-center">
-        <div className="sticky top-0 h-screen flex-shrink-0">
-          <div className="w-16 xl:w-64 transition-all duration-200 h-full">
-            <LeftSidebar user={currentEntity} />
+        {isLoggedIn && (
+          <div className="sticky top-0 h-screen flex-shrink-0">
+            <div className="w-16 xl:w-64 transition-all duration-200 h-full">
+              <LeftSidebar user={currentEntity} />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex-1 min-w-0 w-full border-x border-gray-200 bg-gray-50/30">
           <main className="w-full p-2 sm:p-4 md:p-6">
@@ -62,11 +65,13 @@ export default function ProfileLayoutContent({ children }: ProfileLayoutContentP
           </main>
         </div>
 
-        {userType !== 'INSTITUTE' && <div className="hidden lg:block w-80 sticky top-0 h-screen flex-shrink-0">
-          <div className="h-full overflow-y-auto bg-white">
-            <RightSidebar />
+        {isLoggedIn && userTypeState !== 'INSTITUTE' && (
+          <div className="hidden lg:block w-80 sticky top-0 h-screen flex-shrink-0">
+            <div className="h-full overflow-y-auto bg-white">
+              <RightSidebar />
+            </div>
           </div>
-        </div>}
+        )}
       </div>
     </div>
   )

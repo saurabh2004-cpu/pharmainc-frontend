@@ -1,4 +1,6 @@
 import localFont from "next/font/local";
+import { Figtree, Poppins, Nunito } from "next/font/google";
+
 
 export const twitterChirp = localFont({
   src: [
@@ -23,6 +25,27 @@ export const twitterChirp = localFont({
       style: "normal",
     },
   ],
-  variable: "--font-chirp",
+  variable: "--chirp-font",
+  display: "swap",
+});
+
+export const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--figtree-font",
+  display: "swap",
+});
+
+export const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--poppins-font",
+  display: "swap",
+});
+
+export const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  variable: "--nunito-font",
   display: "swap",
 });

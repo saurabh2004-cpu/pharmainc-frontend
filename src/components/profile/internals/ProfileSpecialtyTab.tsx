@@ -28,7 +28,7 @@ export const ProfileSpecialtyTab = ({ userId, currentUserId, refreshTrigger }: P
   const fetchSpecialities = async () => {
     setIsLoading(true);
     try {
-      const data = await getSpecialities();
+      const data = await getSpecialities(isOwnProfile ? undefined : userId);
       if (Array.isArray(data)) {
         setSpecialities(data);
       } else if (data && 'specialities' in data && Array.isArray(data.specialities)) {

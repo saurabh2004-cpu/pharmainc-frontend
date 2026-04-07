@@ -64,9 +64,8 @@ export const ProfileExperienceTab = ({ userId, currentUserId, onAdd, onEdit, ref
           // Use private API for own profile to get the latest data immediately
           data = await getExperiences();
         } else {
-          // Use public API for viewing other users
-          const { getUserExperiences } = await import("@/lib/api");
-          data = await getUserExperiences(userId);
+          // Use public API with userId for viewing other users
+          data = await getExperiences(userId);
         }
 
         // Sort: Current jobs first (endDate/end_date is null), then by startDate/start_date descending

@@ -41,7 +41,7 @@ export const ProfileSkillsTab = ({ userId, currentUserId, refreshTrigger }: Prof
     const fetchSkills = async () => {
         setIsLoading(true);
         try {
-            const data = await getSkills();
+            const data = await getSkills(isOwnProfile ? undefined : userId);
             if (Array.isArray(data)) {
                 setSkills(data);
                 setSelectedSkills(data);

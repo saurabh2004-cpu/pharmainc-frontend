@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import LeftSidebar from '../../../components/LeftSidebar'
 import { RightSidebar } from '../../(home)/home/_components/RightSidebar'
 import { useUserStore, useInstitutionStore } from '@/store'
-import { getUserType } from '@/lib/api/utils'
+import { getUserType, getAuthToken } from '@/lib/api/utils'
 
 interface InstituteLayoutContentProps {
   children: React.ReactNode
@@ -13,9 +13,16 @@ interface InstituteLayoutContentProps {
 export default function InstituteLayoutContent({ children }: InstituteLayoutContentProps) {
   const { currentUser, fetchCurrentUser } = useUserStore()
   const { currentInstitution, fetchCurrentInstitution } = useInstitutionStore()
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false)
+  const [userTypeState, setUserTypeState] = React.useState<string | null>(null)
 
   useEffect(() => {
+    const token = getAuthToken()
+    if (!token) return
+
+    setIsLoggedIn(true)
     const userType = getUserType()
+    setUserTypeState(userType)
 
     if (userType === 'institution') {
       fetchCurrentInstitution()
@@ -25,9 +32,7 @@ export default function InstituteLayoutContent({ children }: InstituteLayoutCont
   }, [fetchCurrentUser, fetchCurrentInstitution])
 
   const currentEntity = (() => {
-    const userType = getUserType();
-
-    if (userType === 'institution' && currentInstitution) {
+    if (userTypeState === 'institution' && currentInstitution) {
       return {
         id: currentInstitution.id,
         name: currentInstitution.name,
@@ -46,11 +51,13 @@ export default function InstituteLayoutContent({ children }: InstituteLayoutCont
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="max-w-8xl mx-auto flex justify-center">
-        <div className="sticky top-0 h-screen flex-shrink-0">
-          <div className="w-16 xl:w-64 transition-all duration-200 h-full">
-            <LeftSidebar user={currentEntity} />
+        {isLoggedIn && (
+          <div className="sticky top-0 h-screen flex-shrink-0">
+            <div className="w-16 xl:w-64 transition-all duration-200 h-full">
+              <LeftSidebar user={currentEntity} />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex-1 min-w-0 max-w-[600px] border-x border-gray-200">
           <main className="w-full p-4">
@@ -58,11 +65,13 @@ export default function InstituteLayoutContent({ children }: InstituteLayoutCont
           </main>
         </div>
 
-        <div className="hidden lg:block w-80 sticky top-0 h-screen flex-shrink-0">
-          <div className="h-full overflow-y-auto bg-white">
-            <RightSidebar />
+        {isLoggedIn && (
+          <div className="hidden lg:block w-80 sticky top-0 h-screen flex-shrink-0">
+            <div className="h-full overflow-y-auto bg-white">
+              <RightSidebar />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   )

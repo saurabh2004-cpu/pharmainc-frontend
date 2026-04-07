@@ -10,8 +10,9 @@ import {
 } from "@/lib/api/types";
 
 // Experience Endpoints
-export const getExperiences = async (): Promise<Experience[]> => {
-    const response = await baseApi.get("/user/get-experience");
+export const getExperiences = async (userId?: string): Promise<Experience[]> => {
+    const url = userId ? `/user/get-experience?id=${userId}` : "/user/get-experience";
+    const response = await baseApi.get(url);
     return response.data;
 };
 
@@ -30,8 +31,9 @@ export const deleteExperience = async (id: string): Promise<void> => {
 };
 
 // Education Endpoints
-export const getEducation = async (): Promise<Education[]> => {
-    const response = await baseApi.get("/user/get-education");
+export const getEducation = async (userId?: string): Promise<Education[]> => {
+    const url = userId ? `/user/get-education?id=${userId}` : "/user/get-education";
+    const response = await baseApi.get(url);
     console.log("Education response:", response.data);
     return response.data;
 };
@@ -51,8 +53,9 @@ export const deleteEducation = async (id: string): Promise<void> => {
 };
 
 // Skills Endpoints
-export const getSkills = async (): Promise<Skills | { skills: string[] } | string[]> => {
-    const response = await baseApi.get("/user/get-skills");
+export const getSkills = async (userId?: string): Promise<Skills | { skills: string[] } | string[]> => {
+    const url = userId ? `/user/get-skills?id=${userId}` : "/user/get-skills";
+    const response = await baseApi.get(url);
     return response.data;
 };
 
@@ -66,8 +69,9 @@ export const deleteSkills = async (data?: { skills: string[] }): Promise<void> =
 };
 
 // Specialties Endpoints
-export const getSpecialities = async (): Promise<{ specialities: string[] } | string[]> => {
-    const response = await baseApi.get("/user/get-specialities");
+export const getSpecialities = async (userId?: string): Promise<{ specialities: string[] } | string[]> => {
+    const url = userId ? `/user/get-specialities?id=${userId}` : "/user/get-specialities";
+    const response = await baseApi.get(url);
     return response.data;
 };
 

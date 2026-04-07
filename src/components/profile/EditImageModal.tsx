@@ -171,16 +171,17 @@ export const EditImageModal = ({
                         </Button>
                     )}
                     <div className="flex gap-2 flex-1 sm:justify-end">
-                        <Button variant="outline" onClick={onClose} disabled={isLoading}>
+                        <Button variant="outline" onClick={onClose} disabled={isLoading} className="hover:bg-[#233F64] hover:text-white">
                             Cancel
                         </Button>
                         <Button
                             onClick={handleUpload}
                             disabled={isLoading || !selectedFile}
+                            className="bg-[#169BA4] hover:bg-[#169BA4] hover:text-white bg-[#233F64]"
                         >
                             {isLoading ? (
                                 <>
-                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin text-white" />
                                     Saving...
                                 </>
                             ) : (
