@@ -119,7 +119,7 @@ export default function Insights() {
                         <motion.div
                             custom={2}
                             variants={cardVariants}
-                            className="absolute top-[18rem] left-[24rem] w-[12rem] h-[18rem]"
+                            className="absolute top-[18rem] left-[25rem] w-[12rem] h-[18rem]"
                         >
                             <Image
                                 src="/hospitals-and-institutes/insights-card-3.png"
