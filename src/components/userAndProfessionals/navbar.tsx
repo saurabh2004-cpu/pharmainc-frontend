@@ -6,7 +6,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { cleanRegex } from 'node_modules/zod/v4/core/util.cjs';
+import { useEntityStore } from '@/store/entityStore';
+import { EntityType } from '@/lib/api/types';
 
 const navVariants: Variants = {
     hidden: { opacity: 0, y: -10 },
@@ -50,7 +51,11 @@ const navLinks = [
 export default function Navbar({ bg }) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const { entity, entityType } = useEntityStore();
+    
     const ishospitalsAndInstitutePage = pathname?.toLowerCase() === '/hospitals-and-institutes';
+    const isLoggedIn = !!entity;
+    const homeHref = entityType === EntityType.INSTITUTE ? '/dashboard' : '/find-jobs';
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -87,24 +92,38 @@ export default function Navbar({ bg }) {
                         ))}
                     </nav>
 
-                    <Link href="/auth?type=signin">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-8 h-[37px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
-                        >
-                            Login
-                        </motion.button>
-                    </Link>
-                    <Link href="/auth?type=signup">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className={`px-8 h-[37px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
-                        >
-                            Sign Up
-                        </motion.button>
-                    </Link>
+                    {isLoggedIn ? (
+                        <Link href={homeHref}>
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                className={`px-8 h-[37px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                            >
+                                Home
+                            </motion.button>
+                        </Link>
+                    ) : (
+                        <>
+                            <Link href="/auth?type=signin">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={`px-8 h-[37px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                                >
+                                    Login
+                                </motion.button>
+                            </Link>
+                            <Link href="/auth?type=signup">
+                                <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    className={`px-8 h-[37px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                                >
+                                    Sign Up
+                                </motion.button>
+                            </Link>
+                        </>
+                    )}
                 </div>
 
                 {/* Mobile Menu Button - Only visible on small/medium screens */}
@@ -146,24 +165,38 @@ export default function Navbar({ bg }) {
                         </nav>
 
                         <div className="flex flex-col gap-4">
-                            <Link href="/auth?type=signin" onClick={() => setIsOpen(false)}>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className={`w-full h-[47px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
-                                >
-                                    Login
-                                </motion.button>
-                            </Link>
-                            <Link href="/auth?type=signup" onClick={() => setIsOpen(false)}>
-                                <motion.button
-                                    whileHover={{ scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className={`w-full h-[47px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
-                                >
-                                    Sign Up
-                                </motion.button>
-                            </Link>
+                            {isLoggedIn ? (
+                                <Link href={homeHref} onClick={() => setIsOpen(false)}>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className={`w-full h-[47px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                                    >
+                                        Home
+                                    </motion.button>
+                                </Link>
+                            ) : (
+                                <>
+                                    <Link href="/auth?type=signin" onClick={() => setIsOpen(false)}>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className={`w-full h-[47px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                                        >
+                                            Login
+                                        </motion.button>
+                                    </Link>
+                                    <Link href="/auth?type=signup" onClick={() => setIsOpen(false)}>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className={`w-full h-[47px] ${ishospitalsAndInstitutePage ? 'bg-[#233F64] text-white' : 'bg-[#FFFFFF2B] backdrop-blur-[6px] text-white'} rounded-full flex items-center justify-center font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:opacity-90' : 'hover:bg-white/25'} transition-all shadow-lg ${ishospitalsAndInstitutePage ? '' : 'border-t border-l border-white/50 border-b border-r border-white/10'}`}
+                                        >
+                                            Sign Up
+                                        </motion.button>
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </motion.div>
                 )}
