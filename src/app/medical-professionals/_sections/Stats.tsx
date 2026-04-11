@@ -1,6 +1,7 @@
 'use client';
 
-import { motion, Variants } from 'framer-motion';
+import { motion, Variants, useMotionValue, useTransform, animate, useInView } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -38,29 +39,60 @@ const statCardVariants: Variants = {
 };
 
 interface StatItem {
-    value: string;
+    numericValue: number;
+    suffix: string;
     description: string;
+    decimals?: number;
 }
 
 const stats: StatItem[] = [
     {
-        value: '6.5M+',
+        numericValue: 6.5,
+        suffix: 'M+',
+        description: 'Tech professionals\ntrrust on Us',
+        decimals: 1,
+    },
+    {
+        numericValue: 150,
+        suffix: 'k+',
         description: 'Tech professionals\ntrrust on Us',
     },
     {
-        value: '150k+',
-        description: 'Tech professionals\ntrrust on Us',
-    },
-    {
-        value: '50k+',
+        numericValue: 50,
+        suffix: 'k+',
         description: 'Tech professionals\ntrrust on Us',
     },
 ];
 
+function Counter({ value, suffix, decimals = 0 }: { value: number; suffix: string; decimals?: number }) {
+    const ref = useRef(null);
+    const isInView = useInView(ref, { once: true, margin: "-100px" });
+    const count = useMotionValue(0);
+    const rounded = useTransform(count, (latest) => {
+        return latest.toFixed(decimals);
+    });
+
+    useEffect(() => {
+        if (isInView) {
+            animate(count, value, {
+                duration: 2,
+                ease: "easeOut",
+            });
+        }
+    }, [isInView, value, count]);
+
+    return (
+        <span ref={ref}>
+            <motion.span>{rounded}</motion.span>
+            {suffix}
+        </span>
+    );
+}
+
 export default function Stats() {
     return (
         <section className="w-full bg-white px-4 py-12 md:py-16 lg:py-20">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-8xl mx-auto">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
@@ -74,9 +106,10 @@ export default function Stats() {
                         {/* Left Card - Agency Info */}
                         <motion.div
                             variants={itemVariants}
-                            className="col-span-1 md:col-span-2 p-6 sm:p-8 w-full max-w-[28rem] md:max-w-none xl:w-[23.875rem] h-auto md:h-[19.5rem] rounded-[1.875rem] flex flex-col justify-center mb-6 md:mb-12 xl:mb-0"
+                            className="col-span-1 md:col-span-2 p-6 sm:p-8 w-full max-w-[28rem] md:max-w-none xl:w-[23.875rem] h-auto md:h-[19.5rem] rounded-[1.875rem] flex flex-col justify-center mb-6 md:mb-12 xl:mb-0 animate-gradient-flow"
                             style={{
-                                background: 'linear-gradient(180deg, #08D5CE 0%, #8DEFA4 100%)',
+                                background: 'linear-gradient(90deg, #08D5CE 0%, #8DEFA4 50%, #08D5CE 100%)',
+                                backgroundSize: '200% auto',
                                 opacity: 1
                             }}
                         >
@@ -100,7 +133,7 @@ export default function Stats() {
                             </motion.h3>
                             <motion.p
                                 variants={itemVariants}
-                                className="text-gray-800 text-[0.875rem] md:text-[1rem] lg:text-[1.563rem] font-medium leading-[150%] tracking-normal"
+                                className="text-gray-800 text-[0.875rem] md:text-[1rem] lg:text-[1.3rem] font-medium leading-[150%] tracking-normal"
                                 style={{
                                     fontFamily: "'Poppins', sans-serif",
                                 }}
@@ -130,7 +163,11 @@ export default function Stats() {
                                             fontFamily: "'Poppins', sans-serif",
                                         }}
                                     >
-                                        {stat.value}
+                                        <Counter
+                                            value={stat.numericValue}
+                                            suffix={stat.suffix}
+                                            decimals={stat.decimals}
+                                        />
                                     </motion.p>
 
                                     {/* Stat Description */}

@@ -9,11 +9,11 @@ export default function LandingLayout({
 }) {
   return (
     <div className="font-jakarta">
-      <Navbar />
+      {/* <Navbar /> */}
       <div className="pt-10 pb-10 w-full px-0">
         {children}
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   )
 }

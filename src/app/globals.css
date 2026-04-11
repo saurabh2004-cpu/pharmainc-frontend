@@ -70,7 +70,19 @@
   --animate-pulse-ring: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955)
     infinite;
   --animate-ecg: ecg 10s linear forwards infinite;
+  --animate-gradient-flow: gradient-flow 4s ease infinite;
 
+  @keyframes gradient-flow {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
   @keyframes accordion-down {
     from {
       height: 0;

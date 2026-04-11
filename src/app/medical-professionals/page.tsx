@@ -17,7 +17,7 @@ const Page = () => {
             <DashboardPreview />
             <RecruitmentProcess />
             <Features />
-            <Jobs />
+            {/* <Jobs /> */}
             <JobSuccess />
             <Testimonials />
             <Stats />

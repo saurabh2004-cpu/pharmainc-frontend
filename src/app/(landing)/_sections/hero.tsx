@@ -4,6 +4,7 @@ import { motion, Variants } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Heart, Stethoscope } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -119,7 +120,7 @@ export default function Hero() {
             className="text-center "
             variants={itemVariants}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-4xl md:text-[73.22px] font-[800] font-figtree mb-4 leading-none tracking-normal bg-clip-text text-transparent bg-[linear-gradient(93.83deg,_#000000_55.14%,_#08D5CE_72.7%)] inline-block">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[73.22px] font-[800] font-figtree mb-4 leading-none tracking-normal bg-clip-text text-transparent bg-[linear-gradient(90deg,_#000000_20%,_#08D5CE_40%,_#8DEFA4_60%,_#08D5CE_80%,_#000000_100%)] bg-[length:200%_auto] animate-gradient-flow inline-block">
               <motion.span
                 className="block"
                 custom={0}
@@ -163,6 +164,10 @@ export default function Hero() {
               className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: `url('/hero-img/left-side-card-image.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '100%',
+                width: '100%',
               }}
               variants={cardImageVariants}
               initial="initial"
@@ -170,7 +175,7 @@ export default function Hero() {
             />
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative h-80 md:h-96 p-8 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
+            <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[600px] p-6 sm:p-10 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -200,11 +205,12 @@ export default function Hero() {
                   whileHover="hover"
                   whileTap="tap"
                 >
-                  <Button
-                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
+                  <Link
+                    href={'/medical-professionals'}
+                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-full max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
                   >
                     Get started
-                  </Button>
+                  </Link>
                 </motion.div>
               </motion.div>
             </div>
@@ -221,6 +227,10 @@ export default function Hero() {
               className="absolute inset-0 bg-cover bg-center"
               style={{
                 backgroundImage: `url('/hero-img/right-side-card-image.png')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                height: '100%',
+                width: '100%',
               }}
               variants={cardImageVariants}
               initial="initial"
@@ -228,7 +238,7 @@ export default function Hero() {
             />
             <div className="absolute inset-0 bg-slate-900/40" />
 
-            <div className="relative h-80 md:h-96 p-8 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
+            <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[600px] p-6 sm:p-10 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -258,11 +268,12 @@ export default function Hero() {
                   whileHover="hover"
                   whileTap="tap"
                 >
-                  <Button
-                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
+                  <Link
+                    href={'/hospitals-and-institutes'}
+                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-full max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
                   >
                     Explore
-                  </Button>
+                  </Link>
                 </motion.div>
               </motion.div>
             </div>

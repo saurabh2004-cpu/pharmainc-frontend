@@ -53,10 +53,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If user is authenticated and trying to access auth page, redirect to home
+  // If user is authenticated and trying to access auth page, redirect based on role
   if (token && pathname.startsWith('/auth')) {
+    const userType = request.cookies.get('userType')?.value?.toUpperCase();
     const url = request.nextUrl.clone();
-    url.pathname = '/home';
+    
+    if (userType === 'INSTITUTE') {
+      url.pathname = '/dashboard';
+    } else if (userType === 'USER') {
+      url.pathname = '/find-jobs';
+    } else {
+      url.pathname = '/'; // Safe fallback
+    }
+    
     return NextResponse.redirect(url);
   }
 

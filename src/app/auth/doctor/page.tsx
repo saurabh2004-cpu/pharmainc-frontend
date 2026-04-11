@@ -122,7 +122,13 @@ function DoctorAuthContent() {
       });
 
       await loginEntity(token, EntityType.USER);
-      router.push(redirectTo || "/find-jobs");
+      
+      // Expert role-based redirect
+      if (redirectTo && redirectTo !== '/login') {
+        router.push(redirectTo);
+      } else {
+        router.push("/find-jobs");
+      }
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Sign in failed. Please check your credentials.");
@@ -176,8 +182,13 @@ function DoctorAuthContent() {
         });
 
         await loginEntity(token, EntityType.USER);
-
-        router.push(redirectTo || "/find-jobs");
+        
+        // Expert role-based redirect
+        if (redirectTo && redirectTo !== '/login') {
+          router.push(redirectTo);
+        } else {
+          router.push("/find-jobs");
+        }
       } else {
         alert("Sign up failed. Please try again.");
       }

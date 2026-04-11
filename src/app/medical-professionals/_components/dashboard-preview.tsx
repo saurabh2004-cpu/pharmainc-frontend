@@ -12,11 +12,19 @@ export default function DashboardPreview() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative w-full max-w-5xl md:-mt-55  lg:-mt-80 -mt-20 md:-mt-30  z-10"
+                    className="relative w-full max-w-5xl md:-mt-55 lg:-mt-80 -mt-20 md:-mt-30 z-10"
                 >
-                    {/* Shadow/Glow effect */}
-
-                    <div className="relative rounded-2xl overflow-hidden   ">
+                    <motion.div
+                        animate={{
+                            y: [0, -20, 0],
+                        }}
+                        // transition={{
+                        //     duration: 5,
+                        //     repeat: Infinity,
+                        //     ease: "easeInOut",
+                        // }}
+                        className="relative rounded-2xl overflow-hidden"
+                    >
                         <Image
                             src="/medical-professionals/cards.png"
                             alt="Pharminc Dashboard Preview"
@@ -24,7 +32,7 @@ export default function DashboardPreview() {
                             width={1200}
                             height={800}
                         />
-                    </div>
+                    </motion.div>
                 </motion.div>
             </div>
         </section>

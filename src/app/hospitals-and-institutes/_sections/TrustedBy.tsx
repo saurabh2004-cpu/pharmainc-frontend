@@ -1,21 +1,22 @@
 'use client';
 
-import { motion, Variants, easeOut } from 'framer-motion';
+import { motion, Variants, easeOut, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useEffect, useRef } from 'react';
 
 const TrustedBy = () => {
     const stats = [
         {
-            number: '200',
+            number: 200,
             label: 'Healthcare Institutions',
             description: 'Hospitals onboarded',
         },
         {
-            number: '10,000',
+            number: 10000,
             label: 'Healthcare Professionals',
             description: 'Verified Professionals',
         },
         {
-            number: '50,000',
+            number: 50000,
             label: 'Placements Made',
             description: 'Successful shifts completed',
         },
@@ -48,6 +49,30 @@ const TrustedBy = () => {
             transition: { duration: 0.6, ease: easeOut },
         },
     };
+
+    function Counter({ value }: { value: number; }) {
+        const ref = useRef(null);
+        const isInView = useInView(ref, { once: true, margin: "-100px" });
+        const count = useMotionValue(0);
+        const rounded = useTransform(count, (latest) => {
+            return latest.toFixed(0);
+        });
+
+        useEffect(() => {
+            if (isInView) {
+                animate(count, value, {
+                    duration: 2,
+                    ease: "easeOut",
+                });
+            }
+        }, [isInView, value, count]);
+
+        return (
+            <span ref={ref}>
+                <motion.span>{rounded}</motion.span>
+            </span>
+        );
+    }
 
     return (
         <section className="w-full bg-white px-4 sm:px-6 md:px-8 pb-0 sm:pb-8 xl:pb-0">
@@ -115,11 +140,28 @@ const TrustedBy = () => {
 
                             <div className="flex flex-col justify-center items-center">
                                 <div className="flex items-center justify-center mb-2">
-                                    <p className="text-[#112F52] font-figtree font-bold 
+                                    {/* <p className="text-[#112F52] font-figtree font-bold 
                                                   text-[22px] sm:text-[32px] md:text-[44px] xl:text-[56.31px] 
                                                   leading-none">
-                                        {stat.number.replace('+', '')}
-                                    </p>
+                                        {stat.number}
+                                    </p> */}
+
+                                    <motion.p
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
+                                        className="text-[#112F52] font-figtree font-bold 
+                                                  text-[22px] sm:text-[32px] md:text-[44px] xl:text-[56.31px] 
+                                                  leading-none"
+                                        style={{
+                                            fontFamily: "'Poppins', sans-serif",
+                                        }}
+                                    >
+                                        <Counter
+                                            value={stat.number}
+                                        />
+                                    </motion.p>
+
                                     <p
                                         className="font-figtree font-bold 
                                                    text-[22px] sm:text-[32px] md:text-[44px] xl:text-[56.31px] 
@@ -141,33 +183,36 @@ const TrustedBy = () => {
                     ))}
                 </motion.div>
 
-                {/* Institution Logos */}
-                <motion.div
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: '-100px' }}
-                    variants={containerVariants}
-                    className="flex flex-wrap justify-center items-center 
-                               gap-8 sm:gap-10 md:gap-12 lg:gap-[64px] 
-                               max-w-full lg:max-w-6xl mx-auto 
-                               mt-4 md:mt-12 lg:mt-24 pb-4 px-2"
-                >
-                    {institutionsLogos.map((logo, index) => (
-                        <motion.div
-                            key={index}
-                            variants={itemVariants}
-                            whileHover={{ scale: 1.05 }}
-                            className="flex items-center justify-center 
-                                       h-[24px] sm:h-[30px] lg:h-[35.21px]"
-                        >
-                            <img
-                                src={logo}
-                                alt={`Partner Logo ${index + 1}`}
-                                className="h-full w-auto object-contain opacity-80 hover:opacity-100 transition-opacity"
-                            />
-                        </motion.div>
-                    ))}
-                </motion.div>
+                {/* Institution Logos - Scrolling Carousel */}
+                <div className="w-full overflow-hidden relative mt-4 md:mt-12 lg:mt-24 pb-8">
+                    <motion.div
+                        className="flex items-center gap-8 sm:gap-10 md:gap-12 lg:gap-[64px] w-max"
+                        animate={{
+                            x: ["0%", "-50%"]
+                        }}
+                        transition={{
+                            x: {
+                                duration: 25, // Slow, professional scroll
+                                repeat: Infinity,
+                                ease: "linear"
+                            }
+                        }}
+                    >
+                        {/* Double the logos for seamless loop */}
+                        {[...institutionsLogos, ...institutionsLogos, ...institutionsLogos, ...institutionsLogos].map((logo, index) => (
+                            <div
+                                key={index}
+                                className="flex-shrink-0 flex items-center justify-center h-[24px] sm:h-[30px] lg:h-[35.21px]"
+                            >
+                                <img
+                                    src={logo}
+                                    alt={`Partner Logo ${index + 1}`}
+                                    className="h-full w-auto object-contain opacity-60 hover:opacity-100 transition-opacity duration-300 grayscale hover:grayscale-0"
+                                />
+                            </div>
+                        ))}
+                    </motion.div>
+                </div>
 
             </div>
         </section>

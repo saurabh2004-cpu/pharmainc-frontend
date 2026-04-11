@@ -1,6 +1,5 @@
-'use client';
-
-import { useState } from 'react';
+'use client'
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -66,6 +65,14 @@ export default function HospitalTestimonials() {
             prev === 0 ? hospitalTestimonials.length - 1 : prev - 1
         );
     };
+
+    // Auto-pagination logic
+    useEffect(() => {
+        const interval = setInterval(() => {
+            goToNext();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [currentIndex]); // Interval resets when index changes to avoid double-paging if user clicks manually
 
     const current = hospitalTestimonials[currentIndex];
 

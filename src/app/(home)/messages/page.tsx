@@ -77,7 +77,7 @@ const MessagesContent = () => {
   useEffect(() => {
     const token = getAuthToken();
     if (!token) {
-      router.push('/login');
+      router.push('/auth');
       return;
     }
 

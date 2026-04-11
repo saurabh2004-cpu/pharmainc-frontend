@@ -91,7 +91,13 @@ function InstitutionAuthContent() {
       });
 
       await loginEntity(token, EntityType.INSTITUTE);
-      router.push(redirectTo || "/dashboard");
+
+      // Expert role-based redirect
+      if (redirectTo && redirectTo !== '/login') {
+        router.push(redirectTo);
+      } else {
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.error("Sign in error:", error);
       alert("Sign in failed. Please check your credentials.");
@@ -154,7 +160,13 @@ function InstitutionAuthContent() {
         });
 
         await loginEntity(token, EntityType.INSTITUTE);
-        router.push(redirectTo || "/dashboard");
+        
+        // Expert role-based redirect
+        if (redirectTo && redirectTo !== '/login') {
+          router.push(redirectTo);
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         alert("Institution registration failed. Please try again.");
       }

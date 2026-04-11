@@ -58,17 +58,36 @@ export default function RecruitmentProcess() {
                             </p>
                         </div>
                     </div>
-                    <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 lg:gap-20">
-                        {[...Array(5)].map((_, i) => (
-                            <motion.div
-                                key={i}
-                                variants={itemVariants}
-                                className="flex items-center gap-2 text-gray-400 hover:text-gray-600 transition"
-                            >
-
-                                <Image src="/medical-professionals/carousel-brands.png" alt="logoipsum" width={100} height={100} />
-                            </motion.div>
-                        ))}
+                    <div className="w-6xl overflow-hidden relative mt-4 md:mt-0">
+                        <motion.div
+                            className="flex items-center gap-8 sm:gap-12 lg:gap-20 w-max"
+                            animate={{
+                                x: ["0%", "-50%"]
+                            }}
+                            transition={{
+                                x: {
+                                    duration: 30, // Slow, professional scroll
+                                    repeat: Infinity,
+                                    ease: "linear"
+                                }
+                            }}
+                        >
+                            {/* Double the logos for seamless loop */}
+                            {[...Array(10)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="flex-shrink-0 flex items-center gap-2 text-gray-400 hover:text-gray-600 transition"
+                                >
+                                    <Image
+                                        src="/medical-professionals/carousel-brands.png"
+                                        alt="logoipsum"
+                                        width={120}
+                                        height={60}
+                                        className="grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300 h-auto w-auto max-w-[100px] sm:max-w-none"
+                                    />
+                                </div>
+                            ))}
+                        </motion.div>
                     </div>
                 </motion.div>
             </motion.section>
@@ -89,14 +108,20 @@ export default function RecruitmentProcess() {
                             </p>
                         </div>
                     </motion.div>
-                    <motion.h2
-                        variants={itemVariants}
-                        className="font-poppins text-base sm:text-[24px] md:text-[35px] font-semibold leading-tight text-center text-gray-900 mb-4 text-balance"
-                    >
-                        Smooth process,
-                        <br />
-                        outstanding achievements.
-                    </motion.h2>
+                    <div className="flex flex-col items-center justify-center">
+                        <motion.h2
+                            variants={itemVariants}
+                            className="font-poppins mr-2 xl:mr-3 text-base sm:text-[24px] md:text-[35px] font-semibold leading-[1.1] text-center text-gray-900 text-balance"
+                        >
+                            Smooth process,
+                        </motion.h2>
+                        <motion.h2
+                            variants={itemVariants}
+                            className="font-poppins text-base sm:text-[24px] md:text-[35px] font-semibold leading-[1.1] text-center text-gray-900 mb-4 text-balance"
+                        >
+                            outstanding achievements.
+                        </motion.h2>
+                    </div>
                     <motion.p variants={itemVariants} className="font-poppins text-xs sm:text-sm md:text-[18px] font-normal leading-[1.4] text-center text-gray-600">
                         Highlighting the excellent and transparent process from our post to selection in a
                         <br className="hidden sm:block" />

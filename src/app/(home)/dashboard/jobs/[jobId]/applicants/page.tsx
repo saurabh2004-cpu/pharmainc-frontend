@@ -9,7 +9,8 @@ import {
     interviewDecision,
     hire,
     shortlistApplication,
-    rejectApplication
+    rejectApplication,
+    revokeInterview
 } from '@/lib/api/services/application';
 import { downloadResume } from '@/lib/api/services/user';
 import { initiateConversation } from '@/lib/api/services/messages';
@@ -258,6 +259,22 @@ const JobApplicationsPage = () => {
         }
     };
 
+    const handleRevokeInterview = async (appId: string) => {
+        if (isProcessing(appId)) return;
+        addToProcessing(appId);
+        try {
+            await revokeInterview(appId);
+            updateLocalStatus(appId, 'NEXT_ROUND_ACCEPTED');
+            toast.success('Interview revoked successfully');
+        } catch (error) {
+            console.error('Error revoking interview:', error);
+            toast.error('Failed to revoke interview');
+        } finally {
+            removeFromProcessing(appId);
+        }
+    };
+
+
     // Interview Decision Logic - REPLACED with Hire/Reject buttons at specific stages
     // const handleInterviewDecision = ... (Deleted as it was mixing concerns for Institute side)
 
@@ -473,22 +490,33 @@ const JobApplicationsPage = () => {
                 );
             case 'INTERVIEW_SCHEDULED':
                 return (
-                    <div className="flex gap-2 justify-end">
-                        <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white"
-                            onClick={() => handleHire(app.id, app.userName || 'Candidate')}
-                            disabled={loading}
-                        >
-                            {loading ? '...' : 'Hire'}
-                        </Button>
+                    <div className="flex flex-col gap-2 justify-end">
+                        <div className='flex gap-2'>
+                            <Button
+                                size="sm"
+                                className="bg-green-600 px-4 hover:bg-green-700 text-white"
+                                onClick={() => handleHire(app.id, app.userName || 'Candidate')}
+                                disabled={loading}
+                            >
+                                {loading ? '...' : 'Hire'}
+                            </Button>
+                            <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleReject(app.id, app.userName || 'Candidate')}
+                                disabled={loading}
+                                className="px-4"
+                            >
+                                {loading ? '...' : 'Reject'}
+                            </Button>
+                        </div>
                         <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleReject(app.id, app.userName || 'Candidate')}
+                            onClick={() => handleRevokeInterview(app.id)}
                             disabled={loading}
                         >
-                            {loading ? '...' : 'Reject'}
+                            {loading ? '...' : 'Revoke Interview'}
                         </Button>
                     </div>
                 );
@@ -624,13 +652,25 @@ const JobApplicationsPage = () => {
                                                     <div className="font-medium text-gray-900">{app.userName}</div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
+                                            {app.status !== "SHORTLISTED" && app.status !== 'APPLIED' ? <td className="px-6 py-4">
                                                 <div className="flex flex-col gap-1 text-gray-500">
                                                     <div className="flex items-center gap-1">
                                                         <Mail className="h-3 w-3" /> {app.email}
                                                     </div>
                                                 </div>
-                                            </td>
+                                            </td> :
+                                                < td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-1 text-gray-500">
+                                                        <div className="flex items-center gap-1">
+                                                            <Mail className="h-3 w-3" />
+
+                                                            <span className="select-none">
+                                                                ********@gmail.com
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            }
                                             <td className="px-6 py-4">
                                                 {app.experienceYears ? `${app.experienceYears} Years` : '0-1'}
                                             </td>
@@ -715,13 +755,15 @@ const JobApplicationsPage = () => {
             </Card>
 
             {/* Pagination */}
-            {totalPages > 1 && (
-                <div className="flex justify-between items-center bg-white p-4 border rounded-lg">
-                    <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Previous</Button>
-                    <span>Page {currentPage} of {totalPages}</span>
-                    <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</Button>
-                </div>
-            )}
+            {
+                totalPages > 1 && (
+                    <div className="flex justify-between items-center bg-white p-4 border rounded-lg">
+                        <Button variant="outline" disabled={currentPage === 1} onClick={() => setCurrentPage(p => p - 1)}>Previous</Button>
+                        <span>Page {currentPage} of {totalPages}</span>
+                        <Button variant="outline" disabled={currentPage === totalPages} onClick={() => setCurrentPage(p => p + 1)}>Next</Button>
+                    </div>
+                )
+            }
 
             <ScheduleInterviewModal
                 isOpen={showScheduleModal}
@@ -766,7 +808,7 @@ const JobApplicationsPage = () => {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     );
 };
 

@@ -73,7 +73,11 @@ export default function Footer() {
                 >
                     <motion.div
                         variants={itemVariants}
-                        className="relative max-w-6xl mx-auto bg-gradient-to-b from-[#80EDA9] to-[#26DBC5] rounded-[2rem] sm:rounded-[3rem] px-6 sm:px-12 py-12 sm:py-20 text-center overflow-hidden shadow-2xl"
+                        className="relative max-w-6xl mx-auto animate-gradient-flow rounded-[2rem] sm:rounded-[3rem] px-6 sm:px-12 py-12 sm:py-20 text-center overflow-hidden shadow-2xl"
+                        style={{
+                            background: 'linear-gradient(90deg, #80EDA9 0%, #26DBC5 50%, #80EDA9 100%)',
+                            backgroundSize: '200% auto',
+                        }}
                     >
                         {/* Decorative Large Ring */}
                         <motion.div

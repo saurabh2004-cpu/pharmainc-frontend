@@ -45,7 +45,12 @@ export default function Hero() {
 
             {/* Hero Section Container with Responsive Clip Path */}
             <div
-                className="w-full bg-[#097083] [clip-path:url(#hero-belly-curve-mobile)] md:[clip-path:url(#hero-belly-curve-desktop)]"
+                className="w-full bg-[#097083] [clip-path:url(#hero-belly-curve-mobile)] md:[clip-path:url(#hero-belly-curve-desktop)] isolation-auto"
+                style={{ 
+                    transform: 'translateZ(0)', 
+                    backfaceVisibility: 'hidden',
+                    perspective: '1000px'
+                }}
             >
                 <section className="relative w-full px-4 sm:px-8 pt-8 lg:pt-10 sm:pt-24 pb-32 sm:pb-48 md:pb-60 lg:pb-80">
                     <div className="max-w-6xl mx-auto">
@@ -95,7 +100,12 @@ export default function Hero() {
                                 <motion.button
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.98 }}
-                                    className="w-full sm:w-auto px-8 sm:px-14 h-[47px] bg-[linear-gradient(93.47deg,_#08D5CE_5.51%,_#8DEFA4_93.19%)] text-black rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition-all"
+                                    className="w-full sm:w-auto px-8 sm:px-14 h-[47px] bg-[linear-gradient(93.47deg,_#08D5CE_0%,_#8DEFA4_50%,_#08D5CE_100%)] bg-[length:200%_auto] animate-gradient-flow text-black rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition-all"
+                                    style={{ 
+                                        willChange: 'transform',
+                                        backfaceVisibility: 'hidden',
+                                        transform: 'translateZ(0)'
+                                    }}
                                 >
                                     Get Started
                                     <ArrowUpRight size={20} />
@@ -104,6 +114,11 @@ export default function Hero() {
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="w-full sm:w-auto px-8 sm:px-14 h-[47px] border-[1.5px] border-white text-white rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal hover:bg-white/5 transition-all flex items-center justify-center"
+                                    style={{ 
+                                        willChange: 'transform',
+                                        backfaceVisibility: 'hidden',
+                                        transform: 'translateZ(0)'
+                                    }}
                                 >
                                     Browse Jobs
                                 </motion.button>

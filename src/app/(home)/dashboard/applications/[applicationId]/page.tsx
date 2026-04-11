@@ -102,7 +102,7 @@ const ApplicationDetailsPage = () => {
         // Check auth
         const token = getAuthToken();
         if (!token) {
-            router.push('/login');
+            router.push('/auth');
             return;
         }
         setIsAuthenticated(true);
@@ -120,6 +120,9 @@ const ApplicationDetailsPage = () => {
         try {
             setLoading(true);
             const data = await getApplicationById(applicationId);
+
+            console.log("application data", data);
+
             setApplication(data);
         } catch (error: any) {
             console.error('Error fetching application details:', error);
@@ -272,9 +275,9 @@ const ApplicationDetailsPage = () => {
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <Button
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => router.back()}
-                    className="gap-2"
+                    className="gap-2 bg-white hover:bg-[#169ba4] hover:text-white "
                 >
                     <ArrowLeft className="h-4 w-4" />
                     Back
@@ -349,7 +352,7 @@ const ApplicationDetailsPage = () => {
                                     <dd className="text-sm font-semibold mt-1">{job.title}</dd>
                                     <dd className="text-xs text-gray-500">{job.institute?.name}</dd>
                                 </div>
-                                {application.experienceYears !== undefined && (
+                                {application.experienceYears !== undefined && application.user.role !== "STUDENT" && (
                                     <div>
                                         <dt className="text-sm font-medium text-gray-500">Experience</dt>
                                         <dd className="text-sm mt-1">{application.experienceYears} Years</dd>

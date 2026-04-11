@@ -60,6 +60,14 @@ export default function Testimonials() {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Auto-scroll effect
+    useEffect(() => {
+        const interval = setInterval(() => {
+            paginate(1);
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [currentIndex]); // Restart interval whenever the index changes to avoid double-paging if user clicks manually
+
     const cardVariants: Variants = {
         center: {
             x: '0%',
@@ -256,7 +264,7 @@ export default function Testimonials() {
                         whileHover={{ scale: 1.1, x: -5 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => paginate(-1)}
-                        className="absolute left-1 md:left-4 z-20 -translate-x-0 md:translate-x-0 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full p-2.5 md:p-3 shadow-lg transition-all border border-gray-100"
+                        className="absolute left-1 md:left-24 z-20 -translate-x-0 md:translate-x-0 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full p-2.5 md:p-3 shadow-lg transition-all border border-gray-100"
                         aria-label="Previous testimonial"
                     >
                         <ChevronLeft strokeWidth={2.5} className="w-5 h-5 text-gray-800" />
@@ -266,7 +274,7 @@ export default function Testimonials() {
                         whileHover={{ scale: 1.1, x: 5 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => paginate(1)}
-                        className="absolute right-1 md:right-4 z-20 translate-x-0 md:translate-x-0 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full p-2.5 md:p-3 shadow-lg transition-all border border-gray-100"
+                        className="absolute right-1 md:right-24 z-20 translate-x-0 md:translate-x-0 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full p-2.5 md:p-3 shadow-lg transition-all border border-gray-100"
                         aria-label="Next testimonial"
                     >
                         <ChevronRight strokeWidth={2.5} className="w-5 h-5 text-gray-800" />

@@ -74,3 +74,9 @@ export const getUserApplicationStats = async (): Promise<any> => {
     const response = await baseApi.get('/application/my-stats');
     return response.data;
 };
+
+export const revokeInterview = async (applicationId: string): Promise<any> => {
+    const response = await baseApi.put(`/application/${applicationId}/revoke-interview`);
+    return response.data;
+};
+
