@@ -66,7 +66,6 @@ export default function Hero() {
     return (
         <div
             className="relative w-full overflow-hidden pb-46 md:pb-85 lg:pb-115 xl:pb-100"
-            onMouseMove={handleMouseMove}
         >
             <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" />
 
@@ -74,7 +73,8 @@ export default function Hero() {
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
-                className="relative z-10 w-full bg-[#112F52] mx-auto px-4 sm:px-6 lg:px-8 pt-15 xl:pt-35 pb-30 xl:pb-70"
+                onMouseMove={handleMouseMove}
+                className="relative z-10 w-full overflow-hidden bg-[#112F52] mx-auto px-4 sm:px-6 lg:px-8 pt-15 xl:pt-35 pb-30 xl:pb-70"
                 style={{
                     backgroundImage: `url(${bgtecTure})`,
                     backgroundSize: 'cover',

@@ -270,7 +270,7 @@ export default function Hero() {
                 >
                   <Link
                     href={'/hospitals-and-institutes'}
-                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-full max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
+                    className="bg-white text-cyan-500 hover:bg-cyan-50 w-full px-6 max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
                   >
                     Explore
                   </Link>

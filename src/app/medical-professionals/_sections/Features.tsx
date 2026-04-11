@@ -123,6 +123,7 @@ export default function Features() {
                                         src={feature.image} 
                                         alt={feature.title}
                                         fill
+                                        unoptimized
                                         className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>

@@ -192,8 +192,8 @@ const TrustedBy = () => {
                         }}
                         transition={{
                             x: {
-                                duration: 25, // Slow, professional scroll
-                                repeat: Infinity,
+                                duration: 50, // More subtle, slower professional scroll
+                                repeat: Infinity, 
                                 ease: "linear"
                             }
                         }}

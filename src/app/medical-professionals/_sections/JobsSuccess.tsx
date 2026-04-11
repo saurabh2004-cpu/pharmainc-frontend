@@ -94,6 +94,7 @@ export default function JobSuccess() {
                                 src="/medical-professionals/job-success-img-1.png"
                                 alt="Professional office environment"
                                 fill
+                                unoptimized
                                 className="object-cover"
                             />
                             {/* Overlay gradient */}

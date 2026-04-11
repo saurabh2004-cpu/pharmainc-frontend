@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 const cities = [
   { name: "Bangalore", lat: 12.9716, lng: 77.5946 },
@@ -218,12 +219,7 @@ export default function OperationalMarkets() {
                       background: "linear-gradient(90deg, #08D5CE 0%, #8DEFA4 100%)",
                     }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" >
-                      <path
-                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                        fill="#000000ff"
-                      />
-                    </svg>
+                    <Image src="/hospitals-and-institutes/map-icon.png" alt="map icon" width={16} height={16} className="object-contain" />
                   </div>
                   <span className="text-gray-700 font-medium text-sm sm:text-base">
                     {city.name}
