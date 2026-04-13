@@ -12,6 +12,6 @@ export const getAllPackages = async (): Promise<Package[]> => {
 };
 
 export const createTransaction = async (packageId: string, amount: number): Promise<any> => {
-  const response = await baseApi.post(`/transactions/create-transaction/${packageId}`, { amount });
+  const response = await baseApi.post(`/transactions/create-order/${packageId}`, { amount });
   return response.data;
 };

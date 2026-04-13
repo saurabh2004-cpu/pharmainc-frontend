@@ -24,6 +24,7 @@ import {
 import { User, InstitutionEntity } from "../app/(home)/home/_components/types";
 import Logo from "@/components/logo";
 import { useUserStore, useInstitutionStore, useConnectionsStore, useNotificationStore } from "@/store";
+import { useEntityStore } from "@/store/entityStore";
 import { useChatStore } from "@/store/chatStore";
 import { UserAvatar } from "./UserAvatar";
 import { clearAuthToken, getUserType } from "@/lib/api/utils";
@@ -62,6 +63,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
   const { clearUser } = useUserStore();
   const { clearInstitution } = useInstitutionStore();
   const { unreadCount, clearNotifications } = useNotificationStore();
+  const { logout: clearEntity } = useEntityStore();
   const { unreadCount: unreadMessagesCount } = useChatStore();
   const { currentEntity, userType, entityType } = useCurrentEntity();
 
@@ -97,7 +99,7 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
   }, []);
 
   const handleLogout = () => {
-    clearAuthToken();
+    clearEntity();
     clearUser();
     clearInstitution();
     clearFollowing();

@@ -52,7 +52,7 @@ export default function Navbar({ bg }) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
     const { entity, entityType } = useEntityStore();
-    
+
     const ishospitalsAndInstitutePage = pathname?.toLowerCase() === '/hospitals-and-institutes';
     const isLoggedIn = !!entity;
     const homeHref = entityType === EntityType.INSTITUTE ? '/dashboard' : '/find-jobs';
@@ -70,7 +70,7 @@ export default function Navbar({ bg }) {
                 {/* Logo */}
                 <div className="flex items-center gap-3">
                     <Image
-                        src={`${ishospitalsAndInstitutePage ? '/logo.png' : '/logo.png'}`}
+                        src={`${ishospitalsAndInstitutePage ? '/logo.png' : '/logo-white.png'}`}
                         alt="Logo"
                         width={140}
                         height={140}

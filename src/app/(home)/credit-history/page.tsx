@@ -1,5 +1,13 @@
 "use client"
 
+import axios from 'axios';
+
+declare global {
+    interface Window {
+        Razorpay: any;
+    }
+}
+
 import React, { useEffect, useState } from 'react'
 import { useInstitutionStore } from '@/store'
 import { getCreditsHistoryByInstituteId } from '@/lib/api/services/institute'
@@ -24,6 +32,66 @@ import { format } from 'date-fns'
 import { toast } from 'sonner'
 import PackageCard from '@/components/credit-history/PackageCard'
 import { motion, AnimatePresence } from 'framer-motion'
+import { baseApi } from '@/lib/api/axios/api';
+
+
+const openRazorpay = (order, pkg, fetchAllData, fetchCurrentInstitution, institution) => {
+
+    const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+
+        amount: order.amount,
+        currency: order.currency,
+
+        name: "My App",
+        description: "Credits Purchase",
+
+        order_id: order.id,
+
+        handler: async function (response) {
+            console.log("Payment Success:", response);
+            /*
+            response gives:
+            razorpay_payment_id
+            razorpay_order_id
+            razorpay_signature
+            */
+
+            await baseApi.post(
+                "/transactions/verify-payment",
+                response
+            );
+
+            // After verification, create the transaction and add credits
+            await baseApi.post(
+                `/transactions/create-transaction/${pkg.id}`,
+                { amount: pkg.price }
+            );
+
+            toast.success("Payment successful and credits added!");
+            fetchAllData();
+            fetchCurrentInstitution();
+        },
+
+        prefill: {
+            name: institution?.name || "",
+            email: institution?.email || "",
+            contact: institution?.phone || ""
+        },
+
+        theme: {
+            color: "#169BA4"
+        }
+    };
+
+    if (!window.Razorpay) {
+        toast.error("Razorpay SDK failed to load. Please check your internet connection.");
+        return;
+    }
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+};
 
 
 
@@ -40,6 +108,7 @@ const CreditHistoryPage = () => {
     const [purchaseLoadingId, setPurchaseLoadingId] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState('history')
     const scrollRef = React.useRef<HTMLDivElement>(null)
+    const [orderId, setOrderId] = useState<string | null>(null)
 
     const scroll = (direction: 'left' | 'right') => {
         if (scrollRef.current) {
@@ -75,7 +144,7 @@ const CreditHistoryPage = () => {
             const data = await getCreditsHistoryByInstituteId(currentInstitution.id)
             const rawData = Array.isArray(data) ? data : data.data || []
             // Secondary sort on frontend to be 100% sure
-            const sortedData = [...rawData].sort((a, b) => 
+            const sortedData = [...rawData].sort((a, b) =>
                 new Date(b.created_at || b.createdAt).getTime() - new Date(a.created_at || a.createdAt).getTime()
             )
             setHistory(sortedData)
@@ -93,7 +162,7 @@ const CreditHistoryPage = () => {
         setLoadingTransactions(true)
         try {
             const data = await getTransactionsByInstituteId()
-            const sortedData = (data || []).sort((a, b) => 
+            const sortedData = (data || []).sort((a, b) =>
                 new Date(b.createdAt || b.created_at || 0).getTime() - new Date(a.createdAt || a.created_at || 0).getTime()
             )
             setTransactions(sortedData)
@@ -122,22 +191,28 @@ const CreditHistoryPage = () => {
     const handlePurchase = async (pkg: Package) => {
         setPurchaseLoadingId(pkg.id)
         try {
-            await createTransaction(pkg.id, pkg.price)
-            toast.success(`Successfully purchased ${pkg.name}!`, {
-                description: `${pkg.credits} credits have been added to your account.`,
-            })
-            // Refresh all data
-            fetchAllData()
-            fetchCurrentInstitution() // Updates the credit balance in UI
-        } catch (error) {
+            const response = await createTransaction(pkg.id, pkg.price)
+
+            if (!response || !response.order) {
+                toast.error("Purchase failed", {
+                    description: response?.message || "Failed to create order"
+                })
+                return
+            }
+
+            console.log("Order created:", response)
+            setOrderId(response.order.id)
+            openRazorpay(response.order, pkg, fetchAllData, fetchCurrentInstitution, currentInstitution);
+        } catch (error: any) {
             console.error("Purchase failed", error)
             toast.error("Purchase failed", {
-                description: "There was an error processing your transaction. Please try again."
+                description: error.message || "There was an error processing your transaction. Please try again."
             })
         } finally {
             setPurchaseLoadingId(null)
         }
     }
+
 
     return (
         <div className="min-h-screen bg-gray-50/50 pb-12">
@@ -340,14 +415,14 @@ const CreditHistoryPage = () => {
                                     <h2 className="text-2xl font-bold text-gray-900">Choose Your Credit Pack</h2>
                                     <p className="text-gray-500 mt-1">Select a package that best fits your institution's needs</p>
                                 </div>
-                                <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    onClick={fetchPackages} 
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={fetchPackages}
                                     disabled={loadingPackages}
                                     className="bg-white border-gray-200 text-gray-600 hover:bg-gray-50 rounded-xl px-4 h-10 transition-all font-semibold"
                                 >
-                                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingPackages ? 'animate-spin' : ''}`} /> 
+                                    <RefreshCw className={`w-4 h-4 mr-2 ${loadingPackages ? 'animate-spin' : ''}`} />
                                     Sync Packages
                                 </Button>
                             </div>
@@ -375,9 +450,9 @@ const CreditHistoryPage = () => {
                                 <div className="relative group/scroll px-4 md:px-0">
                                     {/* Desktop Navigation Buttons */}
                                     <div className="absolute top-1/2 -left-4 md:-left-6 -translate-y-1/2 z-20 hidden md:block">
-                                        <Button 
-                                            variant="outline" 
-                                            size="icon" 
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
                                             onClick={() => scroll('left')}
                                             className="w-12 h-12 rounded-full bg-white shadow-xl border-gray-100 hover:bg-[#169BA4] hover:text-white transition-all duration-300"
                                         >
@@ -385,9 +460,9 @@ const CreditHistoryPage = () => {
                                         </Button>
                                     </div>
                                     <div className="absolute top-1/2 -right-4 md:-right-6 -translate-y-1/2 z-20 hidden md:block">
-                                        <Button 
-                                            variant="outline" 
-                                            size="icon" 
+                                        <Button
+                                            variant="outline"
+                                            size="icon"
                                             onClick={() => scroll('right')}
                                             className="w-12 h-12 rounded-full bg-white shadow-xl border-gray-100 hover:bg-[#169BA4] hover:text-white transition-all duration-300"
                                         >
@@ -395,7 +470,7 @@ const CreditHistoryPage = () => {
                                         </Button>
                                     </div>
 
-                                    <div 
+                                    <div
                                         ref={scrollRef}
                                         className="flex gap-8 overflow-x-auto pb-12 pt-4 snap-x no-scrollbar scroll-smooth"
                                     >
@@ -406,8 +481,8 @@ const CreditHistoryPage = () => {
                                                     initial={{ opacity: 0, scale: 0.9 }}
                                                     whileInView={{ opacity: 1, scale: 1 }}
                                                     viewport={{ margin: "0px -10% 0px -10%" }}
-                                                    transition={{ 
-                                                        delay: index * 0.1, 
+                                                    transition={{
+                                                        delay: index * 0.1,
                                                         duration: 0.5
                                                     }}
                                                     className="min-w-[300px] md:min-w-[350px] lg:min-w-[380px] snap-center py-4"
@@ -425,14 +500,14 @@ const CreditHistoryPage = () => {
                                         </AnimatePresence>
                                     </div>
 
-                                    
+
                                     {/* Scroll Indicator Hint */}
                                     <div className="flex justify-center gap-2 mt-2 md:hidden">
                                         {packages.map((_, i) => (
                                             <div key={i} className="w-1.5 h-1.5 rounded-full bg-gray-200" />
                                         ))}
                                     </div>
-                                    
+
                                     <style jsx global>{`
                                         .no-scrollbar::-webkit-scrollbar {
                                             display: none;
