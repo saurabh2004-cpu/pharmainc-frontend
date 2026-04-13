@@ -173,6 +173,7 @@ export default function QnA() {
                                     src="/medical-professionals/qnasection-img-1.png"
                                     alt="Activity Panel - Healthcare Professionals"
                                     fill
+                                    unoptimized
                                     className="object-cover"
                                 />
                             </div>

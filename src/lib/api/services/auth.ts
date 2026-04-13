@@ -21,7 +21,7 @@ export const loginInstitute = async (credentials: AuthSignInParams): Promise<Aut
 
 
 export const registerInstitute = async (credentials: any): Promise<number> => {
-  const response = await baseApi.post("/institute/create-institute", credentials);
+  const response = await baseApi.post("/institute/signup-institute", credentials);
   return response.status;
 };
 
