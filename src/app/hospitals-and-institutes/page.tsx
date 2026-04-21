@@ -7,7 +7,7 @@ import HospitalTestimonials from "./_sections/HospitalTestimonials"
 import Insights from "./_sections/Insights"
 import OperationalMarkets from "./_sections/OperationalMarkets"
 import TrustedBy from "./_sections/TrustedBy"
-import Footer from "../../components/userAndProfessionals/Footer"
+import Footer from "../../components/navbar.tsx/Footer"
 import Dashboard from "./_components/Dashboard"
 
 const Page = () => {

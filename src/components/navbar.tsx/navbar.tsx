@@ -41,11 +41,18 @@ const mobileMenuVariants: Variants = {
     }
 };
 
-const navLinks = [
-    { name: 'Home', href: '#' },
+const institutesnavLinks = [
+    { name: 'Home', href: '/hospitals-and-institutes' },
     { name: 'Jobs', href: '#' },
-    { name: 'About Us', href: '#' },
-    { name: 'Resources', href: '#' },
+    { name: 'About Us', href: '/hospitals-and-institutes#hire-steps' },
+    { name: 'Why Us', href: '/hospitals-and-institutes#features' },
+    { name: 'Testimonials', href: '/hospitals-and-institutes#hospital-testimonials' },
+];
+const healthcareProfessionalnavLinks = [
+    { name: 'Home', href: '/medical-professionals' },
+    { name: 'Steps', href: '/medical-professionals#recruitment-process' },
+    { name: 'Why Us', href: '/medical-professionals#features' },
+    { name: 'Testimonials', href: '/medical-professionals#testimonials-carousel' },
 ];
 
 export default function Navbar({ bg }) {
@@ -58,6 +65,21 @@ export default function Navbar({ bg }) {
     const homeHref = entityType === EntityType.INSTITUTE ? '/dashboard' : '/find-jobs';
 
     const toggleMenu = () => setIsOpen(!isOpen);
+
+    const handleNavLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+        if (href.includes('#')) {
+            const [path, hash] = href.split('#');
+            // If we are on the same page OR path is empty (just #hash)
+            if (path === pathname || path === '') {
+                const element = document.getElementById(hash);
+                if (element) {
+                    e.preventDefault();
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setIsOpen(false);
+                }
+            }
+        }
+    };
 
     return (
         <motion.header
@@ -81,15 +103,26 @@ export default function Navbar({ bg }) {
                 {/* Desktop Login/Signup Buttons */}
                 <div className='hidden lg:flex h-[47px] items-center justify-center gap-4' >
                     <nav className="flex items-center gap-14 mr-4">
-                        {navLinks.map((link, index) => (
+                        {ishospitalsAndInstitutePage ? institutesnavLinks.map((link, index) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
+                                onClick={(e) => handleNavLinkClick(e, link.href)}
                                 className={`${index === 0 ? (ishospitalsAndInstitutePage ? 'text-black underline underline-offset-8' : 'text-white underline underline-offset-8') : (ishospitalsAndInstitutePage ? 'text-black/70' : 'text-white/70')} font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:text-black' : 'hover:text-white'} transition-colors`}
                             >
                                 {link.name}
                             </Link>
-                        ))}
+                        ))
+                            : healthcareProfessionalnavLinks.map((link, index) => (
+                                <Link
+                                    key={link.name}
+                                    href={link.href}
+                                    onClick={(e) => handleNavLinkClick(e, link.href)}
+                                    className={`${index === 0 ? (ishospitalsAndInstitutePage ? 'text-black underline underline-offset-8' : 'text-white underline underline-offset-8') : (ishospitalsAndInstitutePage ? 'text-black/70' : 'text-white/70')} font-poppins font-normal text-[18px] leading-none tracking-normal ${ishospitalsAndInstitutePage ? 'hover:text-black' : 'hover:text-white'} transition-colors`}
+                                >
+                                    {link.name}
+                                </Link>
+                            ))}
                     </nav>
 
                     {isLoggedIn ? (
@@ -152,16 +185,32 @@ export default function Navbar({ bg }) {
                         </div>
 
                         <nav className="flex flex-col gap-8 mb-12">
-                            {navLinks.map((link, index) => (
+                            {ishospitalsAndInstitutePage ? institutesnavLinks.map((link, index) => (
                                 <Link
                                     key={link.name}
                                     href={link.href}
-                                    onClick={() => setIsOpen(false)}
+                                    onClick={(e) => {
+                                        setIsOpen(false);
+                                        handleNavLinkClick(e, link.href);
+                                    }}
                                     className={`${index === 0 ? (ishospitalsAndInstitutePage ? 'text-white underline underline-offset-8' : 'text-white underline underline-offset-8') : (ishospitalsAndInstitutePage ? 'text-white/80' : 'text-white/80')} font-poppins text-xl`}
                                 >
                                     {link.name}
                                 </Link>
-                            ))}
+                            ))
+                                : healthcareProfessionalnavLinks.map((link, index) => (
+                                    <Link
+                                        key={link.name}
+                                        href={link.href}
+                                        onClick={(e) => {
+                                            setIsOpen(false);
+                                            handleNavLinkClick(e, link.href);
+                                        }}
+                                        className={`${index === 0 ? (ishospitalsAndInstitutePage ? 'text-white underline underline-offset-8' : 'text-white underline underline-offset-8') : (ishospitalsAndInstitutePage ? 'text-white/80' : 'text-white/80')} font-poppins text-xl`}
+                                    >
+                                        {link.name}
+                                    </Link>
+                                ))}
                         </nav>
 
                         <div className="flex flex-col gap-4">

@@ -28,6 +28,7 @@ jobs:
             --build-arg NEXT_PUBLIC_API_INSTITUTE="${{ secrets.NEXT_PUBLIC_API_INSTITUTE }}" \
             --build-arg NEXT_PUBLIC_API_JOB="${{ secrets.NEXT_PUBLIC_API_JOB }}" \
             --build-arg NEXT_PUBLIC_API_CONTENT="${{ secrets.NEXT_PUBLIC_API_CONTENT }}" \
+            --build-arg NEXT_PUBLIC_RAZORPAY_KEY_ID="${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}" \
             -t ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest
 

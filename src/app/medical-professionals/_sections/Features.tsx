@@ -78,7 +78,7 @@ export default function Features() {
     const pathname = usePathname();
     const ishospitalsAndInstitutePage = pathname?.toLowerCase() === '/hospitals-and-institutes';
     return (
-        <section className="w-full bg-[#233F64] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20  relative overflow-hidden">
+        <section id="features" className="w-full bg-[#233F64] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20  relative overflow-hidden scroll-mt-24">
             {/* Decorative gradient elements */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl -z-10"></div>
 

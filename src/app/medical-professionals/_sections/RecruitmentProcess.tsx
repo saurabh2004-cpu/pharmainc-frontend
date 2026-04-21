@@ -94,11 +94,12 @@ export default function RecruitmentProcess() {
 
             {/* Recruitment Process Header */}
             <motion.section
+                id="recruitment-process"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: '-100px' }}
                 variants={sectionVariants}
-                className="  py-12 lg:py-16 max-w-6xl mx-auto"
+                className="  py-12 lg:py-16 max-w-6xl mx-auto scroll-mt-24"
             >
                 <motion.div variants={containerVariants} className="text-center max-w-3xl mx-auto mb-10 lg:mb-20">
                     <motion.div variants={itemVariants} className="inline-flex p-[1px] rounded-full bg-gradient-to-r from-[#08D5CE] to-[#8DEFA4] mb-6 shadow-sm hover:shadow-md transition-shadow duration-300">

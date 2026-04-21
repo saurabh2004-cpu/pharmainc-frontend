@@ -53,7 +53,7 @@ const HireSteps = () => {
     };
 
     return (
-        <section className="w-full bg-white px-4 md:px-8 py-6 pb-14 xl:py-16">
+        <section id="hire-steps" className="w-full bg-white px-4 md:px-8 py-6 pb-14 xl:py-16 scroll-mt-24">
             <div className="max-w-5xl mx-auto">
                 {/* Header */}
                 <motion.div

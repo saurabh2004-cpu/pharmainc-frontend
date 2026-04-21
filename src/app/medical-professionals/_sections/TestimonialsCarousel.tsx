@@ -134,7 +134,7 @@ export default function Testimonials() {
     };
 
     return (
-        <section className="w-full bg-white px-1 md:px-8 py-12  lg:py-24 overflow-x-hidden pb-20 md:pb-0 lg:pb-0">
+        <section id="testimonials-carousel" className="w-full bg-white px-1 md:px-8 py-12  lg:py-24 overflow-x-hidden pb-20 md:pb-0 lg:pb-0 scroll-mt-24">
             <motion.div
                 className="max-w-6xl mx-auto"
                 variants={containerVariants}
@@ -218,7 +218,7 @@ export default function Testimonials() {
                                         {/* Image section */}
                                         <div className="w-full md:w-2/5 relative">
                                             <div className="md:h-full flex items-center justify-center relative py-6 md:py-0">
-                                                <div className="relative w-full max-w-[20rem] aspect-[4/5] md:absolute md:w-[18.05rem] md:h-[26.23rem] md:top-[-1.73rem] md:left-4 rounded-[1.768rem] md:rounded-r-none overflow-hidden shadow-xl z-20 mx-auto">
+                                                <div className="relative w-full max-w-[20rem] aspect-[4/5] md:absolute md:w-[18.05rem] md:h-[24.5rem] md:top-[0.1rem] md:left-4 rounded-[1.768rem] md:rounded-r-none overflow-hidden shadow-xl z-20 mx-auto">
                                                     <Image
                                                         src={testimonial.image}
                                                         alt={testimonial.name}

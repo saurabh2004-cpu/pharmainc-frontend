@@ -1,4 +1,4 @@
-import Navbar from "../../components/userAndProfessionals/navbar"
+import Navbar from "../../components/navbar.tsx/navbar"
 
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

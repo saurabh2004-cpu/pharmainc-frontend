@@ -7,7 +7,7 @@ import JobSuccess from "./_sections/JobsSuccess"
 import Testimonials from "./_sections/TestimonialsCarousel"
 import Stats from "./_sections/Stats"
 import QnA from "./_sections/QNASesction"
-import Footer from "../../components/userAndProfessionals/Footer"
+import Footer from "../../components/navbar.tsx/Footer"
 
 
 const Page = () => {

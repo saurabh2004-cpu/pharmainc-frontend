@@ -78,7 +78,7 @@ export default function HospitalTestimonials() {
 
     return (
         <div className='bg-white pb-20'>
-            <section className="w-full bg-[#233F64] px-4 md:px-8 py-16 md:py-24 ">
+            <section id="hospital-testimonials" className="w-full bg-[#233F64] px-4 md:px-8 py-16 md:py-24 scroll-mt-24">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
