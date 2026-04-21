@@ -163,7 +163,7 @@ export default function Hero() {
             <motion.div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: `url('/hero-img/left-side-card-image.png')`,
+                backgroundImage: `url('/home-images/healthcare-professionals.png')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 height: '100%',
@@ -226,7 +226,7 @@ export default function Hero() {
             <motion.div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: `url('/hero-img/right-side-card-image.png')`,
+                backgroundImage: `url('/home-images/hospitals-and-institutes.png')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 height: '100%',
