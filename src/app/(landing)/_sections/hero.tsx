@@ -80,6 +80,16 @@ const buttonVariants: Variants = {
 export default function Hero() {
   return (
     <div className="relative xl:min-h-screen overflow-hidden">
+
+      <div className="flex items-center w-full  justify-center ">
+        <Image
+          src="/logo.png"
+          alt="Logo"
+          width={160}
+          height={160}
+          className=""
+        />
+      </div>
       {/* Background Decor Layers */}
       <div className="absolute inset-0 bg-gradient-to-b from-cyan-50 via-white to-cyan-50 -z-20" />
       <div
@@ -91,7 +101,7 @@ export default function Hero() {
         style={{ background: 'linear-gradient(180deg, #8DEFA4 0%, #08D5CE 100%)' }}
       />
       <motion.div
-        className="w-full py-8 md:py-12"
+        className="w-full py-8 md:py-10"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
