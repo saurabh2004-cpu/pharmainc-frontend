@@ -38,9 +38,9 @@ RUN npm run build
 
 # Expose port
 EXPOSE 3000
-
+ 
 # Start the app
-# ENV PORT=3003
+ENV PORT=3003
 CMD ["npm", "start"]
 # CMD ["npm", "start", "--", "-p", "3001"]
 # CMD ["npx", "next", "start", "-p", "3001"]
