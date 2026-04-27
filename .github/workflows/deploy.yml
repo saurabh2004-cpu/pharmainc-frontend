@@ -17,10 +17,10 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - run: |
-          docker build \
-            --build-arg NEXT_PUBLIC_SOCKET_URL="${{ secrets.NEXT_PUBLIC_SOCKET_URL }}" \
-            --build-arg NEXT_PUBLIC_SOCKET_URL_SERVER="${{ secrets.NEXT_PUBLIC_SOCKET_URL_SERVER }}" \
+      - run: | 
+          docker build \ 
+            --build-arg NEXT_PUBLIC_SOCKET_URL="${{ secrets.NEXT_PUBLIC_SOCKET_URL_SANDBOX }}" \
+            --build-arg NEXT_PUBLIC_SOCKET_URL_SERVER="${{ secrets.NEXT_PUBLIC_SOCKET_URL_SERVER_SANDBOX }}" \
             --build-arg NEXT_PUBLIC_API_AUTH="${{ secrets.NEXT_PUBLIC_API_AUTH }}" \
             --build-arg NEXT_PUBLIC_API_USER="${{ secrets.NEXT_PUBLIC_API_USER }}" \
             --build-arg NEXT_PUBLIC_API_NETWORK="${{ secrets.NEXT_PUBLIC_API_NETWORK }}" \
