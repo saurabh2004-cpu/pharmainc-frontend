@@ -29,8 +29,8 @@ jobs:
             --build-arg NEXT_PUBLIC_API_JOB="${{ secrets.NEXT_PUBLIC_API_JOB }}" \
             --build-arg NEXT_PUBLIC_API_CONTENT="${{ secrets.NEXT_PUBLIC_API_CONTENT }}" \
             --build-arg NEXT_PUBLIC_RAZORPAY_KEY_ID="${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}" \
-            -t ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest .
-          docker push ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:latest
+            -t ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:sandbox .
+          docker push ${{ secrets.DOCKER_USERNAME }}/pharmainc-frontend:sandbox
 
       - uses: appleboy/ssh-action@v1.0.3
         with:
@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /var/www/myapps
+            cd /var/www/sandbox 
             docker-compose pull
             docker-compose up -d
-            docker image prune -af
+            docker image prune -af 
