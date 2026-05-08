@@ -43,7 +43,7 @@ const mobileMenuVariants: Variants = {
 
 const institutesnavLinks = [
     { name: 'Home', href: '/hospitals-and-institutes' },
-    { name: 'Jobs', href: '#' },
+    // { name: 'Jobs', href: '#' },
     { name: 'About Us', href: '/hospitals-and-institutes#hire-steps' },
     { name: 'Why Us', href: '/hospitals-and-institutes#features' },
     { name: 'Testimonials', href: '/hospitals-and-institutes#hospital-testimonials' },

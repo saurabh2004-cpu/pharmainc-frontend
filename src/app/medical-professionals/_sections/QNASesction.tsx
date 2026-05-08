@@ -11,35 +11,9 @@ interface FAQItem {
     answer: string;
 }
 
-const faqItems: FAQItem[] = [
-    {
-        id: 1,
-        question: 'How do hospitals or clinics post a job on the portal?',
-        answer: 'Hospitals and clinics can post jobs by logging into their account, navigating to the job posting section, filling in the required details including position, qualifications, and location, and then submitting for approval. The process typically takes 24-48 hours for review.',
-    },
-    {
-        id: 2,
-        question: 'How do hospitals or clinics post a job on the portal?',
-        answer: 'The same process applies to all healthcare institutions. Our platform provides templates and guided steps to make posting jobs quick and efficient. Support is available 24/7 if you need assistance.',
-    },
-    {
-        id: 3,
-        question: 'How do hospitals or clinics post a job on the portal?',
-        answer: 'Job postings are visible to qualified candidates immediately after approval. You can manage postings, view applications, and communicate with candidates through the dashboard.',
-    },
-    {
-        id: 4,
-        question: 'How do hospitals or clinics post a job on the portal?',
-        answer: 'The platform supports multiple languages and formats. You can also set specific requirements, salary ranges, and preferred qualifications for better candidate matching.',
-    },
-    {
-        id: 5,
-        question: 'How do hospitals or clinics post a job on the portal?',
-        answer: 'Premium features include featured job listings, priority candidate matching, and advanced analytics. Contact our sales team to learn more about available plans.',
-    },
-];
 
-export default function QnA() {
+
+export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
     const [activeId, setActiveId] = useState<number | null>(null);
 
     const toggleAccordion = (id: number) => {

@@ -46,8 +46,8 @@ export default function Hero() {
             {/* Hero Section Container with Responsive Clip Path */}
             <div
                 className="w-full bg-[#097083] [clip-path:url(#hero-belly-curve-mobile)] md:[clip-path:url(#hero-belly-curve-desktop)] isolation-auto"
-                style={{ 
-                    transform: 'translateZ(0)', 
+                style={{
+                    transform: 'translateZ(0)',
                     backfaceVisibility: 'hidden',
                     perspective: '1000px'
                 }}
@@ -65,7 +65,9 @@ export default function Hero() {
                                 variants={itemVariants}
                                 className="flex items-center gap-2 bg-white rounded-full px-4 sm:px-6 py-2 sm:py-2.5 mb-8 sm:mb-10 shadow-sm"
                             >
-                                <span className="text-black font-poppins font-[400] text-[14px] sm:text-[16px] leading-[1] tracking-normal">No agencies. No commissions. Just you.</span>
+                                <span className="text-black font-poppins font-[400] text-[14px] sm:text-[16px] leading-[1] tracking-normal">
+                                    No agencies. No commissions. Justopportunities.
+                                </span>
                                 <ArrowUpRight size={16} className="text-black sm:w-[18px] sm:h-[18px]" />
                             </motion.div>
 
@@ -89,7 +91,8 @@ export default function Hero() {
                                 variants={itemVariants}
                                 className="text-[17px] sm:text-[20px] lg:text-[22.24px] w-full font-poppins font-normal text-white/90 text-center leading-[1.3] sm:leading-[1.4] tracking-normal mb-10 sm:mb-14 max-w-[90%] md:max-w-4xl"
                             >
-                                Stop depending on agencies that take your hard-earned money. Join a platform where<br className="hidden md:block" /> you find jobs, not the other way around.
+                                Discover verified healthcare
+                                opportunities directly from hospitals and institutions across India.
                             </motion.p>
 
                             {/* CTA Buttons */}
@@ -101,7 +104,7 @@ export default function Hero() {
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="w-full sm:w-auto px-8 sm:px-14 h-[47px] bg-[linear-gradient(93.47deg,_#08D5CE_0%,_#8DEFA4_50%,_#08D5CE_100%)] bg-[length:200%_auto] animate-gradient-flow text-black rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition-all"
-                                    style={{ 
+                                    style={{
                                         willChange: 'transform',
                                         backfaceVisibility: 'hidden',
                                         transform: 'translateZ(0)'
@@ -114,7 +117,7 @@ export default function Hero() {
                                     whileHover={{ scale: 1.03 }}
                                     whileTap={{ scale: 0.98 }}
                                     className="w-full sm:w-auto px-8 sm:px-14 h-[47px] border-[1.5px] border-white text-white rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal hover:bg-white/5 transition-all flex items-center justify-center"
-                                    style={{ 
+                                    style={{
                                         willChange: 'transform',
                                         backfaceVisibility: 'hidden',
                                         transform: 'translateZ(0)'

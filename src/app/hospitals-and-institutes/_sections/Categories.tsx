@@ -7,32 +7,32 @@ const categories = [
     {
         id: 1,
         title: 'Doctors',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Access verified doctors across multiple specialties for full-time, visiting, and emergency staffing requirements.',
     },
     {
         id: 2,
         title: 'Nurses',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Connect with qualified nursing professionals for ICU, ward, rotational, and long-term staffing support.',
     },
     {
         id: 3,
         title: 'Specialists',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Source specialized healthcare professionals across critical care, diagnostics, surgery, and advanced treatment areas.',
     },
     {
         id: 4,
         title: 'Therapists',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Access licensed therapy professionals for rehabilitation, recovery, and patient support services.',
     },
     {
         id: 5,
         title: 'Pharmacists',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Hire licensed pharmacists for clinical, hospital, and retail healthcare operations.',
     },
     {
         id: 6,
         title: 'Lab Technicians',
-        description: 'Receive profiles of verified professionals tailored to your requirement',
+        description: 'Connect with trained diagnostic and laboratory professionals for testing and pathology support.',
     },
 ];
 
@@ -88,18 +88,21 @@ export default function Categories() {
                         <motion.div
                             key={category.id}
                             variants={cardVariants}
-                            whileHover={{ y: -5 }}
+                            whileHover={{ 
+                                y: -8,
+                                transition: { duration: 0.3 }
+                            }}
                             className="group relative"
                         >
                             {/* Card Container */}
-                            <div className="relative bg-white rounded-[20px] p-8 w-full max-w-[22.4828rem] h-[19.2492rem] mx-auto flex flex-col overflow-hidden">
+                            <div className="relative bg-white rounded-[20px] p-8 w-full max-w-[22.4828rem] h-[20.2492rem] mx-auto flex flex-col overflow-hidden transition-all duration-300 group-hover:shadow-[0_20px_40px_rgba(8,213,206,0.15)] group-hover:ring-1 group-hover:ring-[#08D5CE]/20">
                                 {/* Decorative Blob */}
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: 0.1 + category.id * 0.05, duration: 0.6 }}
-                                    className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-[#08D5CE] to-[#8DEFA4] rounded-full"
+                                    className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-[#08D5CE] to-[#8DEFA4] rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300"
                                 />
 
                                 {/* Category Number */}
@@ -109,34 +112,36 @@ export default function Categories() {
                                         whileInView={{ opacity: 1, scale: 1 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: 0.15 + category.id * 0.05, duration: 0.6 }}
-                                        className="font-poppins font-medium text-[72px] leading-none bg-gradient-to-b from-[#08D5CE] to-[#8DEFA4] bg-clip-text text-transparent"
+                                        className="font-poppins font-medium text-[72px] leading-none bg-gradient-to-b from-[#08D5CE] to-[#8DEFA4] bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300"
                                     >
                                         {String(category.id).padStart(2, '0')}
                                     </motion.div>
                                 </div>
 
                                 {/* Content */}
-                                <div className="flex-1 flex flex-col relative z-10">
+                                <div className="flex-1 flex flex-col relative z-10 h-full">
                                     {/* Title */}
-                                    <h3 className="font-poppins font-medium text-[24px] leading-[32px] tracking-[-0.6px] text-gray-900 mb-4">
+                                    <h3 className="font-poppins font-medium text-[24px] leading-[32px] tracking-[-0.6px] text-gray-900 mb-4 group-hover:text-[#08D5CE] transition-colors duration-300">
                                         {category.title}
                                     </h3>
 
                                     {/* Description */}
-                                    <p className="font-poppins font-medium text-[16px] leading-[26px] text-[#45556C] flex-1 mb-2 max-w-[15.4828rem]">
+                                    <p className="font-poppins font-medium text-[16px] leading-[26px] text-[#45556C] max-w-[18.4828rem] mb-6">
                                         {category.description}
                                     </p>
 
                                     {/* Explore Link */}
-                                    <motion.a
-                                        href="#"
-                                        whileHover={{ x: 4 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="flex items-center gap-2 text-[#08D5CE] font-poppins font-normal text-[14px] leading-[20px] tracking-[0.7px] uppercase hover:opacity-80 transition-opacity"
-                                    >
-                                        Explore
-                                        <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                                    </motion.a>
+                                    <div className="mt-auto">
+                                        <motion.a
+                                            href="#"
+                                            whileHover={{ x: 4 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="inline-flex items-center gap-2 text-[#08D5CE] font-poppins font-normal text-[14px] leading-[20px] tracking-[0.7px] uppercase hover:opacity-80 transition-opacity"
+                                        >
+                                            View Professionals
+                                            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                        </motion.a>
+                                    </div>
                                 </div>
 
                                 {/* Bottom Separator Line */}

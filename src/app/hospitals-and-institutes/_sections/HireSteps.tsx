@@ -1,34 +1,45 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
-import { File, FileText, FileTextIcon } from 'lucide-react';
 import Image from 'next/image';
 
 const HireSteps = () => {
     const steps = [
         {
             number: '01',
-            title: 'Complete your profile',
+            title: 'Workforce Requirements',
             description:
-                "To increase your chances of attracting the attention of recruiters, it's important to fully complete your profile",
-            image: '/form-mockup-1.jpg',
+                `Specify hiring needs based on specialty, experience, shift type, location,
+                and staffing urgency, all through a centralized hiring workflow.`,
+            image: '/hospitals-and-institutes/step-1.png',
             position: 'right',
         },
         {
             number: '02',
-            title: 'Upload your resume',
+            title: 'Access Verified Professionals',
             description:
-                'Showcase your experience and skills by uploading a professional resume that highlights your achievements',
-            image: '/form-mockup-2.jpg',
+                `Browse verified healthcare professionals with validated credentials,
+                experience history, availability status, and specialization details.`,
+            image: '/hospitals-and-institutes/step-2.png',
             position: 'left',
         },
         {
             number: '03',
-            title: 'Browse opportunities',
+            title: 'Shortlist & Connect',
             description:
-                'Explore thousands of job listings tailored to your skills and preferences from top companies',
-            image: '/form-mockup-3.jpg',
+                `Review profiles, shortlist candidates, coordinate interviews, and connect
+                directly with healthcare professionals without third-party intermediaries.`,
+            image: '/hospitals-and-institutes/step-3.png',
             position: 'right',
+        },
+        {
+            number: '04',
+            title: 'Deploy Workforce Faster',
+            description:
+                `Streamline onboarding and reduce hiring delays through a faster, more
+                direct healthcare recruitment process.`,
+            image: '/hospitals-and-institutes/step-4.png',
+            position: 'left',
         },
     ];
 
@@ -67,7 +78,7 @@ const HireSteps = () => {
                         variants={itemVariants}
                         className="text-[28px] sm:text-[32px] md:text-[35px] font-semibold font-poppins leading-tight md:leading-none text-center text-gray-900 mb-4"
                     >
-                        Hire in 4 Simple Steps
+                        How PharmInc Works
                     </motion.h2>
                     <motion.p
                         variants={itemVariants}
@@ -136,40 +147,15 @@ const HireSteps = () => {
                                     }`}
                             >
                                 <div
-                                    className="relative shadow-2xl flex items-center justify-center p-5 md:p-10 w-full aspect-[4/3] md:aspect-auto"
-                                    style={{
-                                        maxWidth: '27.043rem',
-                                        height: 'auto',
-                                        minHeight: '18rem',
-                                        background: 'linear-gradient(123.89deg, #73E5A8 3.39%, #35D9BB 98.16%)',
-                                        borderRadius: '0.95rem'
-                                    }}
+                                    className="relative w-full aspect-[4/3] md:aspect-auto md:h-[350px] lg:h-[400px]"
                                 >
-                                    <div className="bg-white rounded-2xl px-4 py-8 md:px-6 md:py-6 w-full shadow-lg flex flex-col gap-3 md:gap-4">
-                                        {[
-                                            { label: 'Curriculum Vitae', sub: 'pdf, doc' },
-                                            { label: 'Personal Data', sub: 'Two file' },
-                                            { label: 'Academic Information', sub: 'Two file or pdf' }
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between group border p-1 rounded-lg">
-                                                <div className="flex items-center gap-3 md:gap-4">
-                                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-[#56e0b1]/10 flex items-center justify-center">
-                                                        {/* <div className="w-5 h-6 bg-indigo-200 rounded-sm"></div> */}
-                                                        <FileTextIcon className="w-4 h-4 md:w-5 md:h-6 text-[#56e0b1]" />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[12px] font-inter md:text-[14px] font-semibold text-gray-800">{item.label}</span>
-                                                        <span className="text-[9px] md:text-[10px] text-gray-400 font-medium">{item.sub}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="w-4 h-4 md:w-5 md:h-5 rounded-full bg-[#004643] flex items-center justify-center">
-                                                    <svg className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                    <Image
+                                        src={step.image}
+                                        alt={step.title}
+                                        fill
+                                        className="object-contain"
+                                        priority={index === 0}
+                                    />
                                 </div>
                             </motion.div>
                         </motion.div>

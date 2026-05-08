@@ -41,10 +41,9 @@ const cardVariants: Variants = {
 
 export default function Insights() {
     const bulletPoints = [
-        'Hire within 24 hours',
-        'Reduce hiring costs by up to 50%',
-        'Access 10,000+ verified professionals',
-        'Scale workforce instantly based on demand',
+        'Reduce staffing gaps during high-demand periods',
+        'Coordinate workforce requirements with greater clarity',
+        'Improve response time for urgent staffing needs',
     ];
 
     return (

@@ -104,7 +104,7 @@ export default function Hero() {
                 <motion.div variants={itemVariants} className="flex relative -top-5 justify-center mb-8 sm:mb-2">
                     <div className="z-20 bg-white rounded-full px-4 sm:px-18 py-2 sm:py-2.7 shadow-sm inline-flex items-center gap-2">
                         <span className="text-black font-poppins font-medium text-[14px] sm:text-[16px] leading-[1] tracking-normal">
-                            Transforming Healthcare Hiring
+                            Verified Workforce Access
                         </span>
                     </div>
                 </motion.div>
@@ -129,7 +129,7 @@ export default function Hero() {
                     variants={itemVariants}
                     className="relative z-30 text-[17px] sm:text-[20px] lg:text-[22.24px] w-full font-poppins font-normal text-white/90 text-center leading-[1.3] sm:leading-[1.4] tracking-normal mb-10 sm:mb-14 max-w-[90%] md:max-w-4xl mx-auto"
                 >
-                    We're digitizing healthcare hiring in India. Stop paying agency commissions — access verified talent directly, faster and cheaper.
+                    We’re digitizing healthcare hiring in India.
                 </motion.p>
 
                 {/* CTA Buttons */}
@@ -149,12 +149,12 @@ export default function Hero() {
                         whileTap={{ scale: 0.98 }}
                         className="w-full z-30 sm:w-auto px-8 sm:px-14 h-[47px] border-[1.5px] border-white text-white rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal hover:bg-white/5 transition-all flex items-center justify-center"
                     >
-                        Explore Talent
+                        Review Professionals
                     </motion.button>
                 </motion.div>
             </motion.div>
 
-            <div className="absolute hidden lg:block z-10 w-[15.38rem] h-[11.44rem] top-115 lg:top-100 lg:right-0 right-5 opacity-100 rotate-15">
+            {/* <div className="absolute hidden lg:block z-10 w-[15.38rem] h-[11.44rem] top-115 lg:top-100 lg:right-0 right-5 opacity-100 rotate-15">
                 <Image
                     src="/medical-professionals/qna-section-img-2.png"
                     alt="Hero Image"
@@ -162,8 +162,8 @@ export default function Hero() {
                     height={1080}
                     className="w-full h-full object-cover"
                 />
-            </div>
-            <div className="absolute hidden lg:block z-10 w-[15.38rem] h-[11.44rem] top-25 lg:top-20 lg:left-0 left-5 opacity-100 -rotate-15">
+            </div> */}
+            {/* <div className="absolute hidden lg:block z-10 w-[15.38rem] h-[11.44rem] top-25 lg:top-20 lg:left-0 left-5 opacity-100 -rotate-15">
                 <Image
                     src="/medical-professionals/qna-section-img-2.png"
                     alt="Hero Image"
@@ -171,7 +171,7 @@ export default function Hero() {
                     height={1080}
                     className="w-full h-full object-cover"
                 />
-            </div>
+            </div> */}
         </div>
     );
 }

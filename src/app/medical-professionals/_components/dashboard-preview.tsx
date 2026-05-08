@@ -26,7 +26,7 @@ export default function DashboardPreview() {
                         className="relative rounded-2xl overflow-hidden"
                     >
                         <Image
-                            src="/medical-professionals/cards.png"
+                            src="/medical-professionals/job-listing.png"
                             alt="Pharminc Dashboard Preview"
                             className="w-full h-auto block"
                             width={1200}

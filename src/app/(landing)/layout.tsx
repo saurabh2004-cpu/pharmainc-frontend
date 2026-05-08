@@ -9,7 +9,7 @@ export default function LandingLayout({
 }) {
   return (
     <div className="font-jakarta">
-      <div className="pt-10 pb-10 w-full px-0">
+      <div className="  w-full px-0">
         {children}
       </div>
     </div>

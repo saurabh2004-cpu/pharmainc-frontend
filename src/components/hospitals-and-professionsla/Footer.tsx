@@ -3,7 +3,7 @@
 import { motion, Variants } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
-export default function Footer() {
+export default function Footer({ footerHeading, footerSubHeading, FooterButtonText }: { footerHeading: string, footerSubHeading: string, FooterButtonText: string }) {
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
         visible: {
@@ -91,14 +91,14 @@ export default function Footer() {
                             variants={itemVariants}
                             className="relative text-gray-900 mb-4 sm:mb-6 font-['Figtree'] font-semibold text-[1.75rem] sm:text-[2.25rem] md:text-[39.63px] leading-[118%] text-center"
                         >
-                            Revamp Your Healthcare Workflow
+                            {footerHeading}
                         </motion.h2>
 
                         <motion.p
                             variants={itemVariants}
                             className="relative text-gray-800 mb-8 max-w-3xl mx-auto font-['Poppins'] font-normal text-sm sm:text-[16px] leading-[130%] text-center px-2"
                         >
-                            Choose the plan that fits your needs — no hidden fees, clinics, hospitals, and doctors who trust our platform to simplify operations and deliver better care. en fees, no surprises.
+                            {footerSubHeading}
                         </motion.p>
 
                         <motion.button
@@ -107,7 +107,7 @@ export default function Footer() {
                             whileTap={{ scale: 0.95 }}
                             className="relative inline-flex items-center gap-2 text-white px-8 py-3.5 rounded-full transition hover:opacity-90 font-['Poppins'] font-normal text-[16px] leading-[100%] bg-[#233F64]"
                         >
-                            Contact Us now
+                            {FooterButtonText}
                             <ArrowUpRight size={20} />
                         </motion.button>
                     </motion.div>

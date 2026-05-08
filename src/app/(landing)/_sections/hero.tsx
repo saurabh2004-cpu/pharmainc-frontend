@@ -79,15 +79,15 @@ const buttonVariants: Variants = {
 
 export default function Hero() {
   return (
-    <div className="relative xl:min-h-screen overflow-hidden">
+    <div className="relative h-screen min-h-[600px] overflow-hidden flex flex-col">
 
-      <div className="flex items-center w-full  justify-center ">
+      <div className="flex items-center w-full justify-center pt-4 pb-2">
         <Image
           src="/logo.png"
           alt="Logo"
-          width={160}
-          height={160}
-          className=""
+          width={140}
+          height={40}
+          className="object-contain"
         />
       </div>
       {/* Background Decor Layers */}
@@ -101,7 +101,7 @@ export default function Hero() {
         style={{ background: 'linear-gradient(180deg, #8DEFA4 0%, #08D5CE 100%)' }}
       />
       <motion.div
-        className="w-full py-8 md:py-10"
+        className="flex-1 w-full flex flex-col justify-between py-2"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
@@ -113,13 +113,13 @@ export default function Hero() {
             variants={itemVariants}
           >
             <motion.div
-              className="inline-flex items-center gap-2 mb-6"
+              className="inline-flex items-center gap-2 mb-2"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <Image src="/hero-img/Icon.png" alt="Logo" width={20} height={20} />
-              <span className="text-[14px] leading-[20px] font-normal font-poppins text-[#475467] tracking-normal">
+              <Image src="/hero-img/Icon.png" alt="Logo" width={16} height={16} />
+              <span className="text-[12px] sm:text-[14px] leading-tight font-medium font-poppins text-cyan-600 tracking-wide uppercase">
                 Choose Your Path
               </span>
             </motion.div>
@@ -127,23 +127,23 @@ export default function Hero() {
 
           {/* Main Title */}
           <motion.div
-            className="text-center "
+            className="text-center"
             variants={itemVariants}
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-[73.22px] font-[800] font-figtree mb-4 leading-none tracking-normal bg-clip-text text-transparent bg-[linear-gradient(90deg,_#000000_20%,_#08D5CE_40%,_#8DEFA4_60%,_#08D5CE_80%,_#000000_100%)] bg-[length:200%_auto] animate-gradient-flow inline-block">
+            <h1 className="text-4xl sm:text-5xl md:text-5xl  font-[900] font-figtree mb-2 leading-[1.1] tracking-tight bg-clip-text text-transparent bg-[linear-gradient(90deg,_#000000_20%,_#08D5CE_40%,_#8DEFA4_60%,_#08D5CE_80%,_#000000_100%)] bg-[length:200%_auto] animate-gradient-flow inline-block">
               <motion.span
                 className="block"
                 custom={0}
                 variants={textRevealVariants}
               >
-                Medical Excellence
+                Healthcare Access
               </motion.span>
               <motion.span
                 className="block"
                 custom={1}
                 variants={textRevealVariants}
               >
-                Platform
+                Network
               </motion.span>
             </h1>
 
@@ -151,16 +151,16 @@ export default function Hero() {
 
           {/* Subtitle */}
           <motion.p
-            className="text-center text-sm md:text-[20px] leading-none font-normal font-poppins text-[#475467] mb-12 w-full mx-auto tracking-normal"
+            className="text-center text-sm md:text-base lg:text-lg leading-relaxed font-normal font-poppins text-[#475467] mb-4 max-w-2xl mx-auto tracking-normal"
             variants={itemVariants}
           >
-            Connect, collaborate, and elevate healthcare delivery with cutting-edge solutions
+            Connecting the future of healthcare
           </motion.p>
         </div>
 
         {/* Cards Section */}
         <motion.div
-          className="grid lg:grid-cols-2 gap-4 mb-6 w-full sm:px-6 px-2"
+          className="grid lg:grid-cols-2 gap-4 mb-2 w-full sm:px-6 px-4 flex-1 max-h-[550px]"
           variants={containerVariants}
         >
           {/* Medical Professionals Card */}
@@ -185,7 +185,7 @@ export default function Hero() {
             />
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[600px] p-6 sm:p-10 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
+            <div className="relative min-h-[300px] sm:min-h-[350px] md:min-h-[380px] lg:h-full p-6 sm:p-8 flex flex-col items-center md:items-start justify-end gap-3 text-white text-center md:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -198,7 +198,7 @@ export default function Hero() {
                   </div>
                   <div>
                     <h2 className="text-lg sm:text-xl md:text-[30px] leading-none font-bold font-poppins mb-2 tracking-normal">For Medical Professionals</h2>
-                    <p className="text-sm sm:text-base md:text-[20px] leading-[26px] font-normal font-poppins opacity-90 tracking-normal">Your career, your choice — no middlemen.</p>
+                    <p className="text-sm sm:text-base md:text-[20px] leading-[26px] font-normal font-poppins opacity-90 tracking-normal">Your career. Your choice. No middlemen.</p>
                   </div>
                 </div>
               </motion.div>
@@ -208,6 +208,7 @@ export default function Hero() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
+                className='mt-3'
               >
                 <motion.div
                   variants={buttonVariants}
@@ -219,7 +220,7 @@ export default function Hero() {
                     href={'/medical-professionals'}
                     className="bg-white text-cyan-500 hover:bg-cyan-50 w-full max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
                   >
-                    Get started
+                    Explore Opportunities
                   </Link>
                 </motion.div>
               </motion.div>
@@ -248,7 +249,7 @@ export default function Hero() {
             />
             <div className="absolute inset-0 bg-slate-900/40" />
 
-            <div className="relative min-h-[400px] sm:min-h-[450px] md:min-h-[500px] lg:min-h-[600px] p-6 sm:p-10 flex flex-col items-center md:items-start justify-end gap-6 text-white text-center md:text-left">
+            <div className="relative min-h-[300px] sm:min-h-[350px] md:min-h-[380px] lg:h-full p-6 sm:p-8 flex flex-col items-center md:items-start justify-end gap-3 text-white text-center md:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -261,7 +262,8 @@ export default function Hero() {
                   </div>
                   <div>
                     <h2 className="text-lg sm:text-xl md:text-[30px] leading-none font-bold font-poppins mb-2 tracking-normal">For Hospitals & Institutions</h2>
-                    <p className="text-sm sm:text-base md:text-[20px] leading-[26px] font-normal font-poppins opacity-90 tracking-normal">Skip agencies—hire verified healthcare faster.</p>
+                    <p className="text-sm sm:text-base md:text-[20px] leading-[26px] font-normal font-poppins opacity-90 tracking-normal">Skip agencies. Hire verified healthcare talent
+                      faster.</p>
                   </div>
                 </div>
               </motion.div>
@@ -271,6 +273,7 @@ export default function Hero() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
+                className='mt-3'
               >
                 <motion.div
                   variants={buttonVariants}
@@ -282,7 +285,7 @@ export default function Hero() {
                     href={'/hospitals-and-institutes'}
                     className="bg-white text-cyan-500 hover:bg-cyan-50 w-full px-6 max-w-[281px] h-[47.22px] rounded-[15px] p-[10.11px] gap-[10.11px] font-medium font-poppins text-[18.2px] leading-none tracking-normal shadow-sm"
                   >
-                    Explore
+                    Build Your Workforce
                   </Link>
                 </motion.div>
               </motion.div>
@@ -293,10 +296,10 @@ export default function Hero() {
         <div className="container mx-auto px-4">
           {/* Trust Section */}
           <motion.div
-            className="text-center"
+            className="text-center pb-4"
             variants={itemVariants}
           >
-            <p className="text-[#475467] text-sm md:text-[14px] leading-[20px] font-normal font-sans tracking-normal">
+            <p className="text-[#475467] text-xs md:text-[13px] leading-tight font-normal font-sans tracking-normal">
               <span className="font-semibold text-[#101828]">Trusted by 50,000+ healthcare professionals</span> and{' '}
               <span className="font-semibold text-[#101828]">500+ institutions</span> worldwide
             </p>

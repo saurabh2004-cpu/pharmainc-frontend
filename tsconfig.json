@@ -38,8 +38,10 @@
     "src/components/auth",
     "src/components/logo.tsx",
     "src/app/(home)/dashboard/_components/PostedJobsTab.tsx",
-    ".next/dev/types/**/*.ts"
-, "src/components/profile/internals/ProfileSkillsTab.tsx"  ],
+    ".next/dev/types/**/*.ts",
+    "src/components/profile/internals/ProfileSkillsTab.tsx",
+    "src/components/hospitals-and-professionsla"
+  ],
   "exclude": [
     "node_modules"
   ]
