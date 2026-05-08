@@ -42,4 +42,4 @@ jobs:
             cd /var/www/sandbox 
             docker-compose pull
             docker-compose up -d
-            docker image prune -af 
+            docker image prune -af  
