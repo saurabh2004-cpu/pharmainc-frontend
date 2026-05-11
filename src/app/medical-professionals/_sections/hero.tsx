@@ -66,7 +66,7 @@ export default function Hero() {
                                 className="flex items-center gap-2 bg-white rounded-full px-4 sm:px-6 py-2 sm:py-2.5 mb-8 sm:mb-10 shadow-sm"
                             >
                                 <span className="text-black font-poppins font-[400] text-[14px] sm:text-[16px] leading-[1] tracking-normal">
-                                    No agencies. No commissions. Justopportunities.
+                                    No agencies. No commissions. Just Opportunities.
                                 </span>
                                 <ArrowUpRight size={16} className="text-black sm:w-[18px] sm:h-[18px]" />
                             </motion.div>

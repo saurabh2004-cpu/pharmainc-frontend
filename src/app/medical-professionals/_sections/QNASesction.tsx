@@ -23,6 +23,18 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
     return (
         <section className="w-full bg-white px-4 pt-8 md:pt-10 lg:pt-0  lg:py-20 lg:px-8">
             <div className="max-w-6xl mx-auto">
+                <h2
+                    className="font-semibold text-center text-gray-900 mb-8 md:mb-12 text-[1.45rem] sm:text-[2.25rem] lg:text-[2.5rem]"
+                    style={{
+                        fontFamily: "'Poppins', sans-serif",
+                        fontWeight: 600,
+                        lineHeight: '118%',
+                        letterSpacing: '0%'
+                    }}
+                >
+                    Your Questions, Answered
+                </h2>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                     {/* Left Side - QnA Content */}
                     <motion.div
@@ -32,19 +44,8 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                         transition={{ duration: 0.8 }}
                         className="w-full"
                     >
-                        <h2
-                            className="font-semibold text-gray-900 mb-8 md:mb-12 text-[1.45rem] sm:text-[2.25rem] lg:text-[2.5rem]"
-                            style={{
-                                fontFamily: "'Poppins', sans-serif",
-                                fontWeight: 600,
-                                lineHeight: '118%',
-                                letterSpacing: '0%'
-                            }}
-                        >
-                            Your Questions, Answered
-                        </h2>
 
-                        <div className="space-y-4">
+                        <div className="space-y-2">
                             {faqItems.map((item, index) => (
                                 <motion.div
                                     key={item.id}
@@ -144,7 +145,7 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                                 className="relative shadow-2xl overflow-hidden z-0 h-[25.984rem] w-[22.984rem] md:h-[25.984rem] md:w-[45.984rem] lg:h-[25.984rem] lg:w-[22.984rem] xl:w-[25.984rem] xl:h-[24.375rem] rounded-[1.38rem] opacity-100"
                             >
                                 <Image
-                                    src="/medical-professionals/qnasection-img-1.png"
+                                    src="/hospitals-and-institutes/faq-section-img-1.png"
                                     alt="Activity Panel - Healthcare Professionals"
                                     fill
                                     unoptimized
@@ -161,7 +162,7 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                                 className="absolute  -top-12 -left-16 w-48 sm:w-56 h-32 sm:h-40 z-20  rounded-xl overflow-hidden"
                             >
                                 <Image
-                                    src="/medical-professionals/qna-section-img-2.png"
+                                    src="/hospitals-and-institutes/gaq-card-1.png"
                                     alt="Activity Feed Card 1"
                                     fill
                                     className="object-cover"
@@ -174,10 +175,10 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                                 whileInView={{ opacity: 1, y: 0, rotate: 15 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.8, delay: 0.4 }}
-                                className="absolute bottom-12 sm:bottom-20 -right-16 sm:-right-25 w-56 sm:w-64 h-40 sm:h-48 z-10 rounded-xl overflow-hidden"
+                                className="absolute bottom-12 sm:bottom-6 -right-16 sm:-right-32 w-56 sm:w-64 h-40 sm:h-48 z-10 rounded-xl overflow-hidden"
                             >
                                 <Image
-                                    src="/medical-professionals/qna-section-img-2.png"
+                                    src="/hospitals-and-institutes/faq-card-2.png" 
                                     alt="Activity Feed Card 2"
                                     fill
                                     className="object-cover"

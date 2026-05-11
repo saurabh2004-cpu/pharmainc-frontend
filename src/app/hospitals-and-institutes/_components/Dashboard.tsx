@@ -19,7 +19,7 @@ const Dashboard = () => {
                 src="/hospitals-and-institutes/dashboard-3.png"
                 alt="Dashboard Mockup"
                 width={1920}
-                height={1080}
+                height={1080} 
                 className="w-full max-w-[20rem] md:max-w-[35rem] lg:max-w-[48rem] xl:max-w-[70rem] rounded-2xl  object-cover"
             />
         </motion.div>

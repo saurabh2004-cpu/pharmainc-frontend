@@ -11,28 +11,20 @@ interface AuthFormHeaderProps {
 
 export function AuthFormHeader({ icon: Icon, title, subtitle, showBackButton = true }: AuthFormHeaderProps) {
   return (
-    <div className="mb-8 w-full">
-      <div className="mb-12">
-        {showBackButton ? (
-          <div className="flex items-center gap-4">
+    <div className="mb-8 w-full flex flex-col items-center">
+      <div className="mb-8 w-full flex items-center justify-center relative">
+        {showBackButton && (
+          <div className="absolute left-0">
             <BackButton />
-            <Link href="/" className="inline-flex items-center">
-              <img
-                src="/logo.png"
-                alt="PharmInc Logo"
-                className="h-10 w-auto rounded-md"
-              />
-            </Link>
           </div>
-        ) : (
-          <Link href="/" className="inline-flex items-center">
-            <img
-              src="/logo.png"
-              alt="PharmInc Logo"
-              className="h-10 w-auto rounded-md"
-            />
-          </Link>
         )}
+        <Link href="/" className="inline-flex items-center">
+          <img
+            src="/logo.png"
+            alt="PharmInc Logo"
+            className="h-16 w-auto"
+          />
+        </Link> 
       </div>
       
       <div className="text-center">

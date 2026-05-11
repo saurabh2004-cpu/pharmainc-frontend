@@ -143,13 +143,13 @@ export default function RecruitmentProcess() {
                         <motion.div
                             animate={{ y: [0, -15, 0] }}
                             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-full h-full relative border border-transparent flex flex-col"
+                            className="w-full h-full relative border border-gray-100 flex flex-col rounded-md overflow-hidden shadow-sm bg-white"
                         >
                             <Image
                                 src="/medical-professionals/steps-1.png"
                                 alt="Decorative background elements"
                                 fill
-                                className="object-contain object-left"
+                                className="object-cover object-left"
                                 priority
                             />
 
@@ -162,7 +162,7 @@ export default function RecruitmentProcess() {
                         <h3 className="font-poppins text-[24px] md:text-[30px] font-semibold leading-[1.2] text-gray-900 mb-4 lg:mb-6">
                             Complete Your Professional Profile
                         </h3>
-                        <ul className="space-y-4 lg:space-y-8 max-w-md text-left">
+                        <ul className="space-y-4 lg:space-y-4 max-w-md text-left">
                             {[
                                 'Add specialty and department expertise',
                                 'Mention years of clinical experience',
@@ -195,7 +195,7 @@ export default function RecruitmentProcess() {
                         <h3 className="font-poppins text-[24px] md:text-[30px] font-semibold leading-[1.2] text-gray-900 mb-4 lg:mb-6">
                             Upload Credentials & Resume
                         </h3>
-                        <ul className="space-y-4 lg:space-y-8 max-w-md text-left">
+                        <ul className="space-y-4  max-w-md text-left">
                             {[
                                 'Upload medical licenses and certifications',
                                 'Add updated resume and portfolio',
@@ -220,14 +220,14 @@ export default function RecruitmentProcess() {
                             variants={itemVariants}
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                            className="absolute -top-8  md:-right-24 md:-top-10   lg:-right-2 w-[100%] md:w-[130%] h-[90%] md:h-[130%] z-10"
+                            className="absolute -top-8  md:-right-24 md:-top-10   lg:-right-2 w-[100%] md:w-[100%] h-[90%] md:h-[160%] z-10"
                         >
-                            <div className="relative w-full h-full rounded-3xl">
+                            <div className="relative w-full h-full rounded-md overflow-hidden shadow-sm border border-gray-100 bg-white">
                                 <Image
                                     src="/medical-professionals/steps-2.png"
                                     alt="Candidate Analysis"
                                     fill
-                                    className="object-contain lg:p-2 lg:object-right"
+                                    className="object-cover lg:object-right"
                                 />
                             </div>
                         </motion.div>
@@ -248,13 +248,13 @@ export default function RecruitmentProcess() {
                         <motion.div
                             animate={{ y: [0, -15, 0] }}
                             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-                            className="w-full h-full relative border border-transparent flex flex-col"
+                            className="w-full h-full relative border border-gray-100 flex flex-col rounded-md overflow-hidden shadow-sm bg-white"
                         >
                             <Image
                                 src="/medical-professionals/steps-3.png"
                                 alt="Decorative background elements"
                                 fill
-                                className="object-contain object-left"
+                                className="object-cover object-left"
                             />
 
 
@@ -266,7 +266,7 @@ export default function RecruitmentProcess() {
                         <h3 className="font-poppins text-[24px] md:text-[30px] font-semibold leading-[1.2] text-gray-900 mb-4 lg:mb-6">
                             Discover Matching Opportunities
                         </h3>
-                        <ul className="space-y-4 lg:space-y-8 max-w-md text-left">
+                        <ul className="space-y-4  max-w-md text-left">
                             {[
                                 'Access verified healthcare institutions',
                                 'Explore specialty-based job openings',
@@ -317,13 +317,13 @@ export default function RecruitmentProcess() {
                             />
                         </div> */}
                         {/* Chat Interface Mockup */}
-                        <div className="w-full flex justify-center lg:justify-end items-start relative z-0 mt-4 sm:mt-0">
+                        <div className="w-full flex justify-center lg:justify-end items-start relative z-0 mt-4 sm:mt-0 rounded-md overflow-hidden shadow-sm border border-gray-100 bg-white">
                             <Image
                                 src="/medical-professionals/steps-4.png"
                                 alt="Interview Screen Mockup"
                                 width={569}
                                 height={344}
-                                className="object-contain w-[98%] sm:w-[569px] h-auto max-w-full lg:object-right"
+                                className="object-cover w-[98%] sm:w-[569px] h-auto max-w-full lg:object-right"
                             />
                         </div>
                     </motion.div>
@@ -333,7 +333,7 @@ export default function RecruitmentProcess() {
                         <h3 className="font-poppins text-[24px] md:text-[30px] font-semibold leading-[1.6] text-gray-900 mb-4 lg:mb-6">
                             Interview & Get Hired Faster
                         </h3>
-                        <ul className="space-y-4 lg:space-y-8 max-w-md text-left">
+                        <ul className="space-y-4  max-w-md text-left">
                             {[
                                 'Schedule interviews directly with recruiters',
                                 'Track applications in one dashboard',

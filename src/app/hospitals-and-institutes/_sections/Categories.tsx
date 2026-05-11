@@ -88,7 +88,7 @@ export default function Categories() {
                         <motion.div
                             key={category.id}
                             variants={cardVariants}
-                            whileHover={{ 
+                            whileHover={{
                                 y: -8,
                                 transition: { duration: 0.3 }
                             }}
@@ -131,7 +131,7 @@ export default function Categories() {
                                     </p>
 
                                     {/* Explore Link */}
-                                    <div className="mt-auto">
+                                    {/* <div className="mt-auto">
                                         <motion.a
                                             href="#"
                                             whileHover={{ x: 4 }}
@@ -141,7 +141,7 @@ export default function Categories() {
                                             View Professionals
                                             <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                                         </motion.a>
-                                    </div>
+                                    </div> */}
                                 </div>
 
                                 {/* Bottom Separator Line */}

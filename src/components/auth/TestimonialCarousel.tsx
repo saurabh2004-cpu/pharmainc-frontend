@@ -3,35 +3,33 @@
 import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
 
-const testimonials = [
+export const testimonials = [
   {
     quote: "Search and find your dream job is now easier than ever. Just browse a job and apply if you need to.",
     author: "Mas Parjono",
     role: "UI Designer at Google",
+    image: "/hospitals-and-institutes/institute-profile.png",
   },
   {
     quote: "Join a trusted network of healthcare professionals advancing care through collaboration.",
     author: "Aliah Lane",
     role: "Founder, Pharma-c",
+    image: "/medical-professionals/job-listing.png", // Replace with real preview image if available
   },
   {
     quote: "The platform has transformed how we connect with medical professionals worldwide.",
     author: "Dr. Sarah Mitchell",
     role: "Chief of Surgery at Mayo Clinic",
+    image: "/hospitals-and-institutes/dashboard-3.png", // Replace with real preview image if available
   },
 ];
 
-export function TestimonialCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+interface TestimonialCarouselProps {
+  currentIndex: number;
+  setCurrentIndex: (index: number | ((prev: number) => number)) => void;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-    }, 5000); // Change every 5 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
+export function TestimonialCarousel({ currentIndex, setCurrentIndex }: TestimonialCarouselProps) {
   const currentTestimonial = testimonials[currentIndex];
 
   return (

@@ -46,9 +46,40 @@ export default function Insights() {
         'Improve response time for urgent staffing needs',
     ];
 
+    const desktopCards = [
+        {
+            id: 1,
+            src: "/hospitals-and-institutes/candidate-pipeline.png",
+            width: "13rem",
+            height: "20rem",
+            marginTop: "16rem",
+        },
+        {
+            id: 2,
+            src: "/hospitals-and-institutes/staffing-request-management.png",
+            width: "14rem",
+            height: "22rem",
+            marginTop: "5rem",
+        },
+        {
+            id: 3,
+            src: "/hospitals-and-institutes/credential-verification-status.png",
+            width: "12rem",
+            height: "18rem",
+            marginTop: "18rem",
+        },
+        {
+            id: 4,
+            src: "/hospitals-and-institutes/availability-dashboard.png",
+            width: "12rem",
+            height: "18rem",
+            marginTop: "8rem",
+        },
+    ];
+
     return (
         <section className="w-full bg-white px-4 sm:px-6 pt-12 sm:pt-16 md:pt-0">
-            <div className="max-w-6xl mx-auto">
+            <div className="max-w-7xl mx-auto ">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
@@ -84,118 +115,99 @@ export default function Insights() {
                         </ul>
                     </motion.div>
 
-                    {/* ── Desktop (lg+): original absolute zig-zag layout — UNCHANGED ── */}
+                    {/* ── Desktop (lg+): infinitely scrolling zig-zag layout ── */}
                     <motion.div
-                        className="relative h-[650px] w-full hidden lg:block over"
+                        className="relative h-[650px] w-full hidden lg:block overflow-hidden"
                         variants={itemVariants}
+                        style={{
+                            maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)'
+                        }}
                     >
-                        <motion.div
-                            custom={0}
-                            variants={cardVariants}
-                            className="absolute top-[16rem] -left-20 w-[13rem] h-[20rem]"
-                        >
-                            <Image
-                                src="/hospitals-and-institutes/insights-card-1.png"
-                                alt="Insights Card 1"
-                                fill
-                                className="object-contain"
-                            />
-                        </motion.div>
 
                         <motion.div
-                            custom={1}
-                            variants={cardVariants}
-                            className="absolute top-20 left-[9.6rem] w-[14rem] h-[22rem]"
+                            className="flex gap-8 w-max"
+                            animate={{ x: ["0%", "-50%"] }}
+                            transition={{
+                                repeat: Infinity,
+                                ease: "linear",
+                                duration: 30,
+                            }}
                         >
-                            <Image
-                                src="/hospitals-and-institutes/insights-card-2.png"
-                                alt="Insights Card 2"
-                                fill
-                                className="object-contain"
-                            />
-                        </motion.div>
-
-                        <motion.div
-                            custom={2}
-                            variants={cardVariants}
-                            className="absolute top-[18rem] left-[25rem] w-[12rem] h-[18rem]"
-                        >
-                            <Image
-                                src="/hospitals-and-institutes/insights-card-3.png"
-                                alt="Insights Card 3"
-                                fill
-                                className="object-contain"
-                            />
-                        </motion.div>
-
-                        <motion.div
-                            custom={3}
-                            variants={cardVariants}
-                            className="absolute top-[8rem] left-[39.1rem] w-[6.4rem] h-[15rem]"
-                        >
-                            <Image
-                                src="/hospitals-and-institutes/insights-card-4.png"
-                                alt="Insights Card 4"
-                                fill
-                                className="object-contain"
-                            />
+                            {[...desktopCards, ...desktopCards].map((card, index) => (
+                                <div
+                                    key={index}
+                                    className="relative flex-shrink-0"
+                                    style={{
+                                        width: card.width,
+                                        height: card.height,
+                                        marginTop: card.marginTop,
+                                    }}
+                                >
+                                    <Image
+                                        src={card.src}
+                                        alt={`Insights Card ${card.id}`}
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
+                            ))}
                         </motion.div>
                     </motion.div>
 
-                    {/* ── Mobile & Tablet (below lg): zig-zag row with snap scroll ── */}
+                    {/* ── Mobile & Tablet (below lg): infinitely scrolling zig-zag row ── */}
                     <motion.div
                         variants={itemVariants}
-                        className="lg:hidden w-full mx-auto overflow-x-auto pb-4 -mx-4 px-4 snap-x snap-mandatory"
-                        style={{ scrollbarWidth: 'none' }}
+                        className="lg:hidden w-full mx-auto overflow-hidden pb-4 mt-8"
+                        style={{
+                            maskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)',
+                            WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%, black 100%)'
+                        }}
                     >
-                        {/* Inner row with staggered vertical offsets to echo the zig-zag */}
-                        <div className="flex gap-3 sm:gap-4 items-end w-max">
+                        <motion.div
+                            className="flex gap-4 w-max h-[280px]"
+                            animate={{ x: ["0%", "-50%"] }}
+                            transition={{
+                                repeat: Infinity,
+                                ease: "linear",
+                                duration: 20,
+                            }}
+                        >
+                            {[...desktopCards, ...desktopCards].map((card, index) => {
+                                let mWidth = "140px";
+                                let mHeight = "200px";
+                                let alignment = "self-end";
 
-                            {/* Card 1 — profile, bottom-aligned (lowest) */}
-                            <motion.div
-                                custom={0}
-                                variants={cardVariants}
-                                className="relative flex-shrink-0 snap-start"
-                                style={{ width: 140, height: 200 }}
-                            >
-                                <Image
-                                    src="/hospitals-and-institutes/insights-card-1.png"
-                                    alt="Insights Card 1"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </motion.div>
+                                if (card.id === 2) {
+                                    mWidth = "155px";
+                                    mHeight = "260px";
+                                    alignment = "self-start mt-2";
+                                } else if (card.id === 3) {
+                                    mWidth = "140px";
+                                    mHeight = "220px";
+                                    alignment = "self-end mb-4";
+                                } else if (card.id === 4) {
+                                    mWidth = "110px";
+                                    mHeight = "190px";
+                                    alignment = "self-start mt-6";
+                                }
 
-                            {/* Card 2 — tallest, raised up via negative margin */}
-                            <motion.div
-                                custom={1}
-                                variants={cardVariants}
-                                className="relative flex-shrink-0 snap-start self-start"
-                                style={{ width: 155, height: 260 }}
-                            >
-                                <Image
-                                    src="/hospitals-and-institutes/insights-card-2.png"
-                                    alt="Insights Card 2"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </motion.div>
-
-                            {/* Card 3 — medium, bottom-aligned */}
-                            {/* <motion.div
-                                custom={2}
-                                variants={cardVariants}
-                                className="relative flex-shrink-0 snap-start"
-                                style={{ width: 140, height: 220 }}
-                            >
-                                <Image
-                                    src="/hospitals-and-institutes/insights-card-3.png"
-                                    alt="Insights Card 3"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </motion.div> */}
-                        </div>
+                                return (
+                                    <div
+                                        key={index}
+                                        className={`relative flex-shrink-0 ${alignment}`}
+                                        style={{ width: mWidth, height: mHeight }}
+                                    >
+                                        <Image
+                                            src={card.src}
+                                            alt={`Insights Card ${card.id}`}
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </motion.div>
                     </motion.div>
 
                 </motion.div>

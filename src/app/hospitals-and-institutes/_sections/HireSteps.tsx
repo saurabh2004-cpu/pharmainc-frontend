@@ -108,18 +108,18 @@ const HireSteps = () => {
                                     }`}
                             >
                                 <div className='flex flex-col max-w-[26rem] lg:max-w-[22.75rem]'>
-                                    <div className={`flex items-center gap-3 mb-4 ${step.position === 'right' ? 'md:justify-end' : 'md:justify-start'}`}>
+                                    <div className={`flex items-center gap-3 xl:mb-4 ${step.position === 'right' ? 'md:justify-end' : 'md:justify-start'}`}>
                                         {step.position === 'right' ? (
                                             <>
                                                 <span className="hidden md:block w-[64px] h-[4px] rounded-full bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)]"></span>
-                                                <span className="font-inter font-bold text-[40px] md:text-[60px] leading-tight md:leading-[60px] bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)] bg-clip-text text-transparent">
+                                                <span className="font-inter font-bold text-[30px] md:text-[30px] xl:text-[60px] leading-tight md:leading-[60px] bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)] bg-clip-text text-transparent">
                                                     {step.number}
                                                 </span>
                                                 <span className="md:hidden w-[40px] h-[3px] rounded-full bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)]"></span>
                                             </>
                                         ) : (
                                             <>
-                                                <span className="font-inter font-bold text-[40px] md:text-[60px] leading-tight md:leading-[60px] bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)] bg-clip-text text-transparent">
+                                                <span className="font-inter font-bold text-[30px] md:text-[30px] xl:text-[60px] leading-tight md:leading-[60px] bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)] bg-clip-text text-transparent">
                                                     {step.number}
                                                 </span>
                                                 <span className="w-[40px] md:w-[64px] h-[3px] md:h-[4px] rounded-full bg-[linear-gradient(90deg,#08D5CE_0%,#8DEFA4_100%)]"></span>
@@ -127,7 +127,7 @@ const HireSteps = () => {
                                         )}
                                     </div>
                                     <div className="">
-                                        <h3 className="text-[26px] md:text-[30px] lg:text-[36px] font-medium font-inter leading-tight md:leading-[40px] text-gray-900 mb-4 text-left">
+                                        <h3 className="text-[26px] md:text-[20px] lg:text-[36px] font-medium font-inter leading-tight md:leading-[40px] text-gray-900 xl:mb-4 text-left">
                                             {step.title}
                                         </h3>
                                         <p
@@ -143,17 +143,17 @@ const HireSteps = () => {
                             <motion.div
                                 whileHover={{ scale: 1.02 }}
                                 transition={{ type: 'spring', stiffness: 300 }}
-                                className={`flex-1 w-full max-w-[27rem] mx-auto md:max-w-none flex justify-center ${step.position === 'right' ? 'md:order-2' : 'md:order-1'
+                                className={`flex-1  w-full max-w-[27rem] mx-auto md:max-w-none flex justify-center ${step.position === 'right' ? 'md:order-2' : 'md:order-1'
                                     }`}
                             >
                                 <div
-                                    className="relative w-full aspect-[4/3] md:aspect-auto md:h-[350px] lg:h-[400px]"
+                                    className="relative w-full  aspect-[4/3] md:aspect-auto  md:h-[250px] lg:h-[350px] rounded-2xl overflow-hidden shadow-md border border-gray-100"
                                 >
                                     <Image
                                         src={step.image}
                                         alt={step.title}
                                         fill
-                                        className="object-contain"
+                                        className="object-fill"
                                         priority={index === 0}
                                     />
                                 </div>

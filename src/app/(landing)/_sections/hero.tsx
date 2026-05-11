@@ -130,21 +130,21 @@ export default function Hero() {
             className="text-center"
             variants={itemVariants}
           >
-            <h1 className="text-4xl sm:text-5xl md:text-5xl  font-[900] font-figtree mb-2 leading-[1.1] tracking-tight bg-clip-text text-transparent bg-[linear-gradient(90deg,_#000000_20%,_#08D5CE_40%,_#8DEFA4_60%,_#08D5CE_80%,_#000000_100%)] bg-[length:200%_auto] animate-gradient-flow inline-block">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl  font-[900] font-figtree mb-2 leading-[1.1] tracking-tight bg-clip-text text-transparent bg-[linear-gradient(90deg,_#000000_20%,_#08D5CE_40%,_#8DEFA4_60%,_#08D5CE_80%,_#000000_100%)] bg-[length:200%_auto] animate-gradient-flow inline-block">
               <motion.span
                 className="block"
                 custom={0}
                 variants={textRevealVariants}
               >
-                Healthcare Access
+                Healthcare Access  Network
               </motion.span>
-              <motion.span
+              {/* <motion.span
                 className="block"
                 custom={1}
                 variants={textRevealVariants}
               >
                 Network
-              </motion.span>
+              </motion.span> */}
             </h1>
 
           </motion.div>
@@ -173,7 +173,7 @@ export default function Hero() {
             <motion.div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: `url('/home-images/healthcare-professionals.png')`,
+                backgroundImage: `url('/home-images/left-image-1.jpeg')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 height: '100%',

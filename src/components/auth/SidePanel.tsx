@@ -1,7 +1,18 @@
+'use client'
+import { useState, useEffect } from "react";
+import { TestimonialCarousel, testimonials } from "./TestimonialCarousel";
 import Image from "next/image";
-import { TestimonialCarousel } from "./TestimonialCarousel";
 
 export function SidePanel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    }, 5000); // Same interval as progress bars
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="hidden lg:flex h-full animated-gradient flex-col justify-between p-12 relative overflow-hidden">
       <style>{`
@@ -23,20 +34,45 @@ export function SidePanel() {
           }
         }
       `}</style>
-      <TestimonialCarousel />
+      <TestimonialCarousel currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
 
-      <div className="relative z-10 flex justify-center items-end translate-y-24">
+      <div className="relative z-10 flex justify-center items-end translate-y-8 w-full max-w-2xl mx-auto px-4">
         <div className="relative w-full">
-          <Image
-            src="/auth/intro.webp"
-            alt="PharmInc Platform Preview"
-            width={1200}
-            height={600}
-            className="w-full h-auto object-cover"
-            priority
-          />
+          {/* Symmetrical Frame */}
+          <div className="relative bg-slate-900 rounded-xl p-[6px] border border-white/10 shadow-2xl overflow-hidden">
+            {/* Webcam / Camera Dot */}
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-slate-800 rounded-full border border-white/5 flex items-center justify-center z-20">
+              <div className="w-0.5 h-0.5 bg-blue-500/20 rounded-full"></div>
+            </div>
+
+            {/* Screen Content Wrapper */}
+            <div className="relative overflow-hidden rounded-lg bg-black aspect-image shadow-inner">
+              <Image
+                key={currentIndex}
+                src={testimonials[currentIndex].image}
+                alt="PharmInc Platform Preview"
+                width={1920}
+                height={1080}
+                className="object-cover animate-imageFade"
+                priority
+              />
+            </div>
+          </div>
+
+          {/* Floor Shadow */}
+          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-[90%] h-6 bg-black/30 blur-2xl rounded-full -z-10"></div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes imageFade {
+          from { opacity: 0.8; transform: scale(0.98); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-imageFade {
+          animation: imageFade 0.8s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

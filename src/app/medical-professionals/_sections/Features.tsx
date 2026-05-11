@@ -87,10 +87,10 @@ export default function Features({ features, heading }: { features: FeatureCard[
                 whileInView="visible"
                 viewport={{ once: true }}
                 variants={containerVariants}
-                className="max-w-6xl mx-auto"
+                className="max-w-8xl mx-auto"
             >
                 {/* Badge */}
-                <motion.div variants={itemVariants} className="flex justify-start mb-6 sm:mb-8">
+                <motion.div variants={itemVariants} className="flex justify-center mb-6 sm:mb-8">
                     <div className="bg-white text-gray-900 px-6 sm:px-8 py-[10px] rounded-full font-poppins font-normal text-[14px] sm:text-[16px] leading-none tracking-normal text-center flex items-center justify-center shadow-sm">
                         Our features
                     </div>
@@ -99,7 +99,7 @@ export default function Features({ features, heading }: { features: FeatureCard[
                 {/* Heading */}
                 <motion.h2
                     variants={itemVariants}
-                    className="font-poppins font-semibold text-[25px] lg:text-[35px] leading-none tracking-normal text-white mb-10 sm:mb-12 lg:mb-16 text-balance"
+                    className="font-poppins font-semibold text-[25px] text-center lg:text-[35px] leading-none tracking-normal text-white mb-10 sm:mb-12 lg:mb-16 text-balance"
                 >
                     {heading}
                 </motion.h2>
@@ -149,14 +149,14 @@ export default function Features({ features, heading }: { features: FeatureCard[
                     {/* Navigation Buttons */}
                     <button
                         onClick={scrollPrev}
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-[#233F64] hover:bg-cyan-50 transition-colors z-20 disabled:opacity-50 disabled:cursor-not-allowed group-hover/carousel:translate-x-0 lg:group-hover/carousel:-translate-x-6 opacity-0 group-hover/carousel:opacity-100 transition-all duration-300"
+                        className="absolute left-2 md:left-0 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-[#233F64] hover:bg-cyan-50 transition-colors z-30 disabled:opacity-50 disabled:cursor-not-allowed opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 translate-x-0 md:-translate-x-4 lg:-translate-x-12 md:group-hover/carousel:translate-x-0 lg:group-hover/carousel:-translate-x-6 transition-all duration-300"
                         aria-label="Previous slide"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
                     <button
                         onClick={scrollNext}
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-[#233F64] hover:bg-cyan-50 transition-colors z-20 disabled:opacity-50 disabled:cursor-not-allowed group-hover/carousel:translate-x-0 lg:group-hover/carousel:translate-x-6 opacity-0 group-hover/carousel:opacity-100 transition-all duration-300"
+                        className="absolute right-2 md:right-0 top-1/2 -translate-y-1/2 w-10 h-10 lg:w-12 lg:h-12 bg-white rounded-full flex items-center justify-center shadow-lg text-[#233F64] hover:bg-cyan-50 transition-colors z-30 disabled:opacity-50 disabled:cursor-not-allowed opacity-100 md:opacity-0 md:group-hover/carousel:opacity-100 translate-x-0 md:translate-x-4 lg:translate-x-12 md:group-hover/carousel:translate-x-0 lg:group-hover/carousel:translate-x-6 transition-all duration-300"
                         aria-label="Next slide"
                     >
                         <ChevronRight className="w-6 h-6" />
