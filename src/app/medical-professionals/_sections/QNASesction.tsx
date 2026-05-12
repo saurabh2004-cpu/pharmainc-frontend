@@ -162,7 +162,7 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                                 className="absolute  -top-12 -left-16 w-48 sm:w-56 h-32 sm:h-40 z-20  rounded-xl overflow-hidden"
                             >
                                 <Image
-                                    src="/hospitals-and-institutes/gaq-card-1.png"
+                                    src="/hospitals-and-institutes/faq-card-1.png"
                                     alt="Activity Feed Card 1"
                                     fill
                                     className="object-cover"
@@ -178,7 +178,7 @@ export default function QnA({ faqItems }: { faqItems: FAQItem[] }) {
                                 className="absolute bottom-12 sm:bottom-6 -right-16 sm:-right-32 w-56 sm:w-64 h-40 sm:h-48 z-10 rounded-xl overflow-hidden"
                             >
                                 <Image
-                                    src="/hospitals-and-institutes/faq-card-2.png" 
+                                    src="/hospitals-and-institutes/faq-card-2.png"
                                     alt="Activity Feed Card 2"
                                     fill
                                     className="object-cover"

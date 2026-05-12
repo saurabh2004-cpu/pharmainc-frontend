@@ -65,7 +65,7 @@ export default function Hero() {
 
     return (
         <div
-            className="relative w-full overflow-hidden pb-46 md:pb-85 lg:pb-115 xl:pb-100"
+            className="relative w-full overflow-hidden pb-46 md:pb-85 lg:pb-115 "
         >
             <div className="absolute inset-0 opacity-20 mix-blend-overlay pointer-events-none" />
 
