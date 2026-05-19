@@ -4,10 +4,12 @@ import { motion, Variants, useMotionValue, useSpring } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
+    const router = useRouter();
 
     // Smooth the mouse movement
     const springConfig = { damping: 25, stiffness: 150 };
@@ -140,6 +142,7 @@ export default function Hero() {
                     <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={() => router.push('/auth/institute?type=signin')}
                         className="w-full z-30 sm:w-auto px-8 sm:px-14 h-[47px] bg-[linear-gradient(93.47deg,_#08D5CE_5.51%,_#8DEFA4_93.19%)] text-white rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal flex items-center justify-center gap-2 shadow-xl hover:shadow-2xl transition-all"
                     >
                         Post Requirement
@@ -147,6 +150,7 @@ export default function Hero() {
                     <motion.button
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.98 }}
+                        onClick={() => router.push('/auth/institute?type=signin')}
                         className="w-full z-30 sm:w-auto px-8 sm:px-14 h-[47px] border-[1.5px] border-white text-white rounded-full font-poppins font-normal text-[16px] sm:text-[18.2px] leading-none tracking-normal hover:bg-white/5 transition-all flex items-center justify-center"
                     >
                         Review Professionals

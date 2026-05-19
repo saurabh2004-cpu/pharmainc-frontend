@@ -2,6 +2,7 @@
 
 import { motion, Variants } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -27,6 +28,7 @@ const itemVariants: Variants = {
 };
 
 export default function Hero() {
+    const router = useRouter()
     return (
         <div className="w-full bg-[#c6f7dd]">
             {/* Responsive SVG Clip Path Definitions */}
@@ -109,6 +111,7 @@ export default function Hero() {
                                         backfaceVisibility: 'hidden',
                                         transform: 'translateZ(0)'
                                     }}
+                                    onClick={() => router.push('/auth/doctor?type=signin')}
                                 >
                                     Get Started
                                     <ArrowUpRight size={20} />
@@ -122,6 +125,7 @@ export default function Hero() {
                                         backfaceVisibility: 'hidden',
                                         transform: 'translateZ(0)'
                                     }}
+                                    onClick={() => router.push('/auth/doctor?type=signin')}
                                 >
                                     Browse Jobs
                                 </motion.button>

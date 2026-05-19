@@ -5,7 +5,7 @@ import { motion, Variants, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEntityStore } from '@/store/entityStore';
 import { EntityType } from '@/lib/api/types';
 
@@ -59,6 +59,7 @@ export default function Navbar({ bg }) {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
     const { entity, entityType } = useEntityStore();
+    const router = useRouter();
 
     const ishospitalsAndInstitutePage = pathname?.toLowerCase() === '/hospitals-and-institutes';
     const isLoggedIn = !!entity;
@@ -96,6 +97,7 @@ export default function Navbar({ bg }) {
                         alt="Logo"
                         width={140}
                         height={140}
+                        onClick={() => router.push('/')}
                         className=" rounded-full  "
                     />
                 </div>
