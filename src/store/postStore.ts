@@ -25,7 +25,7 @@ interface PostState {
   sharePost: (postId: string | number) => Promise<void>
   savePost: (postId: string | number) => void
   clearPosts: () => void
-  createNewPost: (postData: { title: string; content: string; attachment_id?: string }) => Promise<void>
+  createNewPost: (postData: { title: string; content: string; attachment_id?: string }) => Promise<Post>
   // TEMPORARY FIX START - Add utility method to check if post is liked
   isPostLikedByCurrentUser: (postId: string | number) => boolean
   // TEMPORARY FIX END
