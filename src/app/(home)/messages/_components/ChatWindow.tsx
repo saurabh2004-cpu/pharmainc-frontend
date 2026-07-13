@@ -229,7 +229,36 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                                                 )}
                                             </div>
                                         )}
-                                        {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
+                                        {msg.content && (() => {
+                                            let isFeedback = false;
+                                            let feedbackTitle = '';
+                                            let feedbackMsg = msg.content;
+                                            
+                                            if (msg.content.startsWith('**Feedback Type:**\n')) {
+                                                const parts = msg.content.split('\n\n**Message:**\n');
+                                                if (parts.length === 2) {
+                                                    isFeedback = true;
+                                                    feedbackTitle = parts[0].replace('**Feedback Type:**\n', '');
+                                                    feedbackMsg = parts[1];
+                                                }
+                                            }
+                                            
+                                            return isFeedback ? (
+                                                <div className="flex flex-col gap-1.5">
+                                                    <div className="border-l-4 border-[#E85D04] bg-black/5 p-2 rounded-r-md rounded-l-sm">
+                                                        <span className="text-[#E85D04] font-bold text-xs block mb-0.5">
+                                                            {isMe ? 'Feedback Type' : `${displayName} (Feedback)`}
+                                                        </span>
+                                                        <span className={cn("text-xs italic leading-tight block", isMe ? "text-gray-700" : "text-gray-600")}>
+                                                            {feedbackTitle}
+                                                        </span>
+                                                    </div>
+                                                    <p className="text-sm whitespace-pre-wrap">{feedbackMsg}</p>
+                                                </div>
+                                            ) : (
+                                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                            );
+                                        })()}
                                     </div>
                                     <div className="text-[10px] mt-2 mb-2 self-end text-gray-400 px-2 min-w-[40px]">
                                         {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

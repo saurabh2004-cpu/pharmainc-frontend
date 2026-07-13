@@ -49,7 +49,7 @@ const navigations = [
   {
     href: '/find-jobs/applied', icon: HiBriefcase, label: 'Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"],
     subheadings: [
-      { href: '/find-jobs/applied', icon: HiCheckCircle, label: 'Applied Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
+      { href: '/find-jobs/applied', icon: HiCheckCircle, label: 'Track Applications', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] },
       // { href: '/find-jobs/saved-jobs', icon: HiBookmark, label: 'Saved Jobs', userTypes: ['STUDENT', 'DOCTOR', 'NURSE', "OTHER"] }
     ]
   },
@@ -211,11 +211,11 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
                         <Link
                           key={subHref}
                           href={subHref}
-                          className={`flex items-center gap-3 px-4 py-2 rounded-full hover:bg-gray-100 transition-colors ${isActive(subHref) ? 'bg-gray-100' : ''
+                          className={`flex items-center gap-3 py-2 rounded-full hover:bg-gray-100 transition-colors ${isActive(subHref) ? 'bg-gray-100' : ''
                             }`}
                         >
                           <SubIcon className={`h-5 w-5 text-gray-600`} />
-                          <span className={`text-base text-gray-700 ${isActive(subHref) ? 'font-semibold text-gray-900' : ''}`}>
+                          <span className={`text-sm text-gray-700 ${isActive(subHref) ? 'font-semibold text-gray-900' : ''}`}>
                             {subLabel}
                           </span>
                         </Link>
@@ -249,10 +249,10 @@ export default function LeftSidebar({ user = null }: LeftSidebarProps) {
             {/* Desktop View */}
             <div className="xl:flex hidden flex-col w-full h-full relative" ref={profileMenuRef}>
               <div className="bg-gradient-to-b from-[#D2F0F2] via-[#D9F7F1] to-[#E6FCFA] 
-rounded-[24px] p-5 pb-5 flex flex-col 
-border border-gray-100 
-shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] 
-h-auto overflow-hidden">
+                  rounded-[24px] p-5 pb-5 flex flex-col 
+                  border border-gray-100 
+                  shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] 
+                  h-auto overflow-hidden">
                 <div className="flex items-center gap-3 w-full mb-5">
                   <div className="w-[56px] h-[56px] flex-shrink-0 bg-white rounded-[16px] shadow-sm overflow-hidden border border-black/5 z-10 relative">
                     {sidebarProfilePicture ? (

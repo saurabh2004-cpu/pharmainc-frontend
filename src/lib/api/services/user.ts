@@ -8,6 +8,7 @@ import {
   PaginatedResponse,
   SearchUsersResponse,
 } from "@/lib/api/types";
+import { cleanRegex } from "node_modules/zod/v4/core/util.cjs";
 
 export const createUser = async (userData: UserCreateParams): Promise<User> => {
   console.log("Creating user with data:", userData);
@@ -69,5 +70,9 @@ export const downloadResume = async (userId: string): Promise<Blob> => {
 
 export const checkProfileCompletion = async (): Promise<{ isVerified: boolean; isComplete: boolean; isLincenceExpired?: boolean; error?: string }> => {
   const response = await baseApi.get('/user/check-profile-completion');
+  return response.data;
+};
+export const checkProfileCompletionPopup = async (): Promise<{ isVerified: boolean; isComplete: boolean; isLincenceExpired?: boolean; error?: string }> => {
+  const response = await baseApi.get('/user/check-profile-completion-popup');
   return response.data;
 };

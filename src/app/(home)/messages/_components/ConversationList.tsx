@@ -78,7 +78,16 @@ const ConversationList: React.FC<ConversationListProps> = ({
                                     </div>
                                     <p className="text-xs text-gray-500 truncate mt-1">
                                         {lastMessage ? (
-                                            lastMessage.content || (lastMessage.mediaUrl ? 'Sent a file' : '')
+                                            (() => {
+                                                const content = lastMessage.content;
+                                                if (content && content.startsWith('**Feedback Type:**\n')) {
+                                                    const parts = content.split('\n\n**Message:**\n');
+                                                    if (parts.length === 2) {
+                                                        return parts[1];
+                                                    }
+                                                }
+                                                return content || (lastMessage.mediaUrl ? 'Sent a file' : '');
+                                            })()
                                         ) : (
                                             'No messages yet'
                                         )}

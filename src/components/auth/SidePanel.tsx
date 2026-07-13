@@ -36,7 +36,7 @@ export function SidePanel() {
       `}</style>
       <TestimonialCarousel currentIndex={currentIndex} setCurrentIndex={setCurrentIndex} />
 
-      <div className="relative z-10 flex justify-center items-end translate-y-8 w-full max-w-2xl mx-auto px-4">
+      <div className="relative z-10 flex justify-center items-end translate-y-8 w-full max-w-7xl xl:max-w-7xl 2xl:max-w-[150rem] mx-auto px-2">
         <div className="relative w-full">
           {/* Symmetrical Frame */}
           <div className="relative bg-slate-900 rounded-xl p-[6px] border border-white/10 shadow-2xl overflow-hidden">
@@ -46,14 +46,19 @@ export function SidePanel() {
             </div>
 
             {/* Screen Content Wrapper */}
-            <div className="relative overflow-hidden rounded-lg bg-black aspect-image shadow-inner">
+            <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-black shadow-inner 2xl:rounded-2xl">
               <Image
                 key={currentIndex}
                 src={testimonials[currentIndex].image}
                 alt="PharmInc Platform Preview"
-                width={1920}
-                height={1080}
-                className="object-cover animate-imageFade"
+                fill
+                sizes="
+                  (min-width: 1536px) 896px,
+                  (min-width: 1280px) 672px,
+                  (min-width: 1024px) 576px,
+                  100vw
+                "
+                className="object-cover-cover animate-imageFade"
                 priority
               />
             </div>

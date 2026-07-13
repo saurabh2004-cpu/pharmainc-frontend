@@ -12,6 +12,9 @@ import JobRightSidebar from './_components/JobRightSidebar';
 import { useJobStore, useUserStore } from '@/store';
 import { searchJobs, listJobs } from '@/lib/api/services/job';
 import { Job, Institution } from '@/lib/api/types';
+// import HomeFeedbackPopup from './_components/popup';
+import ProfileCompletionBanner from './_components/completeProfileBanner';
+import MedicalNewsSidebar from './_components/trendingNews';
 
 interface JobWithInstitution extends Job {
   institution?: Institution;
@@ -170,6 +173,8 @@ const FindJobsPage = () => {
 
   return (
     <div className="bg-[#F3F6FD] min-h-screen mb-12 lg:mb-0">
+      {/* <ProfileCompletionBanner /> */}
+      {/* <HomeFeedbackPopup /> */}
       <div className="px-2 sm:px-4 lg:px-2 max-w-[1600px] mx-auto flex flex-col lg:flex-row lg:gap-2 pt-6">
         <div className="w-full lg:flex-1 lg:min-w-0">
           {/* Top Search Bar */}
@@ -383,6 +388,7 @@ const FindJobsPage = () => {
           </div>
 
           <div className="space-y-4">
+            <ProfileCompletionBanner />
             <JobList
               jobs={sortedJobs}
               loading={loading}
@@ -413,14 +419,15 @@ const FindJobsPage = () => {
         </div>
 
         <div className="hidden lg:block">
-          <JobRightSidebar
+          {/* <JobRightSidebar
             searchQuery={searchQuery}
             totalJobs={totalJobs}
             filters={filters}
             onFilterChange={handleFilterChange}
             formatTimeAgo={formatTimeAgo}
             currentUserId={currentUser?.id}
-          />
+          /> */}
+          <MedicalNewsSidebar />
         </div>
 
         {/* Mobile Sidebar Overlay */}

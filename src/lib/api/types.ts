@@ -824,3 +824,14 @@ export interface Transaction {
   package?: Package;
   institute?: Institution;
 }
+
+export enum UserFeedbackType {
+  JOB_LOOKING = "JOB_LOOKING",
+  FEATURE = "FEATURE",
+  CHAT = "CHAT",
+}
+
+export interface UserFeedback {
+  feedbackType: UserFeedbackType,
+  message: string,
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import LayoutContent from "../../components/LayoutContent";
+import ProfileStatusNotification from "./popup";
+import HomeFeedbackPopup from "./find-jobs/_components/popup";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,17 +11,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Pharminc",
-  description: "", 
+  description: "",
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) { 
   return (
     <div className={`${inter.className} min-h-screen bg-gray-50`}>
+      <HomeFeedbackPopup />
+      <ProfileStatusNotification />
       <LayoutContent>{children}</LayoutContent>
-    </div>
+    </div> 
   );
 }

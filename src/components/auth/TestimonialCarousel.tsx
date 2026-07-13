@@ -34,8 +34,8 @@ export function TestimonialCarousel({ currentIndex, setCurrentIndex }: Testimoni
 
   return (
     <div className="relative z-10 flex-1 flex flex-col justify-center">
-      <div className="max-w-xl flex flex-col gap-6">
-        {/* Progress Indicators */}
+      <div className=" flex flex-col gap-6">
+        {/* Progress Indicators */} 
         <div className="flex gap-2">
           {testimonials.map((_, index) => (
             <button
